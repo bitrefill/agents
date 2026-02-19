@@ -84,8 +84,10 @@ Prepaid airtime and data for mobile numbers in 200+ countries.
 
 ## eSIMs
 
-Travel data plans for 150+ countries.
+Travel data plans for 190+ countries.
 
+- **Discovery hub:** Full list and browse by All / Country / Region at **bitrefill.com/esim/all-destinations**.
+- Product slugs are kebab-case (e.g. `bitrefill-esim-japan`, `bitrefill-esim-global`, `bitrefill-esim-taiwan`).
 - Data-only (no voice/SMS).
 - Durations: e.g. 1, 7, 15, 30 days; data from around 1GB to unlimited.
 - Regional plans (e.g. Europe, Asia, Americas).

@@ -9,14 +9,21 @@ Use this reference when the user wants to **find** a product: search by brand, b
 | Gift cards        | bitrefill.com/{lang}/{country}/gift-cards/ | Category, country, brand search |
 | Mobile top-ups    | bitrefill.com/refill/                 | Country → carrier → amount |
 | eSIMs             | bitrefill.com/{lang}/{country}/esims/ | Country/region → data/duration |
+| eSIM all-destinations | bitrefill.com/esim/all-destinations | Browse 190+ countries/regions; then open locale-specific product page |
 | All categories    | bitrefill.com/categories              | Overview of everything |
 
 ## How to Search
 
+- **Quick discovery (direct URL):** For gift cards, go straight to the search results. Use: `https://www.bitrefill.com/{lang}/{country}/gift-cards/?q={query}` — e.g. `https://www.bitrefill.com/it/en/gift-cards/?q=amazon` for Amazon in Italian/Italy. Replace `{lang}`, `{country}`, and `{query}` as needed.
 - **Site search:** Use the search on bitrefill.com (brand names, product names) to jump to relevant product pages.
 - **Gift cards:** Search by brand (e.g. "Netflix", "Amazon") or browse categories. Then filter by **country** — critical for region-locked cards.
 - **Top-ups:** No generic "search"; at bitrefill.com/refill/, user selects **country** first, then **carrier** (or enter number for carrier detection), then **amount**.
 - **eSIMs:** Filter by **destination country or region**, then by **data size** and **validity** (e.g. 7 days, 30 days).
+
+## eSIM discovery
+
+- For "which countries/regions exist" or "browse all eSIMs": send the user to **https://www.bitrefill.com/esim/all-destinations**.
+- From that hub, "View plans" links go to `/{lang}/{country}/esims/bitrefill-esim-{slug}/` (locale may differ by user; slug is country/region name in kebab-case, e.g. `bitrefill-esim-japan`, `bitrefill-esim-global`, `bitrefill-esim-taiwan`).
 
 ## Filters That Matter
 
@@ -42,12 +49,10 @@ Use this reference when the user wants to **find** a product: search by brand, b
 
 Bitrefill uses different URL patterns depending on the page:
 
-- **Locale-prefixed:** `/{lang}/{country}/gift-cards/`, `/{lang}/{country}/esims/` — e.g. `/en/us/gift-cards/`, `/it/it/gift-cards/`
+- **Locale-prefixed:** `/{lang}/{country}/gift-cards/`, `/{lang}/{country}/esims/` — e.g. `/en/us/gift-cards/`, `/it/it/gift-cards/`. Single eSIM product: `/{lang}/{country}/esims/bitrefill-esim-{destination-slug}/` — e.g. `/jp/en/esims/bitrefill-esim-japan/`, `/it/en/esims/bitrefill-esim-global/`.
 - **Query-param locale:** `/refill/?hl=it`, `/card/?hl=it` — older pages use `?hl=` parameter
-- **No locale:** `/login`, `/signup`, `/refer-a-friend`, `/blog/`
+- **No locale:** `/login`, `/signup`, `/refer-a-friend`, `/blog/`, `/esim/all-destinations` (eSIM hub)
 - **Product pages:** `/{lang}/{country}/gift-cards/{slug}/` — e.g. `/en/us/gift-cards/amazon_com-usa/`
-
-**Note:** `/mobile-topups` does NOT exist. The correct path for phone top-ups is `/refill/`.
 
 ## Internal Search Endpoint
 

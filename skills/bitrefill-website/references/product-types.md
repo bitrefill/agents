@@ -34,9 +34,9 @@ Bitrefill offers four main product families. Use this reference when the user ne
 
 ## eSIMs
 
-**What they are:** Data-only travel plans. User installs an eSIM via QR code; no physical SIM. For use when traveling (150+ countries).
+**What they are:** Data-only travel plans. User installs an eSIM via QR code; no physical SIM. For use when traveling (190+ countries).
 
-**On the site:** bitrefill.com/{lang}/{country}/esims/ — filter by country or region, then by data amount and duration.
+**On the site:** Browse all: bitrefill.com/esim/all-destinations. Locale listing and product pages: bitrefill.com/{lang}/{country}/esims/. Single product URLs follow `/{lang}/{country}/esims/bitrefill-esim-{destination-slug}/` (e.g. Japan, Global, Taiwan).
 
 **Important:**
 - **Data only:** No voice/SMS; data only.

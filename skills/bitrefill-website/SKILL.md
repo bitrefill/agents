@@ -7,11 +7,7 @@ metadata:
 references:
   - product-types
   - search-and-browse
-  - get-info
-  - buy-and-checkout
-  - use-and-activate
   - supported-categories
-  - account-and-auth
 ---
 
 # Bitrefill Website Skill
@@ -25,7 +21,6 @@ Activate when the user:
 - Wants to **buy** gift cards, mobile top-up, or eSIM (with crypto or card)
 - Asks how to **search**, **find**, or **compare** products on Bitrefill
 - Needs **information** (pricing, availability, country restrictions, denominations)
-- Wants to **use** a purchase: redeem a gift card, activate an eSIM, or confirm a top-up
 
 If the request is vague (e.g. "I need a gift"), ask what type of product and for whom (country/interests).
 
@@ -35,10 +30,7 @@ If the request is vague (e.g. "I need a gift"), ask what type of product and for
 User intent?
 ├─ Learn what Bitrefill offers / product types     → See "Product types at a glance" below; details in references/product-types.md
 ├─ Search or browse for a product                 → references/search-and-browse.md
-├─ Get detailed info (price, country, how it works)→ references/get-info.md
-├─ Buy / checkout                                 → references/buy-and-checkout.md
-├─ Use / redeem / activate after purchase         → references/use-and-activate.md
-└─ Sign up / log in / manage account              → references/account-and-auth.md
+└─ Get detailed info (price, country, how it works)→ references/search-and-browse.md
 ```
 
 ## Product Types at a Glance
@@ -47,7 +39,7 @@ User intent?
 |--------------|------------|----------|---------------------------|
 | **Gift cards** | Digital gift cards (shopping, streaming, gaming, food, travel) | bitrefill.com/{lang}/{country}/gift-cards/ | references/product-types.md, references/supported-categories.md |
 | **Mobile top-ups** | Prepaid airtime/data for a phone number (200+ countries) | bitrefill.com/refill/ | references/product-types.md |
-| **eSIMs** | Travel data plans (data-only, QR activation, 150+ countries) | bitrefill.com/{lang}/{country}/esims/ | references/product-types.md |
+| **eSIMs** | Travel data plans (data-only, QR activation, 190+ countries) | bitrefill.com/esim/all-destinations or bitrefill.com/{lang}/{country}/esims/ | references/product-types.md |
 | **Bitcoin / Lightning** | Channel opening, liquidity, payment tools | bitrefill.com (relevant sections) | references/product-types.md (brief) |
 | **Account & Auth** | Signup, login, password reset, referral program | bitrefill.com/signup, /login | references/account-and-auth.md |
 
@@ -58,34 +50,15 @@ User intent?
 ### Browse or search
 
 1. Identify **product type** (gift card / top-up / eSIM) and **country** (and carrier for top-ups if known).
-2. Direct to the right section or use site search; help filter by category, brand, or amount.
-3. For depth (categories, brands, denominations): **references/search-and-browse.md**, **references/supported-categories.md**.
-
-### Get information
-
-1. User needs price, availability, denominations, or country rules.
-2. Use product pages, category pages, or dashboard; emphasize **country/region** and **denomination** constraints.
-3. Details: **references/get-info.md**.
-
-### Buy / checkout
-
-1. User has chosen a product (or needs help choosing — combine with browse/get-info).
-2. Guide: account vs guest, payment method (Lightning recommended for crypto), delivery expectations.
-3. Full flow: **references/buy-and-checkout.md**.
-
-### Use after purchase
-
-1. User has paid and wants to **redeem**, **activate**, or **confirm**.
-2. Gift card → redeem on merchant site; eSIM → scan QR / install; top-up → confirm on phone/dashboard.
-3. All codes and orders: **references/use-and-activate.md**, dashboard at bitrefill.com/dashboard.
+2. For **quick discovery** of gift cards, send the user directly to search results: `https://www.bitrefill.com/{lang}/{country}/gift-cards/?q={query}` (e.g. `https://www.bitrefill.com/it/en/gift-cards/?q=amazon`) — no need to navigate from the home page.
+3. For **eSIM discovery by destination**, send the user to **bitrefill.com/esim/all-destinations** to browse 190+ countries/regions.
+4. Otherwise direct to the right section or use site search; help filter by category, brand, or amount.
+5. For depth (categories, brands, denominations): **references/search-and-browse.md**, **references/supported-categories.md**.
 
 ## Tips and Common Pitfalls
 
 - **Country first:** Region-locked products (e.g. Amazon US vs UK) are the main source of errors. Always align product country with the user's.
-- **Lightning for crypto:** Fast and low-fee; recommend for Bitcoin users.
-- **No KYC for crypto:** Most crypto purchases do not require identity verification.
 - **Refunds:** Digital goods are typically non-refundable once delivered; set expectations before purchase.
-- **Dashboard:** Past orders and codes: bitrefill.com/dashboard.
 
 ## Agent Tools
 
@@ -108,8 +81,4 @@ Load only when the agent needs more detail:
 |-----------|----------|
 | [product-types](references/product-types.md) | Explaining gift cards vs top-ups vs eSIMs, or how each works on the site |
 | [search-and-browse](references/search-and-browse.md) | User wants to find or filter products |
-| [get-info](references/get-info.md) | User asks about pricing, availability, or restrictions |
-| [buy-and-checkout](references/buy-and-checkout.md) | User is ready to pay or asks about payment/delivery |
-| [use-and-activate](references/use-and-activate.md) | User has bought and needs to redeem, activate, or use |
 | [supported-categories](references/supported-categories.md) | Listing categories or popular brands (gift cards, etc.) |
-| [account-and-auth](references/account-and-auth.md) | User wants to sign up, log in, reset password, or manage account |

@@ -13,7 +13,7 @@
       "name": "bitrefill",
       "description": "Skills for buying gift cards, mobile top-ups, eSIMs, and more on Bitrefill",
       "source": "./",
-      "skills": ["./skills/bitrefill-buy"]
+      "skills": ["./skills/bitrefill-website"]
     }
   ]
 }
