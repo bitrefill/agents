@@ -13,16 +13,8 @@ A collection of agent skills for [Bitrefill](https://www.bitrefill.com) — enab
 
 ## Installation
 
-From this repo (GitHub: **bitrefill/agents**):
-
 ```bash
 npx skills add bitrefill/agents
-```
-
-If this repo is published as **bitrefill/skills** on GitHub, you can instead run:
-
-```bash
-npx skills add bitrefill/skills
 ```
 
 With a specific agent (e.g. Cursor):
