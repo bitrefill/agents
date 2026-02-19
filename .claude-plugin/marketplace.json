@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Agent skills for browsing and buying products on Bitrefill",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
