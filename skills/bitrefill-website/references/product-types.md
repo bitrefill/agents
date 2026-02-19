@@ -6,7 +6,7 @@ Bitrefill offers four main product families. Use this reference when the user ne
 
 **What they are:** Digital gift cards for brands (shopping, streaming, gaming, food, travel). Delivered as redeemable codes, usually by email and on the order page.
 
-**On the site:** bitrefill.com/{lang}/{country}/gift-cards/ — filter by category, country, or search by brand.
+**On the site:** bitrefill.com/{country}/{lang}/gift-cards/ — filter by category, country, or search by brand.
 
 **Important:**
 - **Region-locked:** Most brands have per-country cards (e.g. Amazon US, UK, DE). Always match the user's (or recipient's) country.
@@ -36,7 +36,7 @@ Bitrefill offers four main product families. Use this reference when the user ne
 
 **What they are:** Data-only travel plans. User installs an eSIM via QR code; no physical SIM. For use when traveling (190+ countries).
 
-**On the site:** Browse all: bitrefill.com/esim/all-destinations. Locale listing and product pages: bitrefill.com/{lang}/{country}/esims/. Single product URLs follow `/{lang}/{country}/esims/bitrefill-esim-{destination-slug}/` (e.g. Japan, Global, Taiwan).
+**On the site:** Browse all: bitrefill.com/esim/all-destinations. Locale listing and product pages: bitrefill.com/{country}/{lang}/esims/. Single product URLs follow `/{country}/{lang}/esims/bitrefill-esim-{destination-slug}/` (e.g. Japan, Global, Taiwan).
 
 **Important:**
 - **Data only:** No voice/SMS; data only.
