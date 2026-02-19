@@ -1,6 +1,10 @@
 # Bitrefill Skills — Agent Guide
 
-**Communication:** Be semantically dense and token efficient. Prefer concise, information-rich responses; avoid filler, repetition, and unnecessary elaboration.
+Instructions:
+- Be semantically dense and token efficient. Prefer concise, information-rich responses; avoid filler, repetition, and unnecessary elaboration.
+- Whene editing, never mention the previous version or the changes you made. All the contents must be authoritative and up to date.
+- Try abstracting instructions that can be applied to multiple cases
+- Avoid creating new sections as much as possible. Try updating exisiting knowledge instead.
 
 This repository is a monorepo of agent skills for Bitrefill. Skills live in the `skills/` directory.
 
