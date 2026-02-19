@@ -22,10 +22,30 @@ jobs:
             (cd skills && zip -r "../dist/${name}.zip" "$name")
           done
 
+      - name: Generate release notes
+        id: notes
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "## $TAG" > release_notes.md
+          echo "" >> release_notes.md
+          echo "Initial release of Bitrefill Agent Skills." >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Contents" >> release_notes.md
+          echo "" >> release_notes.md
+          for z in dist/*.zip; do
+            echo "- **$(basename "$z")** — skill package (SKILL.md + references)" >> release_notes.md
+          done
+          echo "" >> release_notes.md
+          echo "### Installation" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "\`\`\`bash" >> release_notes.md
+          echo "npx skills add bitrefill/agents" >> release_notes.md
+          echo "\`\`\`" >> release_notes.md
+
       - name: Create release and upload assets
         uses: softprops/action-gh-release@v2
         with:
+          body_path: release_notes.md
           files: dist/*.zip
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
