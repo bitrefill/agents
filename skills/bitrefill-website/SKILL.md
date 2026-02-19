@@ -4,10 +4,6 @@ description: Help users accomplish tasks on Bitrefill (bitrefill.com): browse an
 metadata:
   author: bitrefill
   version: "1.0"
-references:
-  - product-types
-  - search-and-browse
-  - supported-categories
 ---
 
 # Bitrefill Website Skill
