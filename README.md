@@ -2,17 +2,40 @@
 
 A collection of agent skills for [Bitrefill](https://www.bitrefill.com) — enabling AI coding agents to browse, buy, and manage Bitrefill products.
 
+## Status
+
+| Item | Status |
+|------|--------|
+| Repo | `bitrefill/agents` on GitHub |
+| Skills | 1 skill (`bitrefill-website`) |
+| Plugin | `.claude-plugin/marketplace.json` (Claude Code / skills CLI compatible) |
+| Spec | [Agent Skills](https://agentskills.io/specification) compliant |
+
 ## Installation
+
+From this repo (GitHub: **bitrefill/agents**):
+
+```bash
+npx skills add bitrefill/agents
+```
+
+If this repo is published as **bitrefill/skills** on GitHub, you can instead run:
 
 ```bash
 npx skills add bitrefill/skills
+```
+
+With a specific agent (e.g. Cursor):
+
+```bash
+npx skills add bitrefill/agents -a cursor -y
 ```
 
 ## Available Skills
 
 | Skill | Description |
 |-------|-------------|
-| `bitrefill-buy` | Buy gift cards, mobile top-ups, eSIMs, and more on Bitrefill |
+| `bitrefill-website` | Browse and search Bitrefill (gift cards, top-ups, eSIMs), get product/pricing info, buy and pay with crypto or card, redeem or use purchases. Use when the user mentions Bitrefill, gift cards, phone top-up, eSIM, or paying with Bitcoin/Lightning. |
 
 ## Contributing
 
