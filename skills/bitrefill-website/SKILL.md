@@ -1,6 +1,6 @@
 ---
 name: bitrefill-website
-description: Help users accomplish tasks on Bitrefill (bitrefill.com): browse and search gift cards, mobile top-ups, and eSIMs; get product and pricing info; buy and pay with crypto or card; redeem, activate, or use purchases. Use when the user mentions Bitrefill, gift cards, phone top-up, eSIM for travel, or paying with Bitcoin/Lightning for digital goods.
+description: "Help users accomplish tasks on Bitrefill (bitrefill.com): browse and search gift cards, mobile top-ups, and eSIMs; get product and pricing info; buy and pay with crypto or card; redeem, activate, or use purchases. Use when the user mentions Bitrefill, gift cards, phone top-up, eSIM for travel, or paying with Bitcoin/Lightning for digital goods."
 metadata:
   author: bitrefill
   version: "1.0"
