@@ -6,14 +6,13 @@
   },
   "metadata": {
     "description": "Agent skills for browsing and buying products on Bitrefill",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
       "name": "bitrefill",
       "description": "Skills for buying gift cards, mobile top-ups, eSIMs, and more on Bitrefill",
-      "source": "./",
-      "skills": ["./skills/bitrefill-website", "./skills/bitrefill-cli"]
+      "source": "./"
     }
   ]
 }

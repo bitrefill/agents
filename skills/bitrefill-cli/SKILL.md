@@ -3,7 +3,7 @@ name: bitrefill-cli
 description: "Give agents real-world spending capabilities via the Bitrefill CLI (@bitrefill/cli). Agents can autonomously search, buy, and deliver gift cards, mobile top-ups, and eSIMs from 1,500+ brands — paying with x402 over Base (USDC) or store credits, no traditional payment methods or human checkout needed. Use when the user wants an agent to purchase something in the real world, spend crypto, or complete an x402 payment flow."
 metadata:
   author: bitrefill
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Bitrefill CLI — Real-World Spending for Agents
