@@ -1,13 +1,13 @@
 ---
 name: bitrefill-cli
 description: "Autonomous agent commerce via Bitrefill CLI. Buy gift cards, mobile top-ups, and eSIMs from 1,500+ brands in 180+ countries — pay with crypto, x402, or account balance."
-compatibility: "Node.js >=18, npm, network access. Bitrefill account (bitrefill.com/signup) with OAuth token stored at ~/.config/bitrefill-cli/api.bitrefill.com.json — initial setup requires interactive browser OAuth flow; token can then be copied to headless environments. Payment requires either a pre-funded Bitrefill account balance or an x402-capable signing wallet with USDC on Base. Optional env: MCP_URL (overrides default MCP endpoint). Enables real-money, non-refundable transactions."
+compatibility: "Node.js >=18, npm, network access. Bitrefill account (bitrefill.com/signup). Auth via API key (--api-key flag or BITREFILL_API_KEY env var — fully headless, no browser needed) or OAuth token at ~/.config/bitrefill-cli/api.bitrefill.com.json. Payment requires either a pre-funded Bitrefill account balance or an x402-capable signing wallet with USDC on Base. Optional env: MCP_URL (overrides default MCP endpoint). Enables real-money, non-refundable transactions."
 metadata:
   author: bitrefill
-  version: "1.3"
+  version: "1.4.0"
   config_path: "~/.config/bitrefill-cli/"
-  credentials: "OAuth token at ~/.config/bitrefill-cli/api.bitrefill.com.json; x402 signing wallet (if using usdc_base)"
-  env_vars: "MCP_URL (optional, default: https://api.bitrefill.com/mcp)"
+  credentials: "API key (via --api-key or BITREFILL_API_KEY env var) or OAuth token at ~/.config/bitrefill-cli/api.bitrefill.com.json; x402 signing wallet (if using usdc_base)"
+  env_vars: "BITREFILL_API_KEY (API key for headless auth), MCP_URL (optional, default: https://api.bitrefill.com/mcp)"
   spending: "real-money, non-refundable transactions; requires pre-provisioned funds"
 ---
 
@@ -27,22 +27,37 @@ Source: [github.com/bitrefill/cli](https://github.com/bitrefill/cli)
 
 | Requirement | Location / Variable | Purpose |
 |-------------|---------------------|---------|
-| **Bitrefill OAuth token** | `~/.config/bitrefill-cli/api.bitrefill.com.json` | Authenticates CLI requests against the user's Bitrefill account |
+| **Bitrefill API key** (preferred for headless) | `--api-key` flag or `BITREFILL_API_KEY` env var | Authenticates without browser — fully headless |
+| **Bitrefill OAuth token** (alternative) | `~/.config/bitrefill-cli/api.bitrefill.com.json` | Browser-based OAuth; requires interactive setup once |
 | **Bitrefill account** | [bitrefill.com/signup](https://www.bitrefill.com/signup) | Required for all operations (search, buy, order history) |
 | **x402-capable wallet** (if using `usdc_base`) | Agent-specific (e.g. signing key, wallet SDK) | Signs and submits on-chain USDC payments on Base |
 | **Pre-funded account balance** (if using `balance`) | Funded at [bitrefill.com](https://www.bitrefill.com) | Pays for purchases from stored account credits |
+| `BITREFILL_API_KEY` env var (optional) | Environment variable | API key for headless auth (alternative to `--api-key` flag) |
 | `MCP_URL` env var (optional) | Environment variable | Overrides the default MCP endpoint (`https://api.bitrefill.com/mcp`) |
 
 ### Provisioning Credentials for Autonomous Agents
 
-The default OAuth flow opens a browser for interactive authorization — this requires a human for initial setup. For autonomous or headless environments:
+#### API Key (recommended — fully headless)
+
+Generate an API key at [bitrefill.com/account/developers](https://www.bitrefill.com/account/developers) and provide it via the `--api-key` flag or the `BITREFILL_API_KEY` environment variable. No browser interaction is needed at any point.
+
+```bash
+# Via environment variable (recommended for agents)
+export BITREFILL_API_KEY=YOUR_API_KEY
+bitrefill search-products --query "Netflix"
+
+# Via flag
+bitrefill --api-key YOUR_API_KEY search-products --query "Netflix"
+```
+
+#### OAuth (alternative — requires one-time browser setup)
 
 1. **Run the OAuth flow once interactively** on a machine with a browser. The CLI stores the token at `~/.config/bitrefill-cli/api.bitrefill.com.json`.
-2. **Copy the credentials file** to the autonomous agent's environment at the same path (`~/.config/bitrefill-cli/api.bitrefill.com.json`).
+2. **Copy the credentials file** to the autonomous agent's environment at the same path.
 3. **Verify** by running `bitrefill list-orders --limit 1` — if it returns without prompting for auth, the token is valid.
 4. **Token refresh:** If the token expires, repeat step 1. Monitor for auth errors in the agent's logs and re-provision as needed.
 
-> **Never commit credentials to version control.** Add `~/.config/bitrefill-cli/` to `.gitignore` and use secure secret management (e.g. environment-specific vaults, encrypted storage) for deployment.
+> **Never commit credentials to version control.** Add `~/.config/bitrefill-cli/` to `.gitignore`, keep API keys in secure secret management (e.g. environment-specific vaults, encrypted storage), and never expose `BITREFILL_API_KEY` in source code or logs.
 
 ### Spending Safeguards
 
@@ -84,7 +99,18 @@ Dev mode (no build step): `pnpm dev`
 
 Requires a Bitrefill account. Sign up at [bitrefill.com/signup](https://www.bitrefill.com/signup).
 
-On first run, the CLI opens your browser for OAuth authorization. Credentials are stored in `~/.config/bitrefill-cli/`.
+#### API Key (headless)
+
+Generate a key at [bitrefill.com/account/developers](https://www.bitrefill.com/account/developers). Pass via `--api-key` flag or `BITREFILL_API_KEY` env var — no browser needed.
+
+```bash
+export BITREFILL_API_KEY=YOUR_API_KEY
+bitrefill search-products --query "Netflix"
+```
+
+#### OAuth (default)
+
+On first run without an API key, the CLI opens your browser for OAuth authorization. Credentials are stored in `~/.config/bitrefill-cli/`.
 
 ```bash
 # First command triggers OAuth flow automatically
@@ -100,6 +126,7 @@ After logout, the next command triggers re-authentication automatically.
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
+| `BITREFILL_API_KEY` | API key for headless auth (skips OAuth) | — |
 | `MCP_URL` | Override MCP server endpoint | `https://api.bitrefill.com/mcp` |
 
 ## Recommended Payment for Agents
@@ -126,7 +153,7 @@ search-products → get-product-details → buy-products → get-invoice-by-id /
 
 ## Available Commands
 
-Commands are discovered dynamically from the MCP server. Run `bitrefill --help` for the current list.
+Commands are discovered dynamically from the MCP server. Run `bitrefill --help` for the current list. All commands accept the optional `--api-key <key>` flag (or `BITREFILL_API_KEY` env var) for headless auth.
 
 ### search-products
 
@@ -413,9 +440,9 @@ Setting `MCP_URL` to a non-Bitrefill endpoint produces a `StreamableHTTPError` w
 ### OAuth / auth failures
 
 If the CLI hangs or fails on startup:
-1. Run `bitrefill logout` to clear stale credentials
-2. Re-run your command — a fresh OAuth flow will start
-3. Credentials file: `~/.config/bitrefill-cli/api.bitrefill.com.json`
+1. Switch to API key auth: `export BITREFILL_API_KEY=YOUR_API_KEY` — bypasses OAuth entirely
+2. Or run `bitrefill logout` to clear stale OAuth credentials, then re-run your command for a fresh OAuth flow
+3. OAuth credentials file: `~/.config/bitrefill-cli/api.bitrefill.com.json`
 
 ### Empty search results
 
