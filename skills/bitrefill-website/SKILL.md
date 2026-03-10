@@ -1,25 +1,32 @@
 ---
 name: bitrefill-website
-description: "Help users accomplish tasks on Bitrefill (bitrefill.com): browse and search gift cards, mobile top-ups, and eSIMs; get product and pricing info; buy and pay with crypto or card; redeem, activate, or use purchases. Use when the user mentions Bitrefill, gift cards, phone top-up, eSIM for travel, or paying with Bitcoin/Lightning for digital goods."
-compatibility: "Requires network access to bitrefill.com and api.bitrefill.com. API operations (search, purchase, order management) require a Bitrefill API token (Bearer or Basic auth) — set via BITREFILL_API_TOKEN environment variable or platform-managed secrets. Browse-only use requires no credentials."
+description: "Browse and explore Bitrefill (bitrefill.com): discover gift cards, mobile top-ups, and eSIMs; search by brand, category, or country; compare products and denominations; understand pricing, availability, and how each product type works. Use when the user mentions Bitrefill, gift cards, phone top-up, or eSIM for travel."
+compatibility: "No credentials or API access required. Instruction-only skill for navigating bitrefill.com."
 metadata:
   author: bitrefill
-  version: "1.2"
+  version: "1.2.1"
   homepage: "https://www.bitrefill.com"
-  docs: "https://docs.bitrefill.com"
 ---
 
 # Bitrefill Website Skill
 
-Use this skill when the user wants to do anything on **Bitrefill** (bitrefill.com): learn about products, search, compare, buy, or use what they bought. Bitrefill sells digital goods (gift cards, mobile top-ups, eSIMs) and offers Bitcoin/Lightning services; payment can be crypto or card. All products are delivered digitally and usually instantly.
+Use this skill when the user wants to **explore** Bitrefill (bitrefill.com): learn about products, search, compare, or understand pricing and availability. Bitrefill sells digital goods (gift cards, mobile top-ups, eSIMs) and offers Bitcoin/Lightning services. All products are delivered digitally.
+
+> **Programmatic access & purchases:** For searching via API, buying products, managing orders, or any automated workflow, use the **bitrefill-cli** skill instead. This skill is browse-only — it helps users navigate and understand the website.
 
 ## When to Use This Skill
 
 Activate when the user:
 - Mentions **Bitrefill** or bitrefill.com
-- Wants to **buy** gift cards, mobile top-up, or eSIM (with crypto or card)
 - Asks how to **search**, **find**, or **compare** products on Bitrefill
 - Needs **information** (pricing, availability, country restrictions, denominations)
+- Wants to understand what Bitrefill offers or how a product type works
+
+**Redirect to bitrefill-cli** when the user wants to:
+- **Buy** a product, make a purchase, or pay with crypto
+- Use the Bitrefill **API** or **MCP endpoint** programmatically
+- Manage **orders** or **invoices**
+- Perform any **automated** or **CLI-based** workflow
 
 If the request is vague (e.g. "I need a gift"), ask what type of product and for whom (country/interests).
 
@@ -66,23 +73,10 @@ User intent?
 - **Geolock vs URL:** Whether a product can be bought is determined by the user's IP (geolock), not by the country in the URL. The URL only controls which inventory is listed.
 - **Refunds:** Digital goods are typically non-refundable once delivered; set expectations before purchase.
 
-## Agent Tools
+## Limitations
 
-Use the right tool for each task:
-
-| Tool | When to use |
-|------|-------------|
-| **Official API** (`api.bitrefill.com/v2`) | Primary for product search, product details, purchases, order management. Requires auth (Bearer token or Basic auth). See [docs.bitrefill.com](https://docs.bitrefill.com) for full reference. |
-| **MCP endpoint** (`api.bitrefill.com/mcp`) | For Claude Code integration. Provides search-products, product-details, buy-products, list-invoices, list-orders tools via JSON-RPC/SSE. Connect with: `claude mcp add --transport http bitrefill https://api.bitrefill.com/mcp` |
-| **NOT recommended: scraping** | Cloudflare blocks all automated access to www.bitrefill.com. Do not use firecrawl or direct scraping — requests return 403. |
-
-## Credentials & Safety
-
-- **API authentication:** The Official API and MCP endpoint require a Bitrefill API token (Bearer or Basic auth). Never store or log tokens in plain text. Use environment variables or platform-managed secrets.
-- **Minimal scope:** Request the narrowest API token scope sufficient for the task. Read-only tokens suffice for search/browse; purchase-capable tokens are needed only for buy flows.
-- **Purchase consent:** Always obtain **explicit user confirmation** before executing any purchase or payment. Summarize the product, amount, and payment method, then wait for approval.
-- **Payment data:** Never ask for or handle raw credit card numbers, private keys, or full wallet credentials. Rely on the Bitrefill checkout flow or pre-configured API tokens for payment.
-- **Sensitive output:** Do not echo API tokens, order secrets, or redemption codes in logs or chat history beyond what the user needs to see.
+- **No scraping:** Cloudflare blocks automated access to www.bitrefill.com. Do not use firecrawl or direct scraping — requests return 403.
+- **No API access:** This skill does not use the Bitrefill API or MCP endpoint. For programmatic access (search, buy, order management), use the **bitrefill-cli** skill.
 
 ## References
 

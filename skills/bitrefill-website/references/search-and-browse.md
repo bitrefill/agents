@@ -77,6 +77,6 @@ For “which X are supported” or “how does this work,” use **help.bitrefil
 
 ## Internal Search Endpoint
 
-The site uses `/api/omni` as its internal product search endpoint (browser-only, requires cookies). For programmatic access, use the official API at `api.bitrefill.com/v2` instead.
+The site uses `/api/omni` as its internal product search endpoint (browser-only, requires cookies). For programmatic product search, use the **bitrefill-cli** skill instead.
 
 For a full list of categories and popular brands, use references/supported-categories.md.
