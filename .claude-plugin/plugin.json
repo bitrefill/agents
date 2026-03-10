@@ -1,12 +1,13 @@
 {
   "name": "bitrefill",
-  "description": "Skills for buying gift cards, mobile top-ups, eSIMs, and more on Bitrefill",
-  "version": "1.4.0",
+  "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, crypto/x402/balance payments",
+  "version": "1.5.0",
   "author": {
     "name": "Bitrefill",
     "email": "support@bitrefill.com"
   },
   "homepage": "https://www.bitrefill.com",
   "repository": "https://github.com/bitrefill/agents",
+  "license": "MIT",
   "keywords": ["gift-cards", "esim", "mobile-topup", "crypto", "bitcoin", "lightning", "cli", "x402", "usdc", "base"]
 }

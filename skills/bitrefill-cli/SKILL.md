@@ -1,465 +1,189 @@
 ---
 name: bitrefill-cli
-description: "Autonomous agent commerce via Bitrefill CLI. Buy gift cards, mobile top-ups, and eSIMs from 1,500+ brands in 180+ countries — pay with crypto, x402, or account balance."
-compatibility: "Node.js >=18, npm, network access. Bitrefill account (bitrefill.com/signup). Auth via API key (--api-key flag or BITREFILL_API_KEY env var — fully headless, no browser needed) or OAuth token at ~/.config/bitrefill-cli/api.bitrefill.com.json. Payment requires either a pre-funded Bitrefill account balance or an x402-capable signing wallet with USDC on Base. Optional env: MCP_URL (overrides default MCP endpoint). Enables real-money, non-refundable transactions."
+description: "Buy gift cards, mobile top-ups, and eSIMs on Bitrefill. Pay with crypto and x402. 1,500+ brands, 180+ countries"
+compatibility: "Node.js >=18, npm, Bitrefill account. Auth: BITREFILL_API_KEY env var (headless) or OAuth token. Payment: a crypto wallet able to send crypto or pay to x402 endpoint (USDC on Base)."
 metadata:
   author: bitrefill
-  version: "1.4.0"
-  config_path: "~/.config/bitrefill-cli/"
-  credentials: "API key (via --api-key or BITREFILL_API_KEY env var) or OAuth token at ~/.config/bitrefill-cli/api.bitrefill.com.json; x402 signing wallet (if using usdc_base)"
-  env_vars: "BITREFILL_API_KEY (API key for headless auth), MCP_URL (optional, default: https://api.bitrefill.com/mcp)"
-  spending: "real-money, non-refundable transactions; requires pre-provisioned funds"
+  version: "1.5.0"
+  homepage: "https://www.bitrefill.com"
+  repository: "https://github.com/bitrefill/cli"
 ---
 
-# Bitrefill CLI — Real-World Spending for Agents
+# Bitrefill CLI
 
-Agents can't shop on Amazon, book an Airbnb, or pay for a Spotify subscription — traditional e-commerce requires browsers, CAPTCHAs, and credit cards. The Bitrefill CLI bridges this gap: it lets agents autonomously search, purchase, and deliver digital goods (gift cards, mobile top-ups, eSIMs) from 1,500+ brands across 180+ countries, paying with crypto or pre-funded store credits — no human checkout required.
+Search, purchase, and deliver digital goods (gift cards, mobile top-ups, eSIMs) via the [Bitrefill CLI](https://github.com/bitrefill/cli).
 
-The CLI connects to the [Bitrefill MCP server](https://api.bitrefill.com/mcp) and dynamically discovers available tools, exposing each as a subcommand with typed options. Combined with x402 payments over Base, it enables fully autonomous agent commerce.
+## Requirements
 
-Source: [github.com/bitrefill/cli](https://github.com/bitrefill/cli)
+- A **Bitrefill account** is required to use this skill. Authentication is done via the Bitrefill API key or OAuth. See [Setup](#setup) for more details.
+- A **crypto wallet** is required to send crypto or pay to x402 endpoint (USDC on Base). NOT PROVIDED BY THIS SKILL.
+- "Browser usage" MCP or CLI is suggested for the agent to **redeem the code on the brand's website**, for fully autonomous shopping experiences. NOT PROVIDED BY THIS SKILL.
 
-## Security & Autonomous Operation
+## Supported Payment Methods
 
-**This skill enables real-money transactions.** Purchases are fulfilled instantly and are non-refundable once delivered. Agents and operators must understand the requirements and risks before enabling autonomous purchasing.
+Best payment experiences for instant agentic payments is store credits via **`balance`**, then USDC on Base via x402, then Lightning. All the other crypto payments requirse the agent to poll the invoice status to confirm payment.
 
-### Required Credentials & Configuration
+CLI returns the full list with `bitrefill buy-products --help`
 
-| Requirement | Location / Variable | Purpose |
-|-------------|---------------------|---------|
-| **Bitrefill API key** (preferred for headless) | `--api-key` flag or `BITREFILL_API_KEY` env var | Authenticates without browser — fully headless |
-| **Bitrefill OAuth token** (alternative) | `~/.config/bitrefill-cli/api.bitrefill.com.json` | Browser-based OAuth; requires interactive setup once |
-| **Bitrefill account** | [bitrefill.com/signup](https://www.bitrefill.com/signup) | Required for all operations (search, buy, order history) |
-| **x402-capable wallet** (if using `usdc_base`) | Agent-specific (e.g. signing key, wallet SDK) | Signs and submits on-chain USDC payments on Base |
-| **Pre-funded account balance** (if using `balance`) | Funded at [bitrefill.com](https://www.bitrefill.com) | Pays for purchases from stored account credits |
-| `BITREFILL_API_KEY` env var (optional) | Environment variable | API key for headless auth (alternative to `--api-key` flag) |
-| `MCP_URL` env var (optional) | Environment variable | Overrides the default MCP endpoint (`https://api.bitrefill.com/mcp`) |
+- **`balance`** — Instant fulfillment, no on-chain wait. User pre-funds at [bitrefill.com](https://www.bitrefill.com). Natural spending cap.
+- **`usdc_base`** with x402 — Use `--return_payment_link true` (default) to get `x402_payment_url`. An x402-capable agent completes payment autonomously over Base.
+- **`lightning`** — Lightning — `lightningInvoice`, `satoshiPrice`
+- **`ethereum`** — Ethereum mainnet (ETH) — `address`, `paymentUri`, `altcoinPrice`
+- **`eth_base`** — Base (8453), native ETH
+- **`usdc_base`** — Base (8453), USDC
+- **`usdc_arbitrum`** — Arbitrum (42161), USDC
+- **`usdc_polygon`** — Polygon (137), USDC
+- **`usdc_erc20`** — Ethereum (1), USDC
+- **`usdc_solana`** — Solana, USDC
+- **`usdt_polygon`** — Polygon (137), USDT
+- **`usdt_erc20`** — Ethereum (1), USDT
+- **Payment cards, local payment methods and other crypto payment methods are available in the checkout page returned by the `--return_payment_link true` option.**
 
-### Provisioning Credentials for Autonomous Agents
+## Spending Safeguards
 
-#### API Key (recommended — fully headless)
+This skill enables **real-money transactions**. Purchases are fulfilled instantly after payment is confirmed.
 
-Generate an API key at [bitrefill.com/account/developers](https://www.bitrefill.com/account/developers) and provide it via the `--api-key` flag or the `BITREFILL_API_KEY` environment variable. No browser interaction is needed at any point.
+- **Default: always confirm before purchasing.** Present product, denomination, price, and payment method; wait for explicit approval before `buy-products`. Autonomous purchasing only when the user explicitly opts in for the current session.
+- As soon as digital goods are delivered, they are refundable only in case they don't work as expected. According to the **EU Consumer Rights**, digital goods like gift card codes are not subject to 14-day change of mind policy.
+- A **gift card code can be considered cash-like**, so it should be stored securely and not shared publicly. Only the agent's owner should have access to the code. Prefer encrypted data storage for the code rather than plain text.
+- Try as much as possible to avoid re-writing the digital codes. If possible, prefer **in-memory storage** until the code is redeemed, and to programmatically access and use it only then.
+- If the user asks for the code, return it but advise them to **store it securely, not share it publicly, and use it as soon as possible**.
+- Use a **dedicated, limited-balance account** — never give agents access to high-balance accounts.
+- **Terms of Service:** https://www.bitrefill.com/terms/ contains important information about the refund policy and purchase limits.
+- **Log every purchase:** `invoice_id`, product, amount, payment method.
+- **Not a wallet:** This skill is not a wallet. It is a tool for buying products on Bitrefill. It is not responsible for storing private keys or managing your crypto wallet.
+- **Browser usage:** When trying to redeem a code on the brand's website, anti-bot protection mechanisms may block the agent. In that case, ask the user if they want to complete manually the redemption process and, in case, return the code to the user.
 
-```bash
-# Via environment variable (recommended for agents)
-export BITREFILL_API_KEY=YOUR_API_KEY
-bitrefill search-products --query "Netflix"
+## Setup
 
-# Via flag
-bitrefill --api-key YOUR_API_KEY search-products --query "Netflix"
-```
-
-#### OAuth (alternative — requires one-time browser setup)
-
-1. **Run the OAuth flow once interactively** on a machine with a browser. The CLI stores the token at `~/.config/bitrefill-cli/api.bitrefill.com.json`.
-2. **Copy the credentials file** to the autonomous agent's environment at the same path.
-3. **Verify** by running `bitrefill list-orders --limit 1` — if it returns without prompting for auth, the token is valid.
-4. **Token refresh:** If the token expires, repeat step 1. Monitor for auth errors in the agent's logs and re-provision as needed.
-
-> **Never commit credentials to version control.** Add `~/.config/bitrefill-cli/` to `.gitignore`, keep API keys in secure secret management (e.g. environment-specific vaults, encrypted storage), and never expose `BITREFILL_API_KEY` in source code or logs.
-
-### Spending Safeguards
-
-Agents using this skill **must** follow these constraints:
-
-- **Always confirm with the user before purchasing.** Present the product name, denomination, price, and payment method, and wait for explicit approval before calling `buy-products`. Never purchase autonomously without user consent unless the user has explicitly opted into fully autonomous purchasing for the session.
-- **Use a dedicated, limited-balance account.** For autonomous operation, create a separate Bitrefill account funded with only the amount you're comfortable the agent spending. Do not give agents access to high-balance accounts.
-- **Prefer `balance` over `usdc_base` for autonomous agents.** Pre-funded balance has a natural spending cap (the account balance). x402 payments draw from a wallet that may hold more funds than intended for agent use.
-- **Never store private keys in plain text.** If using x402 payments, the signing wallet's private key must be managed through a secure key management system — not in environment variables, config files, or source code.
-- **Log all purchases.** After every `buy-products` call, log the `invoice_id`, product, amount, and payment method for audit.
-
-## Prerequisites
-
-The CLI must be installed and authenticated before use.
-
-### Installation
-
-#### From NPM (recommended)
+### Install
 
 ```bash
 npm install -g @bitrefill/cli
 ```
 
-#### From Source
+From source: `git clone https://github.com/bitrefill/cli.git && cd cli && pnpm install && pnpm build && npm link`
 
-```bash
-git clone https://github.com/bitrefill/cli.git
-cd cli
-pnpm install
-pnpm build
-node dist/index.js    # run directly
-# or link globally:
-npm link
-```
+### Auth
 
-Dev mode (no build step): `pnpm dev`
-
-### Authentication
-
-Requires a Bitrefill account. Sign up at [bitrefill.com/signup](https://www.bitrefill.com/signup).
-
-#### API Key (headless)
-
-Generate a key at [bitrefill.com/account/developers](https://www.bitrefill.com/account/developers). Pass via `--api-key` flag or `BITREFILL_API_KEY` env var — no browser needed.
+Generate an API key at [bitrefill.com/account/developers](https://www.bitrefill.com/account/developers):
 
 ```bash
 export BITREFILL_API_KEY=YOUR_API_KEY
-bitrefill search-products --query "Netflix"
 ```
 
-#### OAuth (default)
-
-On first run without an API key, the CLI opens your browser for OAuth authorization. Credentials are stored in `~/.config/bitrefill-cli/`.
-
-```bash
-# First command triggers OAuth flow automatically
-bitrefill search-products --query "Netflix"
-
-# Clear stored credentials
-bitrefill logout
-```
-
-After logout, the next command triggers re-authentication automatically.
+Alternative: run any command without an API key to trigger browser-based OAuth. Token stored at `~/.config/bitrefill-cli/api.bitrefill.com.json`. Clear with `bitrefill logout`.
 
 ### Environment
 
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `BITREFILL_API_KEY` | API key for headless auth (skips OAuth) | — |
-| `MCP_URL` | Override MCP server endpoint | `https://api.bitrefill.com/mcp` |
-
-## Recommended Payment for Agents
-
-For the best agentic payments experience, prefer these two methods:
-
-- **`balance` (store credits)** — Instant, no on-chain confirmation wait. The user pre-funds their account at [bitrefill.com](https://www.bitrefill.com) with crypto or card, then purchases via CLI are fulfilled immediately. Suggest this when the user wants zero-friction, instant delivery.
-- **`usdc_base` with x402** — Use `--return_payment_link true` (default) to get an `x402_payment_url`. An x402-capable agent can autonomously complete the payment over Base without human intervention.
-
-Always suggest `balance` or x402 over Base first. Fall back to other payment methods only if the user explicitly requests them.
+| Variable | Purpose |
+|----------|---------|
+| `BITREFILL_API_KEY` | Headless auth (skips OAuth) |
 
 ## Core Workflow
-
-**Discovery → Details → Purchase → Track**
 
 ```
 search-products → get-product-details → buy-products → get-invoice-by-id / list-orders
 ```
 
-1. **Search** for a product by keyword, category, or country
-2. **Get details** to find available denominations (numeric `package_id` values)
-3. **Buy** by specifying `cart_items` (JSON **array**) and `payment_method`
-4. **Track** via invoice ID or order listing
-
-## Available Commands
-
-Commands are discovered dynamically from the MCP server. Run `bitrefill --help` for the current list. All commands accept the optional `--api-key <key>` flag (or `BITREFILL_API_KEY` env var) for headless auth.
-
-### search-products
+### 1. Search
 
 ```bash
-bitrefill search-products --query "Netflix"
-bitrefill search-products --query "Amazon" --country US
+bitrefill search-products --query "Netflix" --country US
 bitrefill search-products --query "eSIM" --product_type esim --country IT
 bitrefill search-products --query "*" --category games
-bitrefill search-products --query "*"                    # all products, default country
 ```
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--query` | Brand name or `*` for all. Fulltext, not semantic. | `*` |
-| `--country` | Alpha-2 ISO code (e.g. `US`, `IT`, `BR`). **Must be uppercase.** | `US` |
-| `--product_type` | `giftcard` or `esim` (singular). Omit for both. | — |
-| `--category` | Category slug (e.g. `games`, `food`, `streaming`). Use `--query "*"` to discover slugs. | — |
-| `--in_stock` | `true`/`false`. Set `false` to include out-of-stock. | `true` |
-| `--page` | Page number, 1-indexed. | `1` |
-| `--per_page` | Results per page, 1–500. | `25` |
+`--country` must be **uppercase Alpha-2 ISO** (`US`, `IT`, `BR`). `--product_type`: `giftcard` or `esim` (singular).
 
-### get-product-details
+**Discovering categories:** Search with `--query "*"` — the response includes a `categories` array with slugs and counts (e.g. `food`, `games`, `streaming`). Add `--country` to see categories available in a specific country. Use these slugs as `--category` values.
+
+### 2. Get Details
 
 ```bash
 bitrefill get-product-details --product_id "steam-usa"
-bitrefill get-product-details --product_id "steam-usa" --currency USDC
 ```
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--product_id` | Product slug from search results (required) | — |
-| `--currency` | Pricing currency: `BTC`, `ETH`, `USDT`, `USDC`, `SOL`, `USD`, `EUR`, `GBP`, `AUD`, `CAD`, `INR`, `BRL` | `BTC` |
-| `--language` | Language code for descriptions | `en` |
+Returns a `packages` array. Each entry has a `package_value` — use this as `package_id` in `buy-products`.
 
-Returns a `packages` array. Each entry has a `package_value` — this is what you pass as `package_id` to `buy-products`. **Ignore the compound key** (e.g. `steam-usa<&>5`) — use only the value after `<&>`.
+**Ignore compound keys** like `steam-usa<&>5` — use only the value after `<&>`.
 
-Products use three denomination types:
+Three denomination types:
 
-| Type | Example product | `package_value` examples | `package_id` to use |
-|------|----------------|--------------------------|---------------------|
-| **Numeric** | Steam USD, Amazon, Zalando | `"5"`, `"50"`, `"200"` | `5`, `50`, `200` (number) |
-| **Duration** | Spotify, subscriptions | `"1 Month"`, `"12 Months"` | `"1 Month"` (exact string) |
-| **Named** | PUBG, eSIMs | `"PUBG New State 300 NC"`, `"1GB, 7 Days"` | `"PUBG New State 300 NC"` (exact string) |
+- **Numeric:** `5`, `50`, `200` (pass as number)
+- **Duration:** `"1 Month"`, `"12 Months"` (exact string, case-sensitive)
+- **Named:** `"1GB, 7 Days"`, `"PUBG New State 300 NC"` (exact string, case-sensitive)
 
-Named/duration `package_id` values are **case-sensitive** and must match exactly — partial matches (e.g. `"1GB"` instead of `"1GB, 7 Days"`) are rejected. Only values listed by `get-product-details` are accepted; arbitrary amounts are not supported.
+Only values from `get-product-details` are accepted — arbitrary amounts are rejected.
 
-### buy-products
+### 3. Buy
 
-**`--cart_items` must be a JSON array**, even for a single item.
+`--cart_items` must be a **JSON array** `[...]`, even for a single item.
 
 ```bash
-# Numeric denomination
+# Numeric
 bitrefill buy-products \
   --cart_items '[{"product_id": "steam-usa", "package_id": 5}]' \
   --payment_method usdc_base
 
-# Named denomination (eSIM data plan)
+# Duration
+bitrefill buy-products \
+  --cart_items '[{"product_id": "spotify-usa", "package_id": "1 Month"}]' \
+  --payment_method balance
+
+# Named (eSIM)
 bitrefill buy-products \
   --cart_items '[{"product_id": "bitrefill-esim-europe", "package_id": "1GB, 7 Days"}]' \
   --payment_method usdc_base
-
-# Duration denomination (subscription)
-bitrefill buy-products \
-  --cart_items '[{"product_id": "spotify-usa", "package_id": "1 Month"}]' \
-  --payment_method usdc_base
-
-# Multiple items (max 15)
-bitrefill buy-products \
-  --cart_items '[{"product_id": "steam-usa", "package_id": 10}, {"product_id": "netflix-usa", "package_id": 25}]' \
-  --payment_method bitcoin
-
-# Raw crypto details (no payment link)
-bitrefill buy-products \
-  --cart_items '[{"product_id": "steam-usa", "package_id": 5}]' \
-  --payment_method usdc_base \
-  --return_payment_link false
 ```
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--cart_items` | JSON array of `{product_id, package_id}` objects. 1–15 items. (required) | — |
-| `--payment_method` | See payment methods table below. (required) | — |
-| `--return_payment_link` | `true` → `payment_link` + `x402_payment_url`. `false` → raw `address`/`paymentUri`. | `true` |
+Response includes `invoice_id`, `payment_link`, and `x402_payment_url`.
 
-**Response fields (when `return_payment_link true`):**
-- `invoice_id` — use with `get-invoice-by-id` to poll status
-- `payment_link` — browser checkout URL
-- `x402_payment_url` — programmatic x402 payment endpoint
-- `payment_info.address` — on-chain destination
-- `payment_info.paymentUri` — EIP-681 URI with contract + amount
-- `payment_info.altcoinPrice` — amount in payment token
+Max 15 items per call.
 
-### list-invoices
+### 4. Track
 
 ```bash
-bitrefill list-invoices
-bitrefill list-invoices --only_paid false --limit 10
-bitrefill list-invoices --after "2026-03-01T00:00:00Z" --before "2026-03-10T00:00:00Z"
+bitrefill get-invoice-by-id --invoice_id "UUID"
+bitrefill list-orders --include_redemption_info true
 ```
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--limit` | 1–50 | `25` |
-| `--start` | Pagination offset | `0` |
-| `--after` | ISO 8601 date filter | — |
-| `--before` | ISO 8601 date filter | — |
-| `--only_paid` | `true` hides unpaid invoices | `true` |
-| `--include_orders` | Include order details | `true` |
+## Critical Gotchas
 
-### get-invoice-by-id
+**`cart_items` must be array, not object:**
 
 ```bash
-bitrefill get-invoice-by-id --invoice_id "27713c64-6715-48d8-95ef-45eed23efef7"
-```
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--invoice_id` | UUID of the invoice (required) | — |
-| `--include_orders` | Include order details | `true` |
-| `--include_redemption_info` | Include redemption codes/links | `false` |
-| `--include_access_token` | Include unauthenticated access token | `false` |
-
-### list-orders
-
-```bash
-bitrefill list-orders
-bitrefill list-orders --limit 5 --include_redemption_info true
-```
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--limit` | 1–50 | `25` |
-| `--start` | Pagination offset | `0` |
-| `--after` / `--before` | ISO 8601 date filters | — |
-| `--include_redemption_info` | Include redemption codes/links | `false` |
-
-### get-order-by-id
-
-```bash
-bitrefill get-order-by-id --order_id "69af584e8a2639d14ac35e96"
-```
-
-Returns redemption code or link if the order is unsealed (paid and delivered).
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--order_id` | Order ID (required) | — |
-| `--include_redemption_info` | Include redemption codes/links | `true` |
-
-### logout
-
-```bash
-bitrefill logout
-```
-
-Deletes stored OAuth credentials from `~/.config/bitrefill-cli/`.
-
-## Payment
-
-### Payment Methods
-
-| Method | Chain / Asset |
-|--------|---------------|
-| `bitcoin` | Bitcoin (SegWit) — returns `address`, `BIP21`, `lightningInvoice`, `satoshiPrice` |
-| `lightning` | Lightning — returns `lightningInvoice`, `satoshiPrice` |
-| `ethereum` | Ethereum mainnet (ETH) — returns `address`, `paymentUri`, `altcoinPrice` |
-| `eth_base` | Base (8453), native ETH |
-| `usdc_base` | Base (8453), USDC |
-| `usdc_arbitrum` | Arbitrum (42161), USDC |
-| `usdc_polygon` | Polygon (137), USDC |
-| `usdc_erc20` | Ethereum (1), USDC |
-| `usdc_solana` | Solana, USDC SPL |
-| `usdt_polygon` | Polygon (137), USDT |
-| `usdt_erc20` | Ethereum (1), USDT |
-| `balance` | Bitrefill account credit — no address, paid from balance |
-
-### Response Modes
-
-- **`--return_payment_link false`** — raw payment details: `address`, `amount`, `paymentUri` (+ `lightningInvoice` for Bitcoin). For wallet/programmatic pay. No `payment_link` or `x402_payment_url` in response.
-- **`--return_payment_link true`** (default) — returns `payment_link` (browser checkout) and `x402_payment_url` (programmatic pay), **plus** raw `payment_info`.
-
-### x402 Protocol
-
-[x402](https://docs.x402.org/) enables HTTP 402-based crypto payments. `GET x402_payment_url` → receive 402 + payment instructions (Base64 JSON: amount, `payTo`, networks, timeout) → send crypto → resubmit with proof. For agents/automated tools; humans use `payment_link`.
-
-## Troubleshooting
-
-### `cart_items`: expected array, received object
-
-`--cart_items` **must be a JSON array** `[...]`, even for a single item. The README example shows an object `{}` — that does not work.
-
-```bash
-# WRONG — object
+# WRONG
 --cart_items '{"product_id": "steam-usa", "package_id": 5}'
-
-# CORRECT — array of objects
+# RIGHT
 --cart_items '[{"product_id": "steam-usa", "package_id": 5}]'
 ```
 
-### Invalid denomination
-
-The `get-product-details` output shows compound IDs like `steam-usa<&>5`. **Do not use the compound key** — use only the value after `<&>`.
+**Use `package_value` after `<&>`, not the compound key:**
 
 ```bash
-# WRONG — compound key
---cart_items '[{"product_id": "steam-usa", "package_id": "steam-usa<&>5"}]'
-
-# CORRECT — numeric value
---cart_items '[{"product_id": "steam-usa", "package_id": 5}]'
+# WRONG: "steam-usa<&>5"  →  RIGHT: 5
 ```
 
-For **named denominations**, use the exact full string. Common mistakes:
+**Named/duration `package_id` must be exact, case-sensitive:**
 
 ```bash
-# WRONG — numeric guess for a named package
---cart_items '[{"product_id": "spotify-usa", "package_id": 1}]'
-# CORRECT
---cart_items '[{"product_id": "spotify-usa", "package_id": "1 Month"}]'
-
-# WRONG — partial match
---cart_items '[{"product_id": "bitrefill-esim-europe", "package_id": "1GB"}]'
-# CORRECT
---cart_items '[{"product_id": "bitrefill-esim-europe", "package_id": "1GB, 7 Days"}]'
-
-# WRONG — wrong case
---cart_items '[{"product_id": "pubg-new-state-international", "package_id": "PUBG New State 300 nc"}]'
-# CORRECT
---cart_items '[{"product_id": "pubg-new-state-international", "package_id": "PUBG New State 300 NC"}]'
+# WRONG: "1GB"    →  RIGHT: "1GB, 7 Days"
+# WRONG: "300 nc" →  RIGHT: "PUBG New State 300 NC"
 ```
 
-Only values listed by `get-product-details` are accepted. Arbitrary amounts (e.g. `7`, `15`, `25`) are rejected.
+**Country codes must be uppercase Alpha-2:**
 
-### "Search service is not available" (INTERNAL_ERROR)
+```bash
+# WRONG: us, USA, "United States"  →  RIGHT: US
+```
 
-Caused by invalid `--country` values:
-- **Lowercase** country codes (`us` instead of `US`) — silently fails
-- **3-letter** codes (`USA` instead of `US`) — fails
-- **Full names** (`United States`) — fails
-- **Nonexistent** codes (`ZZ`) — fails
-- **Negative page** (`--page -1`) — fails
+## References
 
-Fix: always use **uppercase Alpha-2 ISO codes** (`US`, `IT`, `BR`, `GB`).
+Load when needed:
 
-### "Must be one of" errors
-
-The CLI validates enum values **client-side** before sending to the server.
-
-| Option | Valid values | Common mistake |
-|--------|-------------|----------------|
-| `--payment_method` | `bitcoin`, `ethereum`, `lightning`, `usdc_polygon`, `usdt_polygon`, `usdc_erc20`, `usdt_erc20`, `usdc_arbitrum`, `usdc_solana`, `usdc_base`, `eth_base`, `balance` | `paypal`, `visa`, `USDC_BASE` (case-sensitive) |
-| `--product_type` | `giftcard`, `esim` | `giftcards` (plural), `gift_card`, `sim` |
-
-### Missing required options
-
-Omitting `--cart_items` or `--product_id` when required exits with: `error: required option '--<name> <value>' not specified`. The CLI enforces required options before connecting to the server.
-
-### Cart exceeds 15 items
-
-Maximum 15 items per `buy-products` call. Server rejects with: `Too big: expected array to have <=15 items`.
-
-### `per_page` exceeds 500
-
-Server rejects: `per_page must be less than 500`.
-
-### Malformed JSON in `--cart_items`
-
-Non-JSON strings crash with: `Unexpected token ... is not valid JSON`. Ensure the value is valid JSON. Shell quoting matters — use single quotes around the JSON, double quotes inside.
-
-### Missing `package_id` in cart item
-
-Omitting `package_id` from a cart item object results in: `Invalid denomination 'undefined'`. Both `product_id` and `package_id` are required per item.
-
-### Invoice / Product not found
-
-- `get-invoice-by-id` with a nonexistent ID: `Invoice not found` (RESOURCE_NOT_FOUND)
-- `buy-products` with a nonexistent `product_id`: `Product '<slug>' is not available` (RESOURCE_NOT_FOUND)
-
-Verify slugs via `search-products` and invoice IDs via `list-invoices`.
-
-### Wrong `MCP_URL`
-
-Setting `MCP_URL` to a non-Bitrefill endpoint produces a `StreamableHTTPError` with the remote server's HTML body. Unset the variable or point it to `https://api.bitrefill.com/mcp`.
-
-### OAuth / auth failures
-
-If the CLI hangs or fails on startup:
-1. Switch to API key auth: `export BITREFILL_API_KEY=YOUR_API_KEY` — bypasses OAuth entirely
-2. Or run `bitrefill logout` to clear stale OAuth credentials, then re-run your command for a fresh OAuth flow
-3. OAuth credentials file: `~/.config/bitrefill-cli/api.bitrefill.com.json`
-
-### Empty search results
-
-`found: 0` with no error typically means:
-- The `--category` slug doesn't exist (no error, just empty results)
-- The product is not available in the specified `--country`
-- `--in_stock true` (default) filters out products that are temporarily out of stock
-
-Try broadening: remove `--category`, change `--country`, or set `--in_stock false`.
-
-### Unpaid invoices
-
-By default `list-invoices` shows only paid invoices. To see all (including pending/expired): `--only_paid false`.
-
-Invoices expire after 180 minutes. If unpaid, create a new one — you cannot re-pay an expired invoice.
-
-## Legal
-
-- [Terms of Service](https://www.bitrefill.com/terms)
-- [Privacy Policy](https://www.bitrefill.com/privacy)
+| Reference | Use when |
+|-----------|----------|
+| [commands](references/commands.md) | Full option tables for any command |
+| [payment](references/payment.md) | Payment methods list, x402 protocol, response fields |
+| [troubleshooting](references/troubleshooting.md) | Errors beyond the critical gotchas above |
