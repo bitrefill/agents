@@ -1,9 +1,12 @@
 ---
 name: bitrefill-website
 description: "Help users accomplish tasks on Bitrefill (bitrefill.com): browse and search gift cards, mobile top-ups, and eSIMs; get product and pricing info; buy and pay with crypto or card; redeem, activate, or use purchases. Use when the user mentions Bitrefill, gift cards, phone top-up, eSIM for travel, or paying with Bitcoin/Lightning for digital goods."
+compatibility: "Requires network access to bitrefill.com and api.bitrefill.com. API operations (search, purchase, order management) require a Bitrefill API token (Bearer or Basic auth) — set via BITREFILL_API_TOKEN environment variable or platform-managed secrets. Browse-only use requires no credentials."
 metadata:
   author: bitrefill
-  version: "1.1"
+  version: "1.2"
+  homepage: "https://www.bitrefill.com"
+  docs: "https://docs.bitrefill.com"
 ---
 
 # Bitrefill Website Skill
@@ -71,10 +74,15 @@ Use the right tool for each task:
 |------|-------------|
 | **Official API** (`api.bitrefill.com/v2`) | Primary for product search, product details, purchases, order management. Requires auth (Bearer token or Basic auth). See [docs.bitrefill.com](https://docs.bitrefill.com) for full reference. |
 | **MCP endpoint** (`api.bitrefill.com/mcp`) | For Claude Code integration. Provides search-products, product-details, buy-products, list-invoices, list-orders tools via JSON-RPC/SSE. Connect with: `claude mcp add --transport http bitrefill https://api.bitrefill.com/mcp` |
-| **Chrome DevTools** | Only for visual flows not covered by the API: signup, login, account creation, visual page inspection. |
 | **NOT recommended: scraping** | Cloudflare blocks all automated access to www.bitrefill.com. Do not use firecrawl or direct scraping — requests return 403. |
 
-> **How we verified:** URLs and flows verified via chrome-devtools + API probing on bitrefill.com (2026-02-19).
+## Credentials & Safety
+
+- **API authentication:** The Official API and MCP endpoint require a Bitrefill API token (Bearer or Basic auth). Never store or log tokens in plain text. Use environment variables or platform-managed secrets.
+- **Minimal scope:** Request the narrowest API token scope sufficient for the task. Read-only tokens suffice for search/browse; purchase-capable tokens are needed only for buy flows.
+- **Purchase consent:** Always obtain **explicit user confirmation** before executing any purchase or payment. Summarize the product, amount, and payment method, then wait for approval.
+- **Payment data:** Never ask for or handle raw credit card numbers, private keys, or full wallet credentials. Rely on the Bitrefill checkout flow or pre-configured API tokens for payment.
+- **Sensitive output:** Do not echo API tokens, order secrets, or redemption codes in logs or chat history beyond what the user needs to see.
 
 ## References
 
