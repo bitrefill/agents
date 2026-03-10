@@ -1,6 +1,6 @@
 ---
 name: bitrefill-website
-description: "Browse and explore Bitrefill (bitrefill.com): discover gift cards, mobile top-ups, and eSIMs; search by brand, category, or country; compare products and denominations; understand pricing, availability, and how each product type works. Use when the user mentions Bitrefill, gift cards, phone top-up, or eSIM for travel."
+description: "Browse and search Bitrefill's 1,500+ gift cards, top-ups, and eSIMs across 180+ countries. Filter by brand, category, or country — no credentials required."
 compatibility: "No credentials or API access required. Instruction-only skill for navigating bitrefill.com."
 metadata:
   author: bitrefill

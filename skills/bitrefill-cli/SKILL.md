@@ -1,6 +1,6 @@
 ---
 name: bitrefill-cli
-description: "Autonomous agent commerce via the Bitrefill CLI (@bitrefill/cli). Search, buy, and deliver gift cards, mobile top-ups, and eSIMs from 1,500+ brands in 180+ countries — paying with x402/USDC on Base, pre-funded store balance, Bitcoin, Lightning, or other crypto. No browser, CAPTCHA, or credit card required. Requires a Bitrefill account with OAuth credentials (~/.config/bitrefill-cli/) and access to funds (account balance or signing wallet). Enables real-money transactions; purchases are non-refundable once delivered. Use when the user wants to buy a gift card, top up a phone, get an eSIM, spend crypto for real-world goods, or complete an x402 payment flow."
+description: "Autonomous agent commerce via Bitrefill CLI. Buy gift cards, mobile top-ups, and eSIMs from 1,500+ brands in 180+ countries — pay with crypto, x402, or account balance."
 compatibility: "Node.js >=18, npm, network access. Bitrefill account (bitrefill.com/signup) with OAuth token stored at ~/.config/bitrefill-cli/api.bitrefill.com.json — initial setup requires interactive browser OAuth flow; token can then be copied to headless environments. Payment requires either a pre-funded Bitrefill account balance or an x402-capable signing wallet with USDC on Base. Optional env: MCP_URL (overrides default MCP endpoint). Enables real-money, non-refundable transactions."
 metadata:
   author: bitrefill
