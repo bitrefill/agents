@@ -1,9 +1,14 @@
 ---
 name: bitrefill-cli
-description: "Give agents real-world spending capabilities via the Bitrefill CLI (@bitrefill/cli). Agents can autonomously search, buy, and deliver gift cards, mobile top-ups, and eSIMs from 1,500+ brands — paying with x402 over Base (USDC) or store credits, no traditional payment methods or human checkout needed. Use when the user wants an agent to purchase something in the real world, spend crypto, or complete an x402 payment flow."
+description: "Autonomous agent commerce via the Bitrefill CLI (@bitrefill/cli). Search, buy, and deliver gift cards, mobile top-ups, and eSIMs from 1,500+ brands in 180+ countries — paying with x402/USDC on Base, pre-funded store balance, Bitcoin, Lightning, or other crypto. No browser, CAPTCHA, or credit card required. Requires a Bitrefill account with OAuth credentials (~/.config/bitrefill-cli/) and access to funds (account balance or signing wallet). Enables real-money transactions; purchases are non-refundable once delivered. Use when the user wants to buy a gift card, top up a phone, get an eSIM, spend crypto for real-world goods, or complete an x402 payment flow."
+compatibility: "Node.js >=18, npm, network access. Bitrefill account (bitrefill.com/signup) with OAuth token stored at ~/.config/bitrefill-cli/api.bitrefill.com.json — initial setup requires interactive browser OAuth flow; token can then be copied to headless environments. Payment requires either a pre-funded Bitrefill account balance or an x402-capable signing wallet with USDC on Base. Optional env: MCP_URL (overrides default MCP endpoint). Enables real-money, non-refundable transactions."
 metadata:
   author: bitrefill
-  version: "1.2"
+  version: "1.3"
+  config_path: "~/.config/bitrefill-cli/"
+  credentials: "OAuth token at ~/.config/bitrefill-cli/api.bitrefill.com.json; x402 signing wallet (if using usdc_base)"
+  env_vars: "MCP_URL (optional, default: https://api.bitrefill.com/mcp)"
+  spending: "real-money, non-refundable transactions; requires pre-provisioned funds"
 ---
 
 # Bitrefill CLI — Real-World Spending for Agents
@@ -13,6 +18,41 @@ Agents can't shop on Amazon, book an Airbnb, or pay for a Spotify subscription �
 The CLI connects to the [Bitrefill MCP server](https://api.bitrefill.com/mcp) and dynamically discovers available tools, exposing each as a subcommand with typed options. Combined with x402 payments over Base, it enables fully autonomous agent commerce.
 
 Source: [github.com/bitrefill/cli](https://github.com/bitrefill/cli)
+
+## Security & Autonomous Operation
+
+**This skill enables real-money transactions.** Purchases are fulfilled instantly and are non-refundable once delivered. Agents and operators must understand the requirements and risks before enabling autonomous purchasing.
+
+### Required Credentials & Configuration
+
+| Requirement | Location / Variable | Purpose |
+|-------------|---------------------|---------|
+| **Bitrefill OAuth token** | `~/.config/bitrefill-cli/api.bitrefill.com.json` | Authenticates CLI requests against the user's Bitrefill account |
+| **Bitrefill account** | [bitrefill.com/signup](https://www.bitrefill.com/signup) | Required for all operations (search, buy, order history) |
+| **x402-capable wallet** (if using `usdc_base`) | Agent-specific (e.g. signing key, wallet SDK) | Signs and submits on-chain USDC payments on Base |
+| **Pre-funded account balance** (if using `balance`) | Funded at [bitrefill.com](https://www.bitrefill.com) | Pays for purchases from stored account credits |
+| `MCP_URL` env var (optional) | Environment variable | Overrides the default MCP endpoint (`https://api.bitrefill.com/mcp`) |
+
+### Provisioning Credentials for Autonomous Agents
+
+The default OAuth flow opens a browser for interactive authorization — this requires a human for initial setup. For autonomous or headless environments:
+
+1. **Run the OAuth flow once interactively** on a machine with a browser. The CLI stores the token at `~/.config/bitrefill-cli/api.bitrefill.com.json`.
+2. **Copy the credentials file** to the autonomous agent's environment at the same path (`~/.config/bitrefill-cli/api.bitrefill.com.json`).
+3. **Verify** by running `bitrefill list-orders --limit 1` — if it returns without prompting for auth, the token is valid.
+4. **Token refresh:** If the token expires, repeat step 1. Monitor for auth errors in the agent's logs and re-provision as needed.
+
+> **Never commit credentials to version control.** Add `~/.config/bitrefill-cli/` to `.gitignore` and use secure secret management (e.g. environment-specific vaults, encrypted storage) for deployment.
+
+### Spending Safeguards
+
+Agents using this skill **must** follow these constraints:
+
+- **Always confirm with the user before purchasing.** Present the product name, denomination, price, and payment method, and wait for explicit approval before calling `buy-products`. Never purchase autonomously without user consent unless the user has explicitly opted into fully autonomous purchasing for the session.
+- **Use a dedicated, limited-balance account.** For autonomous operation, create a separate Bitrefill account funded with only the amount you're comfortable the agent spending. Do not give agents access to high-balance accounts.
+- **Prefer `balance` over `usdc_base` for autonomous agents.** Pre-funded balance has a natural spending cap (the account balance). x402 payments draw from a wallet that may hold more funds than intended for agent use.
+- **Never store private keys in plain text.** If using x402 payments, the signing wallet's private key must be managed through a secure key management system — not in environment variables, config files, or source code.
+- **Log all purchases.** After every `buy-products` call, log the `invoice_id`, product, amount, and payment method for audit.
 
 ## Prerequisites
 
