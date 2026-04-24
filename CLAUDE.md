@@ -27,11 +27,9 @@ Cowork uses the same plugin system as Claude Code. Install through the Cowork pl
 2. Add the marketplace source `bitrefill/agents`
 3. Install the **bitrefill** plugin
 
-Once installed, Claude gains two skills:
-- **bitrefill-website** — browse, search, and buy gift cards, mobile top-ups, and eSIMs on bitrefill.com
-- **bitrefill-cli** — autonomous agent commerce via the Bitrefill CLI and x402 payments
+Once installed, Claude gains the **bitrefill** skill — a unified, capability-aware skill that routes the host agent to its highest-fidelity channel (residential browser, MCP server, npm CLI, or REST API) for browsing or buying gift cards, mobile top-ups, and eSIMs. Includes a dedicated OpenClaw integration guide for chat-channel scenarios (Telegram purchases, cron auto-renewals, mobile-camera context).
 
-Skills activate automatically when Claude detects a relevant task.
+The skill activates automatically when Claude detects a relevant task (Bitrefill, gift cards, top-up, eSIM, crypto/Lightning/USDC/x402 checkout).
 
 ### Local Testing
 
@@ -71,9 +69,9 @@ The marketplace (`marketplace.json`) lists plugins available for installation. T
 
 ## Naming Conventions
 
-- Skill names: lowercase, hyphens only (e.g., `bitrefill-buy`, `bitrefill-esim`)
+- Skill names: lowercase, hyphens only (e.g., `bitrefill`, `bitrefill-affiliate`)
 - Directory name **must match** the `name` field in SKILL.md frontmatter
-- Prefix with `bitrefill-` for Bitrefill product skills
+- Reserved words `anthropic` and `claude` cannot appear in skill names ([agentskills.io](https://agentskills.io/specification))
 
 ## Publishing Updates
 
