@@ -27,7 +27,7 @@ Cowork uses the same plugin system as Claude Code. Install through the Cowork pl
 2. Add the marketplace source `bitrefill/agents`
 3. Install the **bitrefill** plugin
 
-Once installed, Claude gains the **bitrefill** skill — a unified, capability-aware skill that routes the host agent to its highest-fidelity channel (residential browser, MCP server, npm CLI, or REST API) for browsing or buying gift cards, mobile top-ups, and eSIMs. Includes a dedicated OpenClaw integration guide for chat-channel scenarios (Telegram purchases, cron auto-renewals, mobile-camera context).
+Once installed, Claude gains the **bitrefill** skill and the bundled **eCommerce MCP** connector ([`.mcp.json`](.mcp.json) at plugin root, OAuth-only) — the skill routes the host to its highest-fidelity channel (residential browser, MCP, npm CLI, or REST API) for browsing or buying gift cards, mobile top-ups, and eSIMs; MCP tools start with the plugin enabled and prompt for OAuth on first call. Includes a dedicated OpenClaw integration guide for chat-channel scenarios (Telegram purchases, cron auto-renewals, mobile-camera context).
 
 The skill activates automatically when Claude detects a relevant task (Bitrefill, gift cards, top-up, eSIM, crypto/Lightning/USDC/x402 checkout).
 
@@ -45,13 +45,14 @@ claude --plugin-dir ./
 .claude-plugin/
   plugin.json          # Plugin manifest (name, version, author)
   marketplace.json     # Marketplace catalog listing the plugin
+.mcp.json              # Optional — MCP server definitions (eCommerce HTTP MCP for this repo)
 skills/
   <skill-name>/
     SKILL.md            # Required — frontmatter + agent instructions
     references/         # Optional — supporting docs, examples
 ```
 
-The marketplace (`marketplace.json`) lists plugins available for installation. The plugin manifest (`plugin.json`) defines the plugin's identity. Skills inside `skills/` are auto-discovered when the plugin loads.
+The marketplace (`marketplace.json`) lists plugins available for installation. The plugin manifest (`plugin.json`) defines the plugin's identity. Skills inside `skills/` are auto-discovered when the plugin loads. MCP servers in `.mcp.json` start when the plugin is enabled.
 
 ## Adding a New Skill
 

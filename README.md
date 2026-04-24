@@ -8,10 +8,23 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
 | Skill | `bitrefill` — capability-aware, routes to MCP / CLI / API / browser based on host |
-| Plugin | `.claude-plugin/marketplace.json` (Claude Code / skills CLI compatible) |
+| Plugin | `.claude-plugin/marketplace.json` + manifest; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) via root [`.mcp.json`](.mcp.json) (Claude Code / Cowork) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
 ## Installation
+
+### Claude Code / Cowork (plugin: skill + MCP)
+
+Installing the **bitrefill** plugin registers the `bitrefill` skill and the eCommerce MCP server (no separate `claude mcp add` needed):
+
+```bash
+/plugin marketplace add bitrefill/agents
+/plugin install bitrefill@bitrefill-skills
+```
+
+First MCP tool call triggers OAuth in your Claude client (no API key configuration). Other hosts (Cursor, Codex CLI, etc.) still configure MCP manually — see [skills/bitrefill/references/path-mcp.md](skills/bitrefill/references/path-mcp.md).
+
+### skills CLI
 
 ```bash
 npx skills add bitrefill/agents
@@ -55,6 +68,10 @@ Full setup, channel-aware scenarios (Telegram purchase, cron top-up, mobile-came
 ### Structure
 
 ```
+.mcp.json                             # Claude Code plugin: eCommerce MCP (HTTP) definition
+.claude-plugin/
+├── plugin.json
+└── marketplace.json
 skills/bitrefill/
 ├── SKILL.md                          # capability decision tree + safeguards summary
 └── references/
