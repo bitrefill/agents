@@ -23,14 +23,14 @@ Walk these checks **in order**. First match wins.
 1. **Inside OpenClaw?** Check for `~/.openclaw/openclaw.json`, `~/.openclaw/skills/`, or `openclaw` on PATH. If yes → read [host-openclaw.md](references/host-openclaw.md) first. OpenClaw is a superset host: it can run all four paths plus chat-channel scenarios (Telegram purchase, cron top-up, mobile camera). After setup, return here and pick MCP/CLI/API for the actual task.
 
 2. **Browse-only intent (no purchase)?** If the user only wants to explore, compare prices, or learn how products work:
-   - Have a residential-IP browser (ChatGPT Atlas, Cursor browser tool, Claude/Playwright Chrome extension, OpenClaw on user host)? → [path-browse.md](references/path-browse.md).
-   - Datacenter egress only (ChatGPT web/Agent, Gemini consumer, Jules)? `www.bitrefill.com` returns **403 Cloudflare** to datacenter IPs. Use [path-mcp.md](references/path-mcp.md) `search-products` / `product-details` instead — they return the same catalog without scraping.
+   - Have a residential-IP browser (ChatGPT Atlas, Cursor browser tool, Claude/Playwright Chrome extension, OpenClaw on user host)? → [browse.md](references/browse.md).
+   - Datacenter egress only (ChatGPT web/Agent, Gemini consumer, Jules)? `www.bitrefill.com` returns **403 Cloudflare** to datacenter IPs. Use [mcp.md](references/mcp.md) `search-products` / `product-details` instead — they return the same catalog without scraping.
 
-3. **MCP supported?** Bitrefill ships a remote HTTP/SSE MCP at `https://api.bitrefill.com/mcp`. Works on Claude.ai (Pro+), Cowork, Claude Desktop, Claude Code, ChatGPT (Plus+), Atlas, Codex CLI, Gemini CLI, Cursor, OpenCode, OpenClaw. **Highest-fidelity purchase channel — typed tool calls, OAuth or API key, no shell needed.** → [path-mcp.md](references/path-mcp.md).
+3. **MCP supported?** Bitrefill ships a remote HTTP/SSE MCP at `https://api.bitrefill.com/mcp`. Works on Claude.ai (Pro+), Cowork, Claude Desktop, Claude Code, ChatGPT (Plus+), Atlas, Codex CLI, Gemini CLI, Cursor, OpenCode, OpenClaw. **Highest-fidelity purchase channel — typed tool calls, OAuth or API key, no shell needed.** → [mcp.md](references/mcp.md).
 
-4. **Shell + `npm install` available?** Claude Code, Codex CLI, Cursor, Gemini CLI, OpenCode, OpenClaw, Jules (ephemeral VM), ChatGPT Agent (sandbox). → [path-cli.md](references/path-cli.md).
+4. **Shell + `npm install` available?** Claude Code, Codex CLI, Cursor, Gemini CLI, OpenCode, OpenClaw, Jules (ephemeral VM), ChatGPT Agent (sandbox). → [cli.md](references/cli.md).
 
-5. **Outbound HTTP from agent loop?** Anywhere shell exists, plus Claude Code `WebFetch`. Last resort — verbose, no typed validation. → [path-api.md](references/path-api.md).
+5. **Outbound HTTP from agent loop?** Anywhere shell exists, plus Claude Code `WebFetch`. Last resort — verbose, no typed validation. → [api.md](references/api.md).
 
 6. **None of the above** (e.g. Gemini consumer free tier): give the user a `bitrefill.com` link and stop.
 
@@ -51,10 +51,10 @@ Full safeguards + per-host hardening (OpenClaw exec-approvals, Cursor auto-appro
 
 | File | Use when |
 |------|----------|
-| [path-browse.md](references/path-browse.md) | Agent has residential-IP browser; user wants to explore |
-| [path-mcp.md](references/path-mcp.md) | MCP-capable host; preferred purchase path |
-| [path-cli.md](references/path-cli.md) | Shell + npm available; headless scripting |
-| [path-api.md](references/path-api.md) | HTTP-only runtime; Personal / Business / Affiliate REST tiers |
+| [browse.md](references/browse.md) | Agent has residential-IP browser; user wants to explore |
+| [mcp.md](references/mcp.md) | MCP-capable host; preferred purchase path |
+| [cli.md](references/cli.md) | Shell + npm available; headless scripting |
+| [api.md](references/api.md) | HTTP-only runtime; Personal / Business / Affiliate REST tiers |
 | [host-openclaw.md](references/host-openclaw.md) | Running inside OpenClaw Gateway |
 | [capability-matrix.md](references/capability-matrix.md) | Per-client viable paths cheat sheet |
 | [safeguards.md](references/safeguards.md) | Spending policy + per-host hardening |

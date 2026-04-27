@@ -4,10 +4,10 @@ Per-host cheat sheet. Each entry = viable paths in priority order + one-line rea
 
 Legend:
 
-- **MCP** → [path-mcp.md](path-mcp.md)
-- **CLI** → [path-cli.md](path-cli.md)
-- **API** → [path-api.md](path-api.md)
-- **Browse** → [path-browse.md](path-browse.md) (residential IP required)
+- **MCP** → [mcp.md](mcp.md)
+- **CLI** → [cli.md](cli.md)
+- **API** → [api.md](api.md)
+- **Browse** → [browse.md](browse.md) (residential IP required)
 - **OpenClaw** → [host-openclaw.md](host-openclaw.md)
 
 ## Anthropic

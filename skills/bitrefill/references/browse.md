@@ -1,6 +1,6 @@
 # Path: Browse the Website
 
-Use when: user wants to **explore** Bitrefill (compare prices, learn product types, check denominations, see country availability) AND your runtime has a **residential-IP browser**. Browse-only by default — for purchases prefer [path-mcp.md](path-mcp.md).
+Use when: user wants to **explore** Bitrefill (compare prices, learn product types, check denominations, see country availability) AND your runtime has a **residential-IP browser**. Browse-only by default — for purchases prefer [mcp.md](mcp.md).
 
 ## Hard requirement: residential IP
 
@@ -62,7 +62,7 @@ Example: `https://www.bitrefill.com/us/en/gift-cards/food/?minRating=5&minReward
 
 ## Purchase from the browser?
 
-Possible but slow and risky. Anti-bot may block agent on brand redemption sites. Prefer [path-mcp.md](path-mcp.md) or [path-cli.md](path-cli.md) for purchases. If browser checkout is the only option, follow [safeguards.md](safeguards.md) — confirm with user, log invoice ID, treat redemption code as cash.
+Possible but slow and risky. Anti-bot may block agent on brand redemption sites. Prefer [mcp.md](mcp.md) or [cli.md](cli.md) for purchases. If browser checkout is the only option, follow [safeguards.md](safeguards.md) — confirm with user, log invoice ID, treat redemption code as cash.
 
 ## Source of truth
 

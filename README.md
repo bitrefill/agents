@@ -22,7 +22,7 @@ Installing the **bitrefill** plugin registers the `bitrefill` skill and the eCom
 /plugin install bitrefill@bitrefill-skills
 ```
 
-First MCP tool call triggers OAuth in your Claude client (no API key configuration). Other hosts (Cursor, Codex CLI, etc.) still configure MCP manually — see [skills/bitrefill/references/path-mcp.md](skills/bitrefill/references/path-mcp.md).
+First MCP tool call triggers OAuth in your Claude client (no API key configuration). Other hosts (Cursor, Codex CLI, etc.) still configure MCP manually — see [skills/bitrefill/references/mcp.md](skills/bitrefill/references/mcp.md).
 
 ### skills CLI
 
@@ -75,10 +75,10 @@ Full setup, channel-aware scenarios (Telegram purchase, cron top-up, mobile-came
 skills/bitrefill/
 ├── SKILL.md                          # capability decision tree + safeguards summary
 └── references/
-    ├── path-browse.md                # residential browser
-    ├── path-mcp.md                   # MCP setup per client
-    ├── path-cli.md                   # @bitrefill/cli
-    ├── path-api.md                   # Personal / Business / Affiliate REST
+    ├── browse.md                     # residential browser
+    ├── mcp.md                        # MCP setup per client
+    ├── cli.md                        # @bitrefill/cli
+    ├── api.md                        # Personal / Business / Affiliate REST
     ├── host-openclaw.md              # OpenClaw Gateway integration
     ├── capability-matrix.md          # per-client cheat sheet
     ├── safeguards.md                 # spending policy + per-host hardening

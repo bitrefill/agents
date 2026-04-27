@@ -61,7 +61,7 @@ Or hand-edit `~/.openclaw/openclaw.json`:
 
 Transport: SSE/HTTP (default for URL entries) or `transport: "streamable-http"`. The 7 Bitrefill MCP tools surface as ordinary Pi tool calls. Restrict per-agent via `agents.list[].tools.allow`/`deny` if running multi-agent. Source: <https://docs.openclaw.ai/cli/mcp.md>.
 
-Then: see [path-mcp.md](path-mcp.md) for tool workflow.
+Then: see [mcp.md](mcp.md) for tool workflow.
 
 ## 4. Install Bitrefill CLI (fallback)
 
@@ -73,15 +73,15 @@ exec: npm install -g @bitrefill/cli
 
 If Gateway runs in Docker sandbox: declare `setupCommand: "npm install -g @bitrefill/cli"` and ensure `network` is not `none`. Source: <https://docs.openclaw.ai/gateway/sandboxing.md>.
 
-Then: see [path-cli.md](path-cli.md).
+Then: see [cli.md](cli.md).
 
 ## 5. Raw API path
 
-`exec` + `curl`, or built-in `web_fetch` tool. No special config. See [path-api.md](path-api.md).
+`exec` + `curl`, or built-in `web_fetch` tool. No special config. See [api.md](api.md).
 
 ## 6. Browser
 
-Pi has `browser` tool. **It uses the Gateway host's IP** — usually residential when Gateway runs on user's machine, but a VPS will hit Cloudflare 403. For richer DOM control attach a Playwright/Chrome MCP. The Mac menubar app drives user's actual Chrome and is fully residential. See [path-browse.md](path-browse.md).
+Pi has `browser` tool. **It uses the Gateway host's IP** — usually residential when Gateway runs on user's machine, but a VPS will hit Cloudflare 403. For richer DOM control attach a Playwright/Chrome MCP. The Mac menubar app drives user's actual Chrome and is fully residential. See [browse.md](browse.md).
 
 ## 7. OpenClaw-only scenarios
 
@@ -146,4 +146,4 @@ OpenClaw defaults are permissive: sandboxing off, `security: full`, `ask: off`. 
 - Exec approvals: <https://docs.openclaw.ai/tools/exec-approvals.md>
 - Nodes: <https://docs.openclaw.ai/nodes/index.md>
 - Channels: <https://docs.openclaw.ai/channels/telegram>
-- Bitrefill skill paths: [path-mcp.md](path-mcp.md), [path-cli.md](path-cli.md), [path-api.md](path-api.md), [path-browse.md](path-browse.md), [safeguards.md](safeguards.md)
+- Bitrefill skill paths: [mcp.md](mcp.md), [cli.md](cli.md), [api.md](api.md), [browse.md](browse.md), [safeguards.md](safeguards.md)

@@ -131,5 +131,5 @@ Default recommendation: pre-fund `balance` with low cap → use `payment_method:
 
 - Bitrefill ToS: <https://www.bitrefill.com/terms/>
 - Refund policy: <https://docs.bitrefill.com/docs/refunds>
-- Path setup: [path-mcp.md](path-mcp.md), [path-cli.md](path-cli.md), [path-api.md](path-api.md), [path-browse.md](path-browse.md)
+- Path setup: [mcp.md](mcp.md), [cli.md](cli.md), [api.md](api.md), [browse.md](browse.md)
 - OpenClaw hardening: [host-openclaw.md](host-openclaw.md)
