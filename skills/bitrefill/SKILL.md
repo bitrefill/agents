@@ -4,7 +4,7 @@ description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, and
 compatibility: "Detects host capabilities at runtime. Paths require: browse — residential-IP browser; MCP — MCP-capable client + Bitrefill OAuth/API key; CLI — Node.js >=18 + shell + npm; API — outbound HTTP + Bitrefill API key (Personal) or API ID/Secret (Business/Affiliate). OpenClaw host gets a dedicated guide."
 metadata:
   author: bitrefill
-  version: "2.0.0"
+  version: "2.1.0"
   homepage: "https://www.bitrefill.com"
   docs: "https://docs.bitrefill.com"
   repository: "https://github.com/bitrefill/cli"

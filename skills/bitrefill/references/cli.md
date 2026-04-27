@@ -1,6 +1,6 @@
 # Path: CLI
 
-Use when: shell + `npm install` available, no MCP support. Runtimes: Claude Code, Codex CLI, Cursor terminal, Gemini CLI, OpenCode, OpenClaw, Jules (ephemeral VM), ChatGPT Agent (sandbox).
+Use when: shell + `npm install` available, **host has no MCP client** (the CLI talks to Bitrefill MCP under the hood). Runtimes: Claude Code, Codex CLI, Cursor terminal, Gemini CLI, OpenCode, OpenClaw, Jules (ephemeral VM), ChatGPT Agent (sandbox).
 
 Sandboxed shells must allowlist `registry.npmjs.org` and `api.bitrefill.com`.
 
@@ -10,21 +10,55 @@ Sandboxed shells must allowlist `registry.npmjs.org` and `api.bitrefill.com`.
 npm install -g @bitrefill/cli
 ```
 
+**First-time setup** (validates API key against MCP, stores credentials, auto-configures OpenClaw if `~/.openclaw/openclaw.json` exists):
+
+```bash
+bitrefill init                                          # interactive
+bitrefill init --api-key $KEY --non-interactive         # CI / agents
+bitrefill init --openclaw                               # force OpenClaw integration
+```
+
 From source: `git clone https://github.com/bitrefill/cli.git && cd cli && pnpm install && pnpm build && npm link`.
 
 ## Auth
 
-API key (headless, preferred for agents):
+Resolution order (first match wins):
+
+1. **`--api-key <key>`** — global flag; can appear before any subcommand.
+2. **`BITREFILL_API_KEY`** — environment variable.
+3. **`~/.config/bitrefill-cli/credentials.json`** — written by `bitrefill init` (mode `0600`). Overwrite or remove to change the key.
+4. **OAuth** — only when no key is available **and** the session is interactive (TTY, not `CI=true`). Browser flow; state under `~/.config/bitrefill-cli/<host>.json` (e.g. `api.bitrefill.com.json`). Clear with `bitrefill logout` (OAuth only; no-op when using API key only).
+
+Generate keys at <https://www.bitrefill.com/account/developers>.
+
+## Global flags
+
+Place **before** the subcommand:
+
+- **`--api-key <key>`** — override env and stored file.
+- **`--json`** — stdout is a single JSON value per run (TOON responses decoded to JSON); status and errors go to **stderr**. Use with `jq`.
+- **`--no-interactive`** — skip browser OAuth and prompts; also implied when `CI=true` or stdin is not a TTY. Fails fast if no API key.
 
 ```bash
-export BITREFILL_API_KEY=YOUR_API_KEY
+bitrefill --json search-products --query "Amazon" --per_page 1 | jq '.products[0].name'
 ```
 
-Generate at <https://www.bitrefill.com/account/developers>.
+## `llm-context`
 
-OAuth (interactive): run any command without an API key → browser flow. Token stored at `~/.config/bitrefill-cli/api.bitrefill.com.json`. Clear with `bitrefill logout`.
+Regenerates Markdown from the live MCP `tools/list` (params, JSON Schema, example `bitrefill …` and `tools/call` payloads). Use for **CLAUDE.md**, Cursor rules, or **`.github/copilot-instructions.md`**. Connection line shows `…/mcp/<API_KEY>` (redacted), safe to commit.
+
+```bash
+bitrefill llm-context -o BITREFILL-MCP.md
+# or: bitrefill llm-context > BITREFILL-MCP.md
+```
+
+## OpenClaw quick-bootstrap
+
+If OpenClaw is detected (`~/.openclaw/openclaw.json` readable) or you pass `--openclaw`, `bitrefill init` can: write `BITREFILL_API_KEY` to `~/.openclaw/.env`, merge the Bitrefill MCP server into `~/.openclaw/openclaw.json` (env-var reference, no plaintext key in JSON), and emit `~/.openclaw/skills/bitrefill/SKILL.md`. Hardening and channel setup → [host-openclaw.md](host-openclaw.md).
 
 ## Workflow
+
+Subcommands are discovered from the remote MCP server (`bitrefill --help` after connect). Core flow:
 
 ```
 search-products  →  get-product-details  →  buy-products  →  get-invoice-by-id
@@ -34,6 +68,7 @@ search-products  →  get-product-details  →  buy-products  →  get-invoice-b
 
 ```bash
 bitrefill search-products --query "Netflix" --country US
+bitrefill --json search-products --query "Netflix" --country US --per_page 5 | jq '.products'
 bitrefill search-products --query "eSIM" --product_type esim --country IT
 bitrefill search-products --query "*" --category games --country US
 ```
@@ -104,3 +139,4 @@ Invoices expire after 180 minutes. Expired = create new one.
 
 - <https://github.com/bitrefill/cli> — full command reference, options, flags
 - <https://docs.bitrefill.com/docs/crypto-payments> — payment methods
+- `bitrefill llm-context` — live tool list + schemas from the MCP server

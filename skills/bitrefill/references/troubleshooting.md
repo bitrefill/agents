@@ -89,13 +89,15 @@ Exact, case-sensitive. WRONG `"1GB"`, `"300 nc"`. RIGHT `"1GB, 7 Days"`, `"PUBG 
 
 ### OAuth hang or auth failure
 
+First-time fix: run `bitrefill init` (validates key, stores `~/.config/bitrefill-cli/credentials.json`).
+
 ```bash
 export BITREFILL_API_KEY=YOUR_API_KEY   # switch to headless
 # or
-bitrefill logout                          # clear stale OAuth
+bitrefill logout                          # clear stale OAuth state only
 ```
 
-Cred file: `~/.config/bitrefill-cli/api.bitrefill.com.json`.
+Credentials: API key in `~/.config/bitrefill-cli/credentials.json` (remove file or re-run `bitrefill init` to replace). OAuth tokens/state in `~/.config/bitrefill-cli/<host>.json` (e.g. `api.bitrefill.com.json`); cleared by `bitrefill logout`.
 
 ### Empty search results, no error
 
