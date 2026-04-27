@@ -27,11 +27,9 @@ Cowork uses the same plugin system as Claude Code. Install through the Cowork pl
 2. Add the marketplace source `bitrefill/agents`
 3. Install the **bitrefill** plugin
 
-Once installed, Claude gains two skills:
-- **bitrefill-website** — browse, search, and buy gift cards, mobile top-ups, and eSIMs on bitrefill.com
-- **bitrefill-cli** — autonomous agent commerce via the Bitrefill CLI and x402 payments
+Once installed, Claude gains the **bitrefill** skill and the bundled **eCommerce MCP** connector ([`.mcp.json`](.mcp.json) at plugin root, OAuth-only) — the skill routes the host to its highest-fidelity channel (residential browser, MCP, npm CLI, or REST API) for browsing or buying gift cards, mobile top-ups, and eSIMs; MCP tools start with the plugin enabled and prompt for OAuth on first call. Includes a dedicated OpenClaw integration guide for chat-channel scenarios (Telegram purchases, cron auto-renewals, mobile-camera context).
 
-Skills activate automatically when Claude detects a relevant task.
+The skill activates automatically when Claude detects a relevant task (Bitrefill, gift cards, top-up, eSIM, crypto/Lightning/USDC/x402 checkout).
 
 ### Local Testing
 
@@ -47,13 +45,14 @@ claude --plugin-dir ./
 .claude-plugin/
   plugin.json          # Plugin manifest (name, version, author)
   marketplace.json     # Marketplace catalog listing the plugin
+.mcp.json              # Optional — MCP server definitions (eCommerce HTTP MCP for this repo)
 skills/
   <skill-name>/
     SKILL.md            # Required — frontmatter + agent instructions
     references/         # Optional — supporting docs, examples
 ```
 
-The marketplace (`marketplace.json`) lists plugins available for installation. The plugin manifest (`plugin.json`) defines the plugin's identity. Skills inside `skills/` are auto-discovered when the plugin loads.
+The marketplace (`marketplace.json`) lists plugins available for installation. The plugin manifest (`plugin.json`) defines the plugin's identity. Skills inside `skills/` are auto-discovered when the plugin loads. MCP servers in `.mcp.json` start when the plugin is enabled.
 
 ## Adding a New Skill
 
@@ -71,9 +70,9 @@ The marketplace (`marketplace.json`) lists plugins available for installation. T
 
 ## Naming Conventions
 
-- Skill names: lowercase, hyphens only (e.g., `bitrefill-buy`, `bitrefill-esim`)
+- Skill names: lowercase, hyphens only (e.g., `bitrefill`, `bitrefill-affiliate`)
 - Directory name **must match** the `name` field in SKILL.md frontmatter
-- Prefix with `bitrefill-` for Bitrefill product skills
+- Reserved words `anthropic` and `claude` cannot appear in skill names ([agentskills.io](https://agentskills.io/specification))
 
 ## Publishing Updates
 

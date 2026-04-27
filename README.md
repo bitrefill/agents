@@ -1,17 +1,30 @@
 # Bitrefill Agent Skills
 
-A collection of agent skills for [Bitrefill](https://www.bitrefill.com) — enabling AI coding agents to browse, buy, and manage Bitrefill products.
+A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.com) — enabling AI coding agents to browse, buy, and manage gift cards, mobile top-ups, and eSIMs across 180+ countries with crypto, Lightning, USDC via x402, or pre-funded account balance.
 
 ## Status
 
 | Item | Status |
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
-| Skills | 2 skills (`bitrefill-website`, `bitrefill-cli`) |
-| Plugin | `.claude-plugin/marketplace.json` (Claude Code / skills CLI compatible) |
+| Skill | `bitrefill` — capability-aware, routes to MCP / CLI / API / browser based on host |
+| Plugin | `.claude-plugin/marketplace.json` + manifest; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) via root [`.mcp.json`](.mcp.json) (Claude Code / Cowork) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
 ## Installation
+
+### Claude Code / Cowork (plugin: skill + MCP)
+
+Installing the **bitrefill** plugin registers the `bitrefill` skill and the eCommerce MCP server (no separate `claude mcp add` needed):
+
+```bash
+/plugin marketplace add bitrefill/agents
+/plugin install bitrefill@bitrefill-skills
+```
+
+First MCP tool call triggers OAuth in your Claude client (no API key configuration). Other hosts (Cursor, Codex CLI, etc.) still configure MCP manually — see [skills/bitrefill/references/mcp.md](skills/bitrefill/references/mcp.md).
+
+### skills CLI
 
 ```bash
 npx skills add bitrefill/agents
@@ -23,12 +36,54 @@ With a specific agent (e.g. Cursor):
 npx skills add bitrefill/agents -a cursor -y
 ```
 
-## Available Skills
+### OpenClaw
+
+Via the cross-host installer:
+
+```bash
+npx skills add bitrefill/agents -a openclaw -y
+```
+
+Or via OpenClaw's own [ClawHub](https://clawhub.ai) registry:
+
+```bash
+openclaw skills install bitrefill
+openclaw gateway restart
+```
+
+Then wire the eCommerce MCP for typed purchase tools:
+
+```bash
+openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_KEY"
+```
+
+Full setup, channel-aware scenarios (Telegram purchase, cron top-up, mobile-camera context), and required hardening: [skills/bitrefill/references/host-openclaw.md](skills/bitrefill/references/host-openclaw.md).
+
+## Skill
 
 | Skill | Description |
 |-------|-------------|
-| `bitrefill-website` | Browse and search Bitrefill (gift cards, top-ups, eSIMs), get product/pricing info, buy and pay with crypto or card, redeem or use purchases. Use when the user mentions Bitrefill, gift cards, phone top-up, eSIM, or paying with Bitcoin/Lightning. |
-| `bitrefill-cli` | Give agents real-world spending capabilities via the [@bitrefill/cli](https://github.com/bitrefill/cli). Autonomously search, buy, and deliver gift cards, mobile top-ups, and eSIMs from 1,500+ brands — paying with x402 over Base (USDC) or store credits, no traditional payment methods needed. |
+| `bitrefill` | Capability-aware skill that detects the host runtime and routes to the highest-fidelity channel: residential-IP browser (ChatGPT Atlas, Cursor, Claude+Chrome), [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) (preferred for purchases), [@bitrefill/cli](https://github.com/bitrefill/cli) via npm, or the [REST API](https://docs.bitrefill.com/docs/api-overview) (Personal / Business / Affiliate). Includes a dedicated [OpenClaw](https://docs.openclaw.ai/) integration guide for chat-channel scenarios — Telegram purchases, cron auto-renewals, mobile-camera context. |
+
+### Structure
+
+```
+.mcp.json                             # Claude Code plugin: eCommerce MCP (HTTP) definition
+.claude-plugin/
+├── plugin.json
+└── marketplace.json
+skills/bitrefill/
+├── SKILL.md                          # capability decision tree + safeguards summary
+└── references/
+    ├── browse.md                     # residential browser
+    ├── mcp.md                        # MCP setup per client
+    ├── cli.md                        # @bitrefill/cli
+    ├── api.md                        # Personal / Business / Affiliate REST
+    ├── host-openclaw.md              # OpenClaw Gateway integration
+    ├── capability-matrix.md          # per-client cheat sheet
+    ├── safeguards.md                 # spending policy + per-host hardening
+    └── troubleshooting.md
+```
 
 ## Contributing
 
