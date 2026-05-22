@@ -11,6 +11,7 @@ This page is the **agent-policy layer** — not in upstream Bitrefill or host do
 - **Prefer in-memory storage.** Don't write codes to plain-text logs, transcripts, or unencrypted files. Programmatically read code → use it → discard.
 - **If user asks for the code**: return it but advise to (a) store securely, (b) not share, (c) redeem ASAP.
 - **Dedicated, low-balance account.** Never give the agent access to high-balance accounts. Pre-fund only what the agent may spend in the current session.
+- **Headless CLI: agent-owned inbox.** Register Bitrefill with an agent inbox ([AgentMail](https://www.agentmail.to/) or equivalent — [cli-headless-auth.md](cli-headless-auth.md)), not the human's primary email. Inbox compromise = account takeover.
 - **Not a wallet.** This skill does not store private keys or manage crypto wallets. Never give the agent seed phrases, hardware-wallet PINs, or signing keys.
 - **Log every purchase.** `invoice_id`, product slug, amount, payment method, timestamp.
 - **Refunds**: digital goods refundable only if they don't work as expected (defective code). EU 14-day change-of-mind does **not** apply.
@@ -23,6 +24,8 @@ Terms: <https://www.bitrefill.com/terms/>.
 ### OpenClaw
 
 Defaults are permissive (sandboxing off, `security: full`, `ask: off`). Tighten:
+
+- **Prefer guest CLI via `exec`** for first purchases (no auth); sign in only when human wants `balance` cap or cashback. See [host-openclaw.md](host-openclaw.md).
 
 - `channels.<ch>.allowFrom: ["<your_id>"]` + `dmPolicy: "pairing"` on every channel.
 - `~/.openclaw/exec-approvals.json`: `security: allowlist` + `ask: on-miss`. Allowlist read tools (`bitrefill search-products`, `bitrefill list-*`, `bitrefill get-*`). Force `/approve` for `bitrefill buy-products` and the MCP `buy-products` call.

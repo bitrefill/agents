@@ -87,17 +87,32 @@ Exact, case-sensitive. WRONG `"1GB"`, `"300 nc"`. RIGHT `"1GB, 7 Days"`, `"PUBG 
 --cart_items '[{"product_id": "steam-usa", "package_id": 5}]'
 ```
 
-### OAuth hang or auth failure
+### CLI auth failure (≥ 0.3.0)
 
-First-time fix: run `bitrefill init` (validates key, stores `~/.config/bitrefill-cli/credentials.json`).
+CLI uses OAuth client_credentials + email magic link — not API keys, not browser OAuth.
 
 ```bash
-export BITREFILL_API_KEY=YOUR_API_KEY   # switch to headless
-# or
-bitrefill logout                          # clear stale OAuth state only
+bitrefill reset                                    # clear corrupt state
+bitrefill login --email you@example.com
+bitrefill verify --code 123456                     # add --otp for TOTP
+bitrefill whoami --json
 ```
 
-Credentials: API key in `~/.config/bitrefill-cli/credentials.json` (remove file or re-run `bitrefill init` to replace). OAuth tokens/state in `~/.config/bitrefill-cli/<host>.json` (e.g. `api.bitrefill.com.json`); cleared by `bitrefill logout`.
+| Error | Fix |
+|-------|-----|
+| `Access token is required for login/verify` | Any command first (MCP connect), or `reset` then retry |
+| `No pending login` | Run `login --email` before `verify` |
+| `No OTP code provided` on verify | Account has 2FA — add `--otp` (authenticator), keep `--code` (email magic link) |
+| `Invalid code` on verify | Wrong email code or wrong TOTP; don't swap them — email code → `--code`, authenticator → `--otp` |
+| `unknown option '--code'` on login | Code goes on `verify --code`, not `login` |
+| `unknown command 'login'` | Already signed in — `logout` first |
+| `Failed to establish a session` | `reset`, then retry |
+| Invalid / expired code | Re-run `login --email`; headless → poll agent inbox (AgentMail or equivalent — [cli-headless-auth.md](cli-headless-auth.md)) |
+| Missing TOTP | `verify --code … --otp "$(op read 'op://Vault/Item/one-time password?attribute=otp')"` |
+
+State: `~/.config/bitrefill-cli/<host>.v1.json`. `logout` revokes session; `reset` clears everything.
+
+Pre-0.3.0 (`credentials.json`, `--api-key`): upgrade CLI. Developer API keys still work for [mcp.md](mcp.md) / [api.md](api.md) paths only.
 
 ### Empty search results, no error
 
@@ -149,7 +164,7 @@ Check:
 1. `openclaw mcp list` shows entry.
 2. `~/.openclaw/openclaw.json` parses (no trailing commas).
 3. Agent profile not denying `bundle-mcp` or whitelisting tools narrowly.
-4. `BITREFILL_API_KEY` env var set in Gateway environment, not just current shell.
+4. CLI signed in (`bitrefill whoami --json`) or MCP OAuth completed — not just shell env vars.
 
 ### Mobile node camera tool unavailable
 

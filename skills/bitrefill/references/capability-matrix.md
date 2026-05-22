@@ -5,7 +5,7 @@ Per-host cheat sheet. Each entry = viable paths in priority order + one-line rea
 Legend:
 
 - **MCP** → [mcp.md](mcp.md)
-- **CLI** → [cli.md](cli.md)
+- **CLI** → [cli.md](cli.md) (≥ 0.3.0: `login`/`verify`, not API key)
 - **API** → [api.md](api.md)
 - **Browse** → [browse.md](browse.md) (residential IP required)
 - **OpenClaw** → [host-openclaw.md](host-openclaw.md)
@@ -106,10 +106,10 @@ Legend:
 ### OpenClaw — superset host
 
 - Agentskills.io loader. MCP via `openclaw mcp set`. Full host shell + FS. `browser` tool uses host IP. Mobile nodes (camera, canvas, voice). Cron. Multi-channel chat (Telegram, WhatsApp, Slack, Discord, iMessage, Signal, Matrix, Teams, etc.).
-- **Paths**: read [host-openclaw.md](host-openclaw.md) **first** for setup + safeguards. Then MCP → CLI → API → Browse as task requires.
+- **Paths**: read [host-openclaw.md](host-openclaw.md) **first**. **Guest CLI via `exec`** (preferred) → signed-in CLI (`balance`, cashback) → MCP → API → Browse.
 - Default agent: **Pi** (Anthropic / OpenAI / Google compatible via API key).
 - Unique scenarios: chat-channel purchase from phone, cron auto-renew top-ups, mobile camera OCR of receipts, multi-channel handoff.
 
 ## Quick decision
 
-If user says "what host am I in?": run `command -v openclaw` and check `~/.openclaw/`. If `command -v claude` works = Claude Code. If `command -v codex` = Codex. Look at conversation context for IDE name. When in doubt: try MCP first (broadest support), fall back to CLI, then API.
+If user says "what host am I in?": run `command -v openclaw` and check `~/.openclaw/`. OpenClaw → guest CLI first. Else: MCP first (most hosts), fall back to CLI, then API.
