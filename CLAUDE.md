@@ -12,32 +12,29 @@ This repository is a monorepo of agent skills for Bitrefill, packaged as a **Cla
 
 ### Claude Code
 
-Add the marketplace and install the plugin:
-
 ```shell
 /plugin marketplace add bitrefill/agents
 /plugin install bitrefill@bitrefill-skills
+/reload-plugins
 ```
+
+Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `bitrefill/agents@v3.0.0`.
 
 ### Claude Cowork
 
-Cowork uses the same plugin system as Claude Code. Install through the Cowork plugin settings UI, or from a Cowork conversation:
+Customize → Plugins → add `bitrefill/agents` → install **bitrefill**.
 
-1. Open **Settings > Plugins**
-2. Add the marketplace source `bitrefill/agents`
-3. Install the **bitrefill** plugin
+### claude.ai (Chat)
 
-Once installed, Claude gains the **bitrefill** skill and the bundled **eCommerce MCP** connector ([`.mcp.json`](.mcp.json) at plugin root, OAuth-only) — the skill routes the host to its highest-fidelity channel (residential browser, MCP, npm CLI, or REST API) for browsing or buying gift cards, mobile top-ups, and eSIMs; MCP tools start with the plugin enabled and prompt for OAuth on first call. Includes a dedicated OpenClaw integration guide for chat-channel scenarios (Telegram purchases, cron auto-renewals, mobile-camera context).
-
-The skill activates automatically when Claude detects a relevant task (Bitrefill, gift cards, top-up, eSIM, crypto/Lightning/USDC/x402 checkout).
+Connectors only → [skills/bitrefill/references/harnesses/claude-chat.md](skills/bitrefill/references/harnesses/claude-chat.md).
 
 ### Local Testing
-
-Load the plugin directly without installing from a marketplace:
 
 ```shell
 claude --plugin-dir ./
 ```
+
+`/reload-plugins` after edits. `claude plugin validate .` before publish.
 
 ## Repository Structure
 
@@ -76,10 +73,12 @@ The marketplace (`marketplace.json`) lists plugins available for installation. T
 
 ## Publishing Updates
 
-After modifying skills, bump the `version` field in `.claude-plugin/plugin.json` (and optionally in `marketplace.json`). Users with auto-update enabled receive changes at next Claude Code startup; others run:
+After modifying skills, bump `version` in `.claude-plugin/plugin.json` (and optionally `marketplace.json`). Users run:
 
 ```shell
 /plugin marketplace update bitrefill-skills
+/plugin update bitrefill@bitrefill-skills
+/reload-plugins
 ```
 
 ## Submitting to the Official Anthropic Directory
@@ -90,6 +89,6 @@ To make the plugin available in the official Claude plugin directory (visible in
 
 ## Specification
 
-- Plugin format: [Claude Code plugins docs](https://docs.claude.com/en/docs/claude-code/plugins)
-- Marketplace format: [Plugin marketplaces docs](https://docs.claude.com/en/docs/claude-code/plugin-marketplaces)
+- Plugin format: [Create plugins](https://code.claude.com/docs/en/plugins)
+- Marketplace format: [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
 - Skill format: [Agent Skills specification](https://agentskills.io/specification)

@@ -15,14 +15,23 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 
 ### Claude Code / Cowork (plugin: skill + MCP)
 
-Installing the **bitrefill** plugin registers the `bitrefill` skill and the eCommerce MCP server (no separate `claude mcp add` needed):
-
 ```bash
 /plugin marketplace add bitrefill/agents
 /plugin install bitrefill@bitrefill-skills
+/reload-plugins
 ```
 
-First MCP tool call triggers OAuth in your Claude client (no API key configuration). Other hosts (Cursor, Codex CLI, etc.) still configure MCP manually — see [skills/bitrefill/references/touchpoints/mcp.md](skills/bitrefill/references/touchpoints/mcp.md).
+Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.0.0`.
+
+Update:
+
+```bash
+/plugin marketplace update bitrefill-skills
+/plugin update bitrefill@bitrefill-skills
+/reload-plugins
+```
+
+**Cowork:** Customize → Plugins → add `bitrefill/agents` → install **bitrefill**. **claude.ai:** Connectors only → [claude-chat.md](skills/bitrefill/references/harnesses/claude-chat.md). Other hosts → [mcp.md](skills/bitrefill/references/touchpoints/mcp.md).
 
 ### skills CLI
 
@@ -58,8 +67,6 @@ openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_K
 ```
 
 Full setup, channel-aware scenarios, and hardening: [skills/bitrefill/references/harnesses/openclaw.md](skills/bitrefill/references/harnesses/openclaw.md).
-
-**Claude Chat (claude.ai):** MCP-first + inline `show_widget` shopping UI → [skills/bitrefill/references/harnesses/claude-chat.md](skills/bitrefill/references/harnesses/claude-chat.md).
 
 ## Skill
 

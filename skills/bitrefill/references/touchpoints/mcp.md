@@ -47,7 +47,7 @@ Keep `buy-products` **out** of `autoApprove`. 40-tool cap across all servers.
 
 ### Claude Code
 
-With **bitrefill** plugin from this repo marketplace, eCommerce MCP auto-registered; `claude mcp add` below = manual-only.
+**bitrefill** plugin from this repo auto-registers eCommerce MCP via `.mcp.json`. Manual setup if plugin not installed:
 
 ```bash
 claude mcp add bitrefill --url https://api.bitrefill.com/mcp
