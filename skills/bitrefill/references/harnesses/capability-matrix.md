@@ -8,12 +8,12 @@ Columns: **Exec** = code/shell | **Egress** = net to Bitrefill | **Ranked stack*
 
 ## Anthropic
 
-Claude Chat + `show_widget` → [claude-chat.md](claude-chat.md).
+Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai → [claude-chat.md](claude-chat.md) §1. Sandbox exec always; egress — probe.
 
 | Host | Exec | Egress | MCP | Browser | Ranked stack (autonomy-first) |
 |------|------|--------|-----|---------|------------------------------|
-| Claude.ai Free | No agent shell | MCP: no custom connectors; sandbox: optional code exec | No | Chrome ext only | Link only |
-| Claude.ai Pro+ | No agent shell | **MCP** connectors + sandbox egress (package mgrs when code exec on) | Yes | Chrome ext | MCP + balance → MCP + Base x402 → x402 REST via Base |
+| Claude.ai Free | Sandbox exec yes; no agent shell | MCP: no custom connectors; egress: probe | No | Chrome ext only | Link only |
+| Claude.ai Pro+ | Sandbox exec yes; no agent shell | **MCP** connectors; sandbox egress: **probe** | Yes | Chrome ext | MCP + balance → MCP + Base x402 → x402 REST via Base |
 | Cowork | Desktop shell | MCP + host | Yes | Chrome ext | MCP + balance → MCP + Base x402 → CLI |
 | Claude Desktop | No | MCP only | Yes | Chrome ext | MCP + balance → MCP + Base x402 |
 | Claude Code | Full shell | Direct + MCP | Yes | Chrome ext | MCP + balance → MCP + Base x402 → CLI → x402 REST |

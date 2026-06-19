@@ -82,7 +82,7 @@ codex --sandbox workspace-write --ask-for-approval on-request
 
 Per-tool approval on default. Keep on. Don't whitelist `buy-products`.
 
-**claude.ai:** MCP-first, `show_widget`, no shell → [harnesses/claude-chat.md](harnesses/claude-chat.md).
+**claude.ai:** MCP-first, `show_widget`, sandbox exec (egress probe) → [harnesses/claude-chat.md](harnesses/claude-chat.md).
 
 ### ChatGPT (web / Desktop / Atlas / Agent)
 

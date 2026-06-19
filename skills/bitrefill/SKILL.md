@@ -4,7 +4,7 @@ description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSI
 compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (Base MCP web_request → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance, Base MCP, AgentCash, CDP awal, Phantom/MetaMask sign-only. OpenClaw + Claude Chat: dedicated harness guides."
 metadata:
   author: bitrefill
-  version: "3.0.0"
+  version: "3.1.0"
   homepage: "https://www.bitrefill.com"
   docs: "https://docs.bitrefill.com"
   repository: "https://github.com/bitrefill/agents"
@@ -14,30 +14,73 @@ metadata:
 
 Digital goods (gift cards, mobile top-ups, eSIMs) — 180+ countries, 1,500+ brands. Pay: crypto, Lightning, USDC x402, pre-funded balance.
 
-Routes by **capability intersection**, not fixed path. Probe harness + wallets → touchpoint + payment stack. **Lowest HITL wins.**
+Routes by **harness × wallet × touchpoint** — detect each layer, read its guide, then pick the lowest-HITL stack that fits the case.
+
+## User-facing language
+
+Shopping talk only — never expose routing internals.
+
+**Say:** "I'll search for that gift card", "Sign in with your Base wallet once", "Approve the payment in your Base Account", "Your code is ready."
+
+**Never say:** Path 1/2, Step 1/2/3, harness, touchpoint, x402, MCP, SIWX, JWT, connector, flusso ottimale, micro-fee per call, or name internal tools/routes. Don't narrate your routing plan before acting — the UI shows tool activity.
+
+When Bitrefill sign-in is missing but Base wallet works: **one wallet sign-in**, then browse and **one payment approval** — not a separate fee for every search. Internal labels → [x402.md](references/touchpoints/x402.md); user copy → [claude-chat.md](references/harnesses/claude-chat.md) § User voice.
 
 ## How to route
 
-1. Safeguards below → full policy [safeguards.md](references/safeguards.md).
-2. **Probe** → [decision-engine.md](references/harnesses/decision-engine.md).
-3. **OpenClaw?** (`~/.openclaw/`, `openclaw` on PATH) → [openclaw.md](references/harnesses/openclaw.md) first.
-4. **Claude Chat?** (claude.ai + `show_widget` + MCP) → [claude-chat.md](references/harnesses/claude-chat.md) first.
-5. **Unknown host?** → [capability-matrix.md](references/harnesses/capability-matrix.md).
-6. **Derive touchpoint** (catalog/checkout channel).
-7. **Derive wallet** at pay → [payment.md](references/wallets/payment.md).
+Safeguards → [safeguards.md](references/safeguards.md). Then three phases — **read the guide for each layer before acting**:
 
-### Touchpoint (first match after probe)
+### 1. Detect harness → read harness instructions
+
+Probe what host you are on (exec/shell, egress, MCP connectors, browser, generative UI). Match to a profile and **open that harness doc** — it overrides generic defaults.
+
+| If you detect | Read |
+| --- | --- |
+| Claude Chat (`show_widget` or `read_me`, MCP on claude.ai) | [claude-chat.md](references/harnesses/claude-chat.md) |
+| OpenClaw (`~/.openclaw/`, `openclaw` on PATH) | [openclaw.md](references/harnesses/openclaw.md) |
+| Known host, need defaults | [capability-matrix.md](references/harnesses/capability-matrix.md) |
+| Probe signals + derivation rules | [decision-engine.md](references/harnesses/decision-engine.md) § Phase 1 |
+
+Harness doc tells you what is **off limits** (no CLI on Claude Chat, no sandbox curl, etc.) and any host-specific ranked stack.
+
+### 2. Detect wallets → read wallet instructions
+
+Probe payment capabilities available **in this session** (independent of catalog channel):
+
+| Signal | Wallet doc |
+| --- | --- |
+| Signed-in Bitrefill + pre-funded balance | [payment.md](references/wallets/payment.md) — `balance` + `auto_pay` |
+| Base MCP (`get_wallets`, `sign`, x402, `send`) | [base-mcp.md](references/wallets/base-mcp.md); guest sign-in → [siwx.md](references/wallets/siwx.md) |
+| AgentCash / CDP awal | [agentcash.md](references/wallets/agentcash.md), [cdp-awal.md](references/wallets/cdp-awal.md) |
+| Phantom / MetaMask (sign-only) | [phantom.md](references/wallets/phantom.md), [metamask.md](references/wallets/metamask.md) |
+| Ranking across wallets | [matrix.md](references/wallets/matrix.md) |
+
+Full probe list → [decision-engine.md](references/harnesses/decision-engine.md) § Phase 2.
+
+### 3. Pick touchpoint × wallet for this case
+
+Cross **harness limits**, **wallet availability**, and **intent** (browse vs buy; Bitrefill account vs guest USDC). Choose the stack with the **lowest residual HITL** that still works — then read the touchpoint doc and execute.
+
+**Touchpoint** (catalog/checkout channel — first viable match):
 
 | If | Read |
 | --- | --- |
 | `search-products` / `buy-products` visible (OAuth or API key) | [mcp.md](references/touchpoints/mcp.md) |
-| Base MCP `web_request` + guest USDC, no Bitrefill account | [x402.md](references/touchpoints/x402.md) Path 1 (JWT) |
+| Base MCP `web_request` + guest USDC, no Bitrefill account | [x402.md](references/touchpoints/x402.md) — wallet sign-in (Path 1), not pay-per-call |
 | Shell + npm, no Bitrefill MCP | [cli.md](references/touchpoints/cli.md) |
 | Direct HTTP only | [api.md](references/touchpoints/api.md) |
 | Browse-only + residential browser | [browse.md](references/touchpoints/browse.md) |
 | None viable | Send user `bitrefill.com` link |
 
-**Pay:** wallet supports x402 → x402; else on-chain `send`; signed-in → `balance` + `auto_pay` first. → [payment.md](references/wallets/payment.md), [matrix.md](references/wallets/matrix.md).
+**Wallet at pay time** — pick best available for the chosen touchpoint → [payment.md](references/wallets/payment.md), [matrix.md](references/wallets/matrix.md). Typical pairings:
+
+| Touchpoint | Prefer wallet |
+| --- | --- |
+| Bitrefill MCP | `balance` + `auto_pay` → Base MCP pay → payment link |
+| Guest checkout (x402 REST) | AgentCash / awal → Base MCP sign-in + pay → never pay-per-call browse when sign-in works |
+| CLI | Same wallet rank as above at `buy-products` time |
+
+Conflict resolution + global rank → [decision-engine.md](references/harnesses/decision-engine.md) § Phase 3.
 
 ## Top spending safeguards
 

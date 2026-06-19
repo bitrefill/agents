@@ -2,6 +2,8 @@
 
 Sign-In With X (SIWX) for Bitrefill x402 REST. **Path 1 connect → JWT** + **redemption codes** after pay.
 
+**Claude Chat:** prefer Base MCP `web_request` + `sign` (no egress needed). Fallback: sandbox exec + inline helpers when `egress_direct` probe succeeds → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4–5.
+
 Signer: Base MCP `sign`, AgentCash `fetch` (auto), Phantom `evm_sign`, or shell + Node helpers below.
 
 ## Connect → JWT (Path 1)
@@ -132,7 +134,7 @@ function buildSiweMessage(info, address, chainIdCaip2){
 }
 ```
 
-No JavaScript runtime: Path 2 (no connect) or AgentCash `fetch` (handles SIWX internally). Prefer scripts when Node ≥18 + shell/`exec`.
+No JavaScript runtime **and** no Base MCP `sign`: Path 2 (no connect) or AgentCash `fetch` (handles SIWX internally). **Claude Chat:** Base MCP `sign` first; else sandbox Node when `egress_direct` probe succeeds — not Path 2. Prefer bundled scripts when agent shell (`exec`) or sandbox Node + egress available.
 
 ## Security
 

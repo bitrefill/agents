@@ -7,7 +7,7 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 | Item | Status |
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
-| Skill | `bitrefill` v3.0 — harness × touchpoint × wallet routing |
+| Skill | `bitrefill` v3.1 — harness × touchpoint × wallet routing |
 | Plugin | `.claude-plugin/marketplace.json` + manifest; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) via root [`.mcp.json`](.mcp.json) (Claude Code / Cowork) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
@@ -21,7 +21,7 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 /reload-plugins
 ```
 
-Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.0.0`.
+Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.1.0`.
 
 Update:
 

@@ -1,6 +1,12 @@
 # Decision Engine
 
-Capability-driven Bitrefill routing. Probe harness + wallets → touchpoint + payment stack. **Lowest HITL wins.**
+Capability-driven Bitrefill routing. Three phases — same order as [SKILL.md](../../SKILL.md) § How to route:
+
+1. **Harness** — probe host, read harness guide.
+2. **Wallets** — probe payment tools, read wallet guides.
+3. **Combine** — pick touchpoint × wallet with lowest HITL for intent.
+
+**Internal labels only:** Path 1/2, touchpoint, harness, SIWX — agent docs; never repeat in user messages → [SKILL.md](../../SKILL.md) § User-facing language.
 
 Per-host defaults → [capability-matrix.md](capability-matrix.md). Wallet ranking → [../wallets/matrix.md](../wallets/matrix.md).
 
@@ -9,11 +15,12 @@ Per-host defaults → [capability-matrix.md](capability-matrix.md). Wallet ranki
 - Browse-only vs purchase
 - Bitrefill account (OAuth / signed-in CLI) vs guest agent-commerce (USDC Base, no signup)
 
-## Step 1 — Probe harness
+## Phase 1 — Probe harness
 
 ```
-exec_available      = shell | exec | terminal | WebFetch+curl
-egress_direct       = agent HTTP to api.bitrefill.com without MCP proxy
+sandbox_exec        = host code sandbox (Python/Node/bash) — Claude Chat: always true
+exec_available      = agent shell | exec | terminal | @bitrefill/cli — Claude Chat: false
+egress_direct       = sandbox or agent HTTP to api.bitrefill.com without MCP proxy — Claude Chat: probe
 egress_mcp_proxy    = Base MCP web_request → api.bitrefill.com (hybrid plugin)
 egress_none         = chat-only; sandbox no outbound net
 browser_residential = user-network browser (not datacenter)
@@ -21,13 +28,13 @@ bitrefill_mcp_live  = search-products / buy-products visible (OAuth or API key)
 base_mcp_live       = get_wallets / web_request / initiate_x402_request visible
 ```
 
-**Claude Chat — two network layers:** (1) **Code sandbox** — plan/admin controlled (Team default: package mgrs only; Enterprise: off; Free/Pro/Max: user toggle). Default allowlist **excludes** `api.bitrefill.com`. (2) **Chat MCP** — works **regardless of sandbox egress**. Route Bitrefill API via MCP, not sandbox code.
+**Claude Chat — two network layers:** (1) **Code sandbox** — execution always available; **egress variable** — quick probe to `api.bitrefill.com` (see [claude-chat.md](claude-chat.md) §4). Default allowlist often **excludes** `api.bitrefill.com`. (2) **Chat MCP** — works **regardless of sandbox egress**. Route Bitrefill shopping via MCP when connectors live; sandbox HTTP only when MCP missing and egress probe succeeds.
 
 **Legacy Analysis tool** (browser JS, no net) mutually exclusive with code execution — ignore if code execution on.
 
 ChatGPT Code Interpreter: **no sandbox egress**. Base MCP `web_request` proxies `api.bitrefill.com` even when agent can't curl.
 
-## Step 2 — Probe wallets
+## Phase 2 — Probe wallets
 
 ```
 wallet_agentcash    = AgentCash fetch + local key
@@ -39,7 +46,9 @@ wallet_none         = payment_link / human browser only
 bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 ```
 
-## Step 3 — Derive touchpoint
+## Phase 3 — Combine: touchpoint × wallet
+
+### Derive touchpoint
 
 | Condition | Touchpoint |
 |-----------|------------|
@@ -52,11 +61,11 @@ bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 
 **OpenClaw override:** detect first → [openclaw.md](openclaw.md). Guest CLI via `exec` before MCP when no OAuth.
 
-**Claude Chat override:** claude.ai + `show_widget` + MCP → [claude-chat.md](claude-chat.md). MCP-first; no shell/CLI/scripts; shopping UI via `show_widget`.
+**Claude Chat override:** detect in Phase 1 → [claude-chat.md](claude-chat.md) §1. Signals: `show_widget` **or** `read_me`; MCP connector tools on claude.ai. **`sandbox_exec` true, `exec_available` false** — has code sandbox, not agent shell. Probe **`egress_direct`**. MCP-first for shopping; no pay-per-call browse when Base `sign` works; `show_widget` when available.
 
 **Triple-MCP (Bitrefill + Base + Phantom):** Bitrefill MCP catalog/checkout when OAuth'd → Base MCP x402 pay → Phantom sign-only if Phantom is payer (HTTP via Base MCP or Bitrefill MCP).
 
-## Step 4 — Derive wallet (pay time)
+### Derive wallet (pay time)
 
 Global autonomy rank ([../wallets/matrix.md](../wallets/matrix.md)):
 
