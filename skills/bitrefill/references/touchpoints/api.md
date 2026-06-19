@@ -1,6 +1,6 @@
 # Path: REST API
 
-Use when: outbound HTTP available but no MCP and no shell. Last resort — verbose, no typed validation. Examples below use `curl` but any HTTP client works.
+Outbound HTTP, no MCP, no shell. Last resort — verbose, no typed validation. Examples use `curl`; any HTTP client works.
 
 Base URL: `https://api.bitrefill.com/v2`
 
@@ -10,11 +10,11 @@ Base URL: `https://api.bitrefill.com/v2`
 |------|------|----------|
 | Personal | Bearer token | Personal projects, agent automation |
 | Business | Basic auth (`API_ID:API_SECRET`) | Platforms, resellers, BRGC batches, deposits, test products |
-| Affiliate | Basic auth | Same as Business + commission tracking, results filtered by `referrer_id` |
+| Affiliate | Basic auth | Business + commission tracking, results filtered by `referrer_id` |
 
 ## Personal API (agent default)
 
-Get key: <https://www.bitrefill.com/account/developers>.
+Key: <https://www.bitrefill.com/account/developers>.
 
 ```bash
 export BITREFILL_API_KEY=YOUR_API_KEY
@@ -47,7 +47,7 @@ curl -H "$H" https://api.bitrefill.com/v2/orders/{order_id}
 # → data.redemption_info.code, .link, .pin, .instructions
 ```
 
-For crypto: omit `auto_pay`, set `payment_method: "bitcoin"|"lightning"|"usdc_base"|...`, include `refund_address` for crypto methods, then poll `GET /invoices/{id}` until `status: "complete"`.
+Crypto: omit `auto_pay`, set `payment_method: "bitcoin"|"lightning"|"usdc_base"|...`, include `refund_address` for crypto, poll `GET /invoices/{id}` until `status: "complete"`.
 
 ## Business API
 
@@ -60,40 +60,40 @@ H="Authorization: Basic $TOKEN"
 curl -H "$H" https://api.bitrefill.com/v2/ping
 ```
 
-Adds: BRGC (Bitrefill Reusable Gift Card) batches, account deposits via crypto, full product catalog including test products. Same endpoints + `POST /brgc-batches`, `POST /accounts/deposit`.
+Adds: BRGC batches, account deposits via crypto, full catalog incl. test products. Same endpoints + `POST /brgc-batches`, `POST /accounts/deposit`.
 
 ## Affiliate API
 
-Apply: <https://www.bitrefill.com/affiliate>. Same auth as Business. Adds `GET /commissions` with `after`/`before` date filters. Order/invoice queries return data filtered by `referrer_id` instead of `user_id`.
+Apply: <https://www.bitrefill.com/affiliate>. Same auth as Business. Adds `GET /commissions` with `after`/`before` filters. Order/invoice queries filtered by `referrer_id` not `user_id`.
 
 ## Key endpoints
 
-- `GET /ping` — health check (1 req / 3 s)
+- `GET /ping` — health (1 req / 3 s)
 - `GET /accounts/balance` — current balance
 - `GET /products` — paginated catalog (cache locally, refresh daily; 1000 product req/hr quota shared with search)
 - `GET /products/search?q=...` — keyword search
-- `GET /products/{id}` — product details with `packages` array
-- `POST /invoices` — create invoice (max 20 products)
+- `GET /products/{id}` — details with `packages` array
+- `POST /invoices` — create (max 20 products)
 - `POST /invoices/{id}/pay` — pay unpaid balance invoice
 - `GET /invoices/{id}` — status
 - `GET /orders/{id}` — redemption info
-- `POST /esims` — create eSIM invoice (or top-up existing via `esim_id`)
+- `POST /esims` — create eSIM invoice (or top-up via `esim_id`)
 - `GET /esims` / `GET /esims/{id}` — list / get user eSIMs
 
-Webhooks: `webhook_url` field on invoice creation → notification when delivered.
+Webhooks: `webhook_url` on invoice creation → notification when delivered.
 
 ## Test products
 
-Business/Affiliate only. No money charged. Examples: `test-gift-card-code`, etc. Full list: <https://docs.bitrefill.com/docs/test-products>.
+Business/Affiliate only. No charge. Examples: `test-gift-card-code`, etc. Full: <https://docs.bitrefill.com/docs/test-products>.
 
 ## Rate limits
 
-Most endpoints 60 req / 10 min. `/products` and `/products/search` 60 req/min + 1000 product req/hr quota. `/ping` 1 req / 3 s. Full table: <https://docs.bitrefill.com/docs/rate-limits>.
+Most endpoints 60 req / 10 min. `/products` + `/products/search` 60 req/min + 1000 product req/hr. `/ping` 1 req / 3 s. Full: <https://docs.bitrefill.com/docs/rate-limits>.
 
 ## Source of truth
 
-- <https://docs.bitrefill.com/docs/api-overview> — tier comparison + auth
-- <https://docs.bitrefill.com/docs/quickstart-2> — 6-step purchase flow
-- <https://docs.bitrefill.com/reference> — full endpoint catalog
+- <https://docs.bitrefill.com/docs/api-overview> — tiers + auth
+- <https://docs.bitrefill.com/docs/quickstart-2> — 6-step purchase
+- <https://docs.bitrefill.com/reference> — endpoint catalog
 - <https://docs.bitrefill.com/docs/error-codes> — error codes
-- <https://docs.bitrefill.com/docs/webhooks> — webhook payload spec
+- <https://docs.bitrefill.com/docs/webhooks> — webhook spec
