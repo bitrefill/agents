@@ -61,7 +61,7 @@ Bundled helpers instead of hand-rolling checksum/message/payload:
 
 **Direct egress:** challenge URL to build script; send script completes route without Base MCP.
 
-Path 1 context → [../touchpoints/x402.md](../touchpoints/x402.md#siwx-scripts-path-1-connect--redemption-codes).
+Path 1 context → [../touchpoints/x402.md](../touchpoints/x402.md#siwx-scripts-path-1-connect-redemption-codes).
 
 ## EIP-55 checksum (required)
 
