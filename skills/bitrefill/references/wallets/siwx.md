@@ -1,6 +1,10 @@
 # Wallet: SIWX / JWT
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Sign-In With X (SIWX) for Bitrefill x402 REST. **Path 1 connect → JWT** + **redemption codes** after pay.
+
+**Thinking:** one short line in the user's language — never deliberate paths, fees, or ranks.
 
 **Claude Chat:** prefer Base MCP `web_request` + `sign` (no egress needed). Fallback: sandbox exec + inline helpers when `egress_direct` probe succeeds → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4–5.
 
@@ -8,23 +12,23 @@ Signer: Base MCP `sign`, AgentCash `fetch` (auto), Phantom `evm_sign`, or shell 
 
 ## Connect → JWT (Path 1)
 
-1. `web_request` `POST https://api.bitrefill.com/x402/connect` body `{}`, header `Content-Type: application/json` → **402** with `extensions["sign-in-with-x"].info`.
-2. `get_wallets` → wallet address.
-3. Pick Base: `{ chainId: "eip155:8453", type: "eip191" }` from `supportedChains`.
-4. Build EIP-4361 message with helpers below (`toChecksumAddress` → `buildSiweMessage`). URI = `https://api.bitrefill.com/x402/connect`.
-5. `sign` with `type: "personal_sign"`, `data: { message: <exact string> }` → full signature (ERC-1271/6492 wrapped for Base Account — pass unchanged).
-6. Build **decomposed** payload, base64 → `sign-in-with-x` header.
-7. `web_request` `POST /x402/connect` with header → **200** `{ token, token_header: "X-Access-Token", expires_in }` (~7200 s default).
-8. Attach `X-Access-Token: <token>` (raw JWT, no `Bearer`) on subsequent gated calls. Re-connect when expired.
+1. **Sign in — fetch challenge** (internally: `web_request` `POST …/x402/connect`) → **402** with challenge. *(say: "Sign in with your Base wallet once")*
+2. **Get wallet address** — `get_wallets`. *(silent — no user message)*
+3. Pick Base chain from `supportedChains`.
+4. Build EIP-4361 message with helpers below.
+5. **Wallet approval** — `sign` (`personal_sign`). *(say: "Approve the sign-in in your Base Account" — free, just to browse)*
+6. Build decomposed payload → `sign-in-with-x` header.
+7. **Complete sign-in** — `web_request` `POST /x402/connect` with header → **200** token (~7200 s). *(silent)*
+8. Attach `X-Access-Token` on subsequent gated calls. Re-connect when expired.
 
 ## SIWX for codes (after pay)
 
-When `invoice/status` returns delivery complete but no `redemption_info`:
+When delivery complete but no `redemption_info`:
 
-1. `GET /x402/invoice/status?invoice_id=<uuid>` → **402** with SIWX challenge.
-2. Build message — **`uri` must match challenged route** (includes `?invoice_id=`).
-3. Sign within **5 minutes** (nonce single-use).
-4. Same URL with `sign-in-with-x` header → **200** with `redemption_info`.
+1. **Fetch code challenge** — `GET /x402/invoice/status?invoice_id=<uuid>` → **402**. *(silent)*
+2. Build message — **`uri` must match challenged route**.
+3. **Wallet approval** — sign within **5 minutes**. *(say: "Approve in your Base Account to reveal your code")*
+4. Same URL with `sign-in-with-x` header → **200** with `redemption_info`. *(say: "Your code is ready.")*
 5. **403** → signing wallet ≠ invoice payer.
 
 ## Decomposed payload
@@ -145,3 +149,9 @@ No JavaScript runtime **and** no Base MCP `sign`: Path 2 (no connect) or AgentCa
 
 - **402 after SIWX** — stale nonce, wrong checksum, malformed payload; re-fetch + re-sign within 5 min.
 - **403 on SIWX route** — wrong wallet; sign with invoice payer.
+
+**User hears:** "Sign in with your Base wallet once" → *(silent browse)* → "Approve the payment in your Base Account" → "Your code is ready."
+
+**Bad:** "Orchestrated cryptographic signing workflow… fetching 402 challenge from /x402/connect… building sign-in-with-x header."
+
+**Good:** "Per pagare in USDC, collega il wallet Base una volta — la firma non costa nulla."

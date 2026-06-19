@@ -1,5 +1,7 @@
 # Host: OpenClaw
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 [OpenClaw](https://docs.openclaw.ai/) — self-hosted Gateway bridging chat apps (Telegram, WhatsApp, Slack, Discord, iMessage, Signal, Matrix, Teams, …) to coding agents like **Pi**. **Superset host:** full shell, agentskills.io skill loader, MCP, mobile-node camera/canvas, cron, multi-channel routing.
 
 Install + harden Bitrefill skill here; path files for workflow.
@@ -161,3 +163,5 @@ Defaults permissive: sandboxing off, `security: full`, `ask: off`. **Tighten bef
 - Sandboxing: <https://docs.openclaw.ai/gateway/sandboxing.md> | Exec approvals: <https://docs.openclaw.ai/tools/exec-approvals.md>
 - Nodes: <https://docs.openclaw.ai/nodes/index.md> | Channels: <https://docs.openclaw.ai/channels/telegram>
 - Bitrefill paths: [../touchpoints/mcp.md](../touchpoints/mcp.md), [../touchpoints/cli.md](../touchpoints/cli.md), [../touchpoints/api.md](../touchpoints/api.md), [../touchpoints/browse.md](../touchpoints/browse.md), [../safeguards.md](../safeguards.md)
+
+**User hears:** same concierge flow — "Searching for [product]…" → "[Product] — [amount]: [total]. Confirm?" → "Your code is ready." Match channel language (Telegram, WhatsApp, etc.).

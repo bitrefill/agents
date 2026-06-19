@@ -1,5 +1,7 @@
 # Spending Safeguards
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 **Real-money transactions.** Instant fulfillment after payment. Digital codes non-refundable per EU consumer rights once delivered.
 
 **Agent-policy layer** — not in upstream Bitrefill or host docs. Read fully before any purchase tool call.
@@ -133,3 +135,5 @@ Default: pre-fund `balance` on dedicated account → `payment_method: "balance"`
 - Routing: [harnesses/decision-engine.md](harnesses/decision-engine.md)
 - Touchpoints: [touchpoints/mcp.md](touchpoints/mcp.md), [touchpoints/cli.md](touchpoints/cli.md), [touchpoints/x402.md](touchpoints/x402.md)
 - OpenClaw: [harnesses/openclaw.md](harnesses/openclaw.md) | Claude Chat: [harnesses/claude-chat.md](harnesses/claude-chat.md)
+
+**User hears:** confirm as a clean receipt — "[Product] — [amount]: [total] USDC. Confirm?" Non-refundable once, neutrally at delivery: "Your code is ready — keep it safe, not refundable once issued."

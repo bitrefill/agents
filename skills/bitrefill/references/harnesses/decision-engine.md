@@ -1,12 +1,16 @@
 # Decision Engine
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Capability-driven Bitrefill routing. Three phases — same order as [SKILL.md](../../SKILL.md) § How to route:
 
 1. **Harness** — probe host, read harness guide.
 2. **Wallets** — probe payment tools, read wallet guides.
 3. **Combine** — pick touchpoint × wallet with lowest HITL for intent.
 
-**Internal labels only:** Path 1/2, touchpoint, harness, SIWX — agent docs; never repeat in user messages → [SKILL.md](../../SKILL.md) § User-facing language.
+**Thinking:** one short line in the user's language — never deliberate paths, ranks, fees, or auth state. Choose stack silently; act.
+
+**Internal labels only:** Path 1/2, touchpoint, harness, SIWX — agent docs; never repeat in any visible surface → [SKILL.md](../../SKILL.md) § User-facing language.
 
 Per-host defaults → [capability-matrix.md](capability-matrix.md). Wallet ranking → [../wallets/matrix.md](../wallets/matrix.md).
 
@@ -103,3 +107,5 @@ Details → [../wallets/payment.md](../wallets/payment.md).
 | 10 | Browse | Human browser | Full checkout UI |
 
 **Avoid autonomous agents:** x402 Path 2 (per-search fees), MetaMask per-tx confirm, Phantom per-tx simulation, payment links alone.
+
+**User hears:** open with the product goal — never "checking harness" or "Path 1 vs Path 2". Two steps max: "Sign in with your wallet once" → "Approve the payment."

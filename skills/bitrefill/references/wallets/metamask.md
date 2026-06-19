@@ -1,5 +1,7 @@
 # Wallet: MetaMask
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 **No official MetaMask-branded payment MCP** for agent commerce. Don't confuse with Embedded Wallets MCP (`https://mcp.web3auth.io`) — **docs/SDK help only**, not signing wallet.
 
 ## Surfaces
@@ -36,3 +38,5 @@ Codex, Claude Code, OpenClaw, Hermes, Cursor (shell + mm installed).
 ## vs Base MCP / AgentCash
 
 MetaMask = manual payment confirm per x402. Prefer Base MCP x402 or AgentCash for agent-commerce.
+
+**User hears:** "Approve the payment in your wallet" — never "mm CLI" or tool names

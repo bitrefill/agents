@@ -1,5 +1,7 @@
 # Troubleshooting
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Common errors all paths. Full enum: <https://docs.bitrefill.com/docs/error-codes>, <https://docs.bitrefill.com/docs/References>.
 
 ## Browse path
@@ -196,3 +198,5 @@ Known Phantom MCP issue — use `wallet_addresses` + external balance, or Base M
 - Error codes: <https://docs.bitrefill.com/docs/error-codes> | Handling: <https://docs.bitrefill.com/docs/References>
 - Rate limits: <https://docs.bitrefill.com/docs/rate-limits>
 - OpenClaw: <https://docs.openclaw.ai/help> + per-tool pages
+
+**User hears:** plain language — "That didn't go through — let's try again" / "Still processing, one moment" — never error codes, endpoint names, or stack traces.

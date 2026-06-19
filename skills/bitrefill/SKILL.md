@@ -4,7 +4,7 @@ description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSI
 compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (Base MCP web_request → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance, Base MCP, AgentCash, CDP awal, Phantom/MetaMask sign-only. OpenClaw + Claude Chat: dedicated harness guides."
 metadata:
   author: bitrefill
-  version: "3.1.0"
+  version: "3.2.0"
   homepage: "https://www.bitrefill.com"
   docs: "https://docs.bitrefill.com"
   repository: "https://github.com/bitrefill/agents"
@@ -18,13 +18,27 @@ Routes by **harness × wallet × touchpoint** — detect each layer, read its gu
 
 ## User-facing language
 
-Shopping talk only — never expose routing internals.
+Concierge voice — crypto should feel like buying a gift card, not wiring a wallet. Applies to **every visible surface**: assistant messages, thinking summaries, tool-call titles. **Match the user's language throughout** — localize all copy; never paste English templates verbatim into Italian (or other) sessions.
 
-**Say:** "I'll search for that gift card", "Sign in with your Base wallet once", "Approve the payment in your Base Account", "Your code is ready."
+**Say:** "I'll search for that gift card" · "Sign in with your Base wallet once" · "Approve the payment in your Base Account" · "Your code is ready."
 
-**Never say:** Path 1/2, Step 1/2/3, harness, touchpoint, x402, MCP, SIWX, JWT, connector, flusso ottimale, micro-fee per call, or name internal tools/routes. Don't narrate your routing plan before acting — the UI shows tool activity.
+**Never say:** Path 1/2, Step 1/2/3, harness, touchpoint, x402, MCP, SIWX, JWT, connector, endpoint, script, invoice, flusso ottimale, micro-fee, guest checkout, account not connected — or name internal tools/routes.
 
-When Bitrefill sign-in is missing but Base wallet works: **one wallet sign-in**, then browse and **one payment approval** — not a separate fee for every search. Internal labels → [x402.md](references/touchpoints/x402.md); user copy → [claude-chat.md](references/harnesses/claude-chat.md) § User voice.
+| Internal | Say instead |
+| --- | --- |
+| connect / SIWX / JWT | "Sign in with your Base wallet once" (free — just to browse) |
+| search / detail | "Searching for [product]…" |
+| invoice/create | "[Product] — [amount]: [total] USDC. Confirm?" |
+| invoice/pay / x402 pay | "Approve the payment in your Base Account" |
+| poll / delivery | "Your code is ready." |
+
+**Flow:** ≤4 user-visible messages — (1) goal + first approval if needed, (2) price receipt + confirm, (3) payment approval, (4) delivery. Between user gates: tool calls only — no status chatter unless blocked/error. Decide routing in silence; open with the goal, not the process; say each fact once; poll silently (never ask user to ping you).
+
+**Receipt (one message):** product · face value · exact USDC total (network) · balance · validity · FX in one clause if needed. **Delivery:** code + non-refundable once, neutrally.
+
+**Reference doc banner** (copy verbatim to top of each guide): *Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.*
+
+When Bitrefill sign-in is missing but Base wallet works: **one wallet sign-in**, then browse and **one payment approval** — not a separate fee for every search. Host-specific copy → [claude-chat.md](references/harnesses/claude-chat.md) § User voice.
 
 ## How to route
 

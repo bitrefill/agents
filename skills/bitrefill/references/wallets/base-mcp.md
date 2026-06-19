@@ -1,8 +1,10 @@
 # Wallet: Base MCP
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Base MCP (`https://mcp.base.org`) — wallet ops + **proxied HTTP** to allowlisted partners. Bitrefill hybrid plugin allowlists **`api.bitrefill.com` only** — not `docs.bitrefill.com`.
 
-Pair with [../touchpoints/x402.md](../touchpoints/x402.md) (Path 1/2) or Bitrefill MCP invoice pay. SIWX → [siwx.md](siwx.md).
+Pair with [../touchpoints/x402.md](../touchpoints/x402.md) (Path 1/2) or Bitrefill MCP invoice pay. Sign-in → [siwx.md](siwx.md).
 
 ## Tool split
 
@@ -17,12 +19,12 @@ Pair with [../touchpoints/x402.md](../touchpoints/x402.md) (Path 1/2) or Bitrefi
 
 ## Bitrefill submission table
 
-| Bitrefill step | Base MCP tool | Notes |
+| Bitrefill step | Base MCP tool | User-facing |
 | --- | --- | --- |
-| x402 REST API calls | `web_request` | Host `api.bitrefill.com`. Headers: `X-Access-Token` (raw JWT), `sign-in-with-x`, `Content-Type` |
-| SIWX connect / codes | `get_wallets`, `sign` | Decomposed SIWX in `sign-in-with-x` header — [siwx.md](siwx.md) |
-| x402 micro-fees, `invoice/pay`, MCP `x402_payment_url` | x402 tools | `maxPayment`: `"0.01"` micro-fees; slightly above `price_usd` for pay |
-| Direct USDC (no x402) | `send` | `{ chain: "base", asset: "USDC", recipient, amount }` from `payment_info` |
+| Catalog / browse | `web_request` | *(silent — or "Searching…")* |
+| Wallet sign-in / codes | `get_wallets`, `sign` | "Sign in with your Base wallet once" |
+| Pay order | x402 tools | "Approve the payment in your Base Account" |
+| Direct USDC (no x402) | `send` | "Approve the USDC transfer in your Base Account" |
 
 All writes need Base Account approval. Poll `get_request_status(requestId)` after approval.
 
@@ -38,9 +40,9 @@ x402 buyer supports **Base and Base-Sepolia only**.
 
 ## x402 workflow
 
-1. `initiate_x402_request(url, method, maxPayment)` → `approvalUrl`, `requestId`
+1. **Approve payment** — `initiate_x402_request(url, method, maxPayment)` → user approves in Base Account. *(say: "Approve the payment in your Base Account" — tool title: "Approve USDC payment")*
 2. User approves in Base Account
-3. `complete_x402_request(requestId)` → paid response body
+3. `complete_x402_request(requestId)` → paid response body. *(silent — poll delivery)*
 
 Micro-fees: `maxPayment: "0.01"`. Invoice pay: slightly above `price_usd`.
 
@@ -59,3 +61,5 @@ Micro-fees: `maxPayment: "0.01"`. Invoice pay: slightly above `price_usd`.
 
 - [Base MCP x402 guide](https://docs.base.org/ai-agents/guides/x402-payments)
 - [Base Bitrefill plugin](https://github.com/base/skills/blob/master/skills/base-mcp/plugins/bitrefill.md)
+
+**User hears:** "Sign in with your Base wallet once" → "Approve the payment in your Base Account" → "Your code is ready."

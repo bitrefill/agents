@@ -1,5 +1,7 @@
 # Capability Matrix
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Per-host harness capabilities + **autonomy-first ranked stacks**. Probe at runtime — [decision-engine.md](decision-engine.md).
 
 Legend: **MCP** → [../touchpoints/mcp.md](../touchpoints/mcp.md) | **x402** → [../touchpoints/x402.md](../touchpoints/x402.md) | **CLI** → [../touchpoints/cli.md](../touchpoints/cli.md) | **API** → [../touchpoints/api.md](../touchpoints/api.md) | **Browse** → [../touchpoints/browse.md](../touchpoints/browse.md) | **OpenClaw** → [openclaw.md](openclaw.md) | **Claude Chat** → [claude-chat.md](claude-chat.md)
@@ -71,3 +73,5 @@ Full wallet matrix → [../wallets/matrix.md](../wallets/matrix.md).
 4. Base MCP `web_request` + guest USDC? → [../touchpoints/x402.md](../touchpoints/x402.md) Path 1.
 5. Shell, no MCP? → [../touchpoints/cli.md](../touchpoints/cli.md).
 6. Else → [decision-engine.md](decision-engine.md) full probe.
+
+**User hears:** never host names or ranked stacks — open with the product goal.

@@ -1,5 +1,7 @@
 # Path: CLI
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Shell + `npm install`, **no MCP client** (CLI talks to Bitrefill MCP under hood). Runtimes: Claude Code, Codex CLI, Cursor terminal, Gemini CLI, OpenCode, OpenClaw, Jules, ChatGPT Agent.
 
 Requires **`@bitrefill/cli` ≥ 0.3.0**. Sandboxed shells: allowlist `registry.npmjs.org` + `api.bitrefill.com`.
@@ -141,6 +143,12 @@ Subcommands from remote MCP (`bitrefill --help` after connect). Core:
 search-products  →  get-product-details  →  buy-products  →  get-invoice-by-id
 ```
 
+1. **Search** — `search-products`. *(say: "Searching for [product]…")*
+2. **Get price** — `get-product-details`. *(silent)*
+3. **Prepare order** — `buy-products`. Confirm with user first. *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
+4. **Pay** → [../wallets/payment.md](../wallets/payment.md). *(say: "Approve the payment in your Base Account")*
+5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
+
 ### 1. Search
 
 ```bash
@@ -235,3 +243,5 @@ Pay-time routing → [../wallets/payment.md](../wallets/payment.md). Signed-in: 
 - <https://github.com/bitrefill/cli> — commands, options, flags
 - <https://docs.bitrefill.com/docs/crypto-payments> — payment methods
 - `bitrefill manifest --json` / `bitrefill llm-context` — live tool list + schemas
+
+**User hears:** "Searching for [product]…" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment" → "Your code is ready."

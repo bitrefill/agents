@@ -1,5 +1,7 @@
 # Host: Claude Chat (claude.ai)
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 [Claude Chat](https://claude.ai) — **code execution sandbox always available** (Python/Node/bash inside the host). **No agent shell** — no Claude Code-style `exec`, no `@bitrefill/cli`, no persistent project terminal. **Egress from sandbox is variable** — probe it; don't assume. **Chat-level MCP connectors** work independent of sandbox egress.
 
 Covers **claude.ai** + custom MCP (Pro+ for connector URLs; Free has code execution, not custom MCP). Claude Code / Desktop / Cowork → [capability-matrix.md](capability-matrix.md) + [../touchpoints/mcp.md](../touchpoints/mcp.md). Only **claude.ai** has **`show_widget`** generative UI.
@@ -24,23 +26,27 @@ OpenClaw → [openclaw.md](openclaw.md). Else if not Claude Chat → [decision-e
 
 ## 2. User voice
 
-Plain shopping language. Match the user's language when they write in Italian, etc.
+Plain shopping language. Match the user's language when they write in Italian, etc. — **including thinking summaries and tool-call titles** (both are user-visible on claude.ai).
 
 | Internal (never say) | User-facing |
 | --- | --- |
 | Path 1 / Path 2 | (omit — just do the right flow) |
 | x402 REST / micro-fee / gated route | "quick wallet sign-in" or nothing |
 | SIWX / JWT / connect | "Sign in with your Base wallet" (one approval) |
-| Bitrefill MCP not authenticated | "Let's connect your Bitrefill account" — OAuth once; if user skips, guest checkout via Base wallet |
+| Bitrefill MCP not authenticated | "Let's connect your Bitrefill account" — OAuth once; if user skips, Base wallet sign-in |
 | Step 1: search… | "Searching for Amazon Italy…" |
 | 4–5 approvals coming | "Two quick steps: sign in with Base, then approve payment" |
 | initiate_x402_request | "Approve the payment in your Base Account" |
+
+**Tool-call titles** — shopping verbs, not endpoints: "Search gift cards", "Get product price", "Sign in with Base wallet", "Approve USDC payment", "Check delivery" — never `web_request`, `/x402/connect`, `Orchestrated API strategy`, etc.
+
+**Message budget:** ≤4 user-visible assistant messages per purchase — (1) goal + first approval if needed, (2) price receipt + confirm, (3) payment approval, (4) delivery. Between user gates: tool calls only — no status chatter unless blocked/error.
 
 **Bad:** "Procedo con il flusso ottimale… Step 1: cerco Amazon Italy su Bitrefill MCP… Il Path 1 richiede script Node… Devo usare Path 2 (pay-per-call)."
 
 **Good:** "Cerco la carta regalo Amazon Italia… Per pagare in USDC ti chiederò di collegare il wallet Base una volta, poi di approvare il pagamento."
 
-Don't announce routing. Don't number steps aloud. One short line per user-visible wait (searching, confirming price, waiting for approval).
+Don't announce routing. Don't number steps aloud. Decide in silence; poll silently — never ask user to ping you.
 
 ## 3. Install connectors
 
@@ -275,7 +281,9 @@ Full policy → [../safeguards.md](../safeguards.md).
 - Datacenter browse checkout (Cloudflare) — MCP/x402 only.
 - Shopping UI in **Artifacts** or raw HTML when `show_widget` available.
 - **Pay-per-call browse** when Base wallet sign-in works (the common Claude Chat mistake).
-- Numbered steps, path names, or connector jargon in user messages.
+- Numbered steps, path names, or connector jargon in **any visible surface** — messages, thinking summaries, tool-call titles.
+- More than **4 user-visible messages** per standard purchase; status chatter between user gates.
+- English thinking/titles in a non-English session (or vice versa).
 
 ## 12. Troubleshooting
 
@@ -296,3 +304,5 @@ Full policy → [../safeguards.md](../safeguards.md).
 - Anthropic code execution + network: <https://support.anthropic.com/en/articles/12111783-create-and-edit-files-with-claude>
 - MCP: [../touchpoints/mcp.md](../touchpoints/mcp.md) | x402: [../touchpoints/x402.md](../touchpoints/x402.md) | Base MCP: [../wallets/base-mcp.md](../wallets/base-mcp.md)
 - Routing: [decision-engine.md](decision-engine.md), [capability-matrix.md](capability-matrix.md)
+
+**User hears:** "Cerco la carta regalo…" → "Sign in with your Base wallet once" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your Base Account" → "Your code is ready."

@@ -1,5 +1,7 @@
 # Wallet: Coinbase CDP (awal)
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Coinbase Agentic Wallet — TEE-backed signing, configurable spending caps. Strong autonomous x402 under limits.
 
 Docs: [docs.cdp.coinbase.com/agentic-wallet](https://docs.cdp.coinbase.com/agentic-wallet/welcome)
@@ -54,3 +56,5 @@ Invoice pay: URL/method/body from 402 envelope or `x402_payment_url`.
 
 - Caps = primary blast-radius control.
 - Never unlimited awal caps on production accounts.
+
+**User hears:** "[Product] — [amount]: [total] USDC. Confirm?" → "Your code is ready." (never "awal" or "x402")

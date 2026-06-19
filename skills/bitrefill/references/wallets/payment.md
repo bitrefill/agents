@@ -1,6 +1,10 @@
 # Wallet: Payment Decision
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Pay-time routing after touchpoint creates invoice. **Lowest HITL first** — [matrix.md](matrix.md).
+
+**Thinking:** one short line in the user's language — never deliberate wallet ranks or HITL scores aloud.
 
 ## Decision tree
 
@@ -64,9 +68,13 @@ Full enum → <https://docs.bitrefill.com/docs/crypto-payments>.
 
 Present product, denomination, exact USDC total, payment method. Wait explicit approval unless session opted autonomous ([../safeguards.md](../safeguards.md)).
 
+*(say: "[Product] — [face value]: [total] USDC on [network]. Your balance: [balance]. Valid [N] min. Confirm?")*
+
 ## Related
 
 - [base-mcp.md](base-mcp.md) — x402 + send
 - [siwx.md](siwx.md) — JWT for fee-free browse
 - [agentcash.md](agentcash.md), [cdp-awal.md](cdp-awal.md) — autonomous x402
 - [phantom.md](phantom.md), [metamask.md](metamask.md) — manual signing
+
+**User hears:** "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your Base Account" → "Your code is ready."

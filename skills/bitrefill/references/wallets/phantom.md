@@ -1,5 +1,7 @@
 # Wallet: Phantom MCP
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Official Phantom embedded wallet MCP for agent signing. **No HTTP proxy** — pair with Bitrefill MCP or Base MCP for API calls.
 
 Docs: [docs.phantom.com/phantom-mcp-server](https://docs.phantom.com/phantom-mcp-server)
@@ -57,3 +59,5 @@ Rank **#7** in [matrix.md](matrix.md) — sign-only fallback.
 ## vs Base MCP
 
 Base MCP proxies Bitrefill HTTP + x402 buyer. Phantom signs only — higher orchestration burden. Prefer Base MCP for pay when both available.
+
+**User hears:** "Approve in your wallet" / "Approve the payment" — never "evm_sign" or "SIWX"

@@ -1,5 +1,7 @@
 # Path: REST API
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Outbound HTTP, no MCP, no shell. Last resort — verbose, no typed validation. Examples use `curl`; any HTTP client works.
 
 Base URL: `https://api.bitrefill.com/v2`
@@ -97,3 +99,5 @@ Most endpoints 60 req / 10 min. `/products` + `/products/search` 60 req/min + 10
 - <https://docs.bitrefill.com/reference> — endpoint catalog
 - <https://docs.bitrefill.com/docs/error-codes> — error codes
 - <https://docs.bitrefill.com/docs/webhooks> — webhook spec
+
+**User hears:** same purchase flow — never "REST API", "Bearer token", or endpoint paths.

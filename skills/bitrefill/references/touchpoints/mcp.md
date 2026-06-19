@@ -1,5 +1,7 @@
 # Path: MCP
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 **Preferred purchase channel.** Typed tool calls, OAuth or API key, no shell, 10+ hosts.
 
 ## Two MCP servers
@@ -127,11 +129,11 @@ openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_K
 search-products  →  get-product-details  →  buy-products  →  get-invoice-by-id
 ```
 
-1. **Search**: `search-products(query="Steam", country="US", product_type="giftcard")`. `country` = uppercase Alpha-2.
-2. **Details**: `get-product-details(product_id="steam-usa", currency="USDC")`. `packages` → `package_value` for cart.
-3. **Buy**: `buy-products(cart_items=[{product_id, package_id}], payment_method, return_payment_link=true)`. Max 15 items. Confirm with user first.
-4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` + `auto_pay` (lowest HITL) → Base MCP x402 on `x402_payment_url` → `send` to `payment_info`.
-5. **Poll**: `get-invoice-by-id(invoice_id)` until `invoice_status: complete` / `orders_delivery_status: all_delivered`. Redemption: `orders[].redemption_info`.
+1. **Search** — `search-products(...)`. *(say: "Searching for [product]…" — tool title: "Search gift cards")*
+2. **Get price** — `get-product-details(..., currency="USDC")`. *(silent)*
+3. **Prepare order** — `buy-products(...)`. Max 15 items. Confirm with user first. *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
+4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` + `auto_pay` → Base MCP pay → `send`. *(say: "Approve the payment in your Base Account")*
+5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
 
 Logging per [../safeguards.md](../safeguards.md).
 
@@ -146,3 +148,5 @@ Logging per [../safeguards.md](../safeguards.md).
 
 - <https://docs.bitrefill.com/docs/ecommerce-mcp> | <https://docs.bitrefill.com/docs/development-mcp> | <https://docs.bitrefill.com/docs/setup-guides>
 - Per-client: <https://docs.bitrefill.com/docs/use-with-cursor>, `/use-with-claude-chat`, `/use-with-claude-code`, `/use-with-chatgpt`
+
+**User hears:** "Searching for [product]…" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your Base Account" → "Your code is ready."

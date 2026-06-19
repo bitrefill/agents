@@ -1,5 +1,7 @@
 # Path: Browse the Website
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 User wants to **explore** Bitrefill (compare prices, product types, denominations, country availability) AND runtime has **residential-IP browser**. Browse-only default — purchases prefer [mcp.md](mcp.md) or [decision-engine.md](../harnesses/decision-engine.md).
 
 ## Hard requirement: residential IP
@@ -67,3 +69,5 @@ Possible but slow, risky. Anti-bot may block brand redemption. Prefer [mcp.md](m
 ## Source of truth
 
 - <https://www.bitrefill.com> | <https://help.bitrefill.com> | <https://docs.bitrefill.com/docs/Products>
+
+**User hears:** "Here's what I found on Bitrefill…" — never Cloudflare, geolock, or residential IP jargon.

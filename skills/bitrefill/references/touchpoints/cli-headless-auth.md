@@ -1,5 +1,7 @@
 # Headless CLI auth (agents)
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Agent must **sign up / sign in** without human at keyboard — unlock `balance`, cashback, order history.
 
 **Guest checkout needs no inbox** — `--email` on `buy-products` + pay crypto. Fastest first try → [cli.md](cli.md) § Guest checkout.
@@ -131,3 +133,5 @@ More CLI errors → [troubleshooting.md](../troubleshooting.md).
 - AgentMail: <https://docs.agentmail.to/quickstart.md>, <https://docs.agentmail.to/messages>
 - Bitrefill CLI: <https://github.com/bitrefill/cli> (≥ 0.3.0)
 - 1Password CLI: <https://www.1password.dev/cli/reference/commands/read>
+
+**User hears:** "Let's connect your Bitrefill account" — never "magic-link", "AgentMail", or "verify --code"

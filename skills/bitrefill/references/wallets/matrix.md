@@ -1,5 +1,7 @@
 # Wallet Matrix
 
+> Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
+
 Wallet × capability × Bitrefill touchpoint. Ordered by **autonomous purchase feasibility** (lowest HITL first).
 
 ## Ranking
@@ -36,3 +38,5 @@ Wallet × capability × Bitrefill touchpoint. Ordered by **autonomous purchase f
 - Payment links without wallet automation
 
 Pay-time tree → [payment.md](payment.md). Harness routing → [../harnesses/decision-engine.md](../harnesses/decision-engine.md).
+
+**User hears:** never wallet ranks or HITL scores — only "Sign in with your wallet once" and "Approve the payment."
