@@ -7,7 +7,7 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 | Item | Status |
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
-| Skill | `bitrefill` — capability-aware, routes to MCP / CLI / API / browser based on host |
+| Skill | `bitrefill` v3.0 — harness × touchpoint × wallet routing |
 | Plugin | `.claude-plugin/marketplace.json` + manifest; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) via root [`.mcp.json`](.mcp.json) (Claude Code / Cowork) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
@@ -22,7 +22,7 @@ Installing the **bitrefill** plugin registers the `bitrefill` skill and the eCom
 /plugin install bitrefill@bitrefill-skills
 ```
 
-First MCP tool call triggers OAuth in your Claude client (no API key configuration). Other hosts (Cursor, Codex CLI, etc.) still configure MCP manually — see [skills/bitrefill/references/mcp.md](skills/bitrefill/references/mcp.md).
+First MCP tool call triggers OAuth in your Claude client (no API key configuration). Other hosts (Cursor, Codex CLI, etc.) still configure MCP manually — see [skills/bitrefill/references/touchpoints/mcp.md](skills/bitrefill/references/touchpoints/mcp.md).
 
 ### skills CLI
 
@@ -57,31 +57,48 @@ Then wire the eCommerce MCP for typed purchase tools:
 openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_KEY"
 ```
 
-Full setup, channel-aware scenarios (Telegram purchase, cron top-up, mobile-camera context), and required hardening: [skills/bitrefill/references/host-openclaw.md](skills/bitrefill/references/host-openclaw.md).
+Full setup, channel-aware scenarios, and hardening: [skills/bitrefill/references/harnesses/openclaw.md](skills/bitrefill/references/harnesses/openclaw.md).
+
+**Claude Chat (claude.ai):** MCP-first + inline `show_widget` shopping UI → [skills/bitrefill/references/harnesses/claude-chat.md](skills/bitrefill/references/harnesses/claude-chat.md).
 
 ## Skill
 
 | Skill | Description |
 |-------|-------------|
-| `bitrefill` | Capability-aware skill that detects the host runtime and routes to the highest-fidelity channel: residential-IP browser (ChatGPT Atlas, Cursor, Claude+Chrome), [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) (preferred for purchases), [@bitrefill/cli](https://github.com/bitrefill/cli) via npm, or the [REST API](https://docs.bitrefill.com/docs/api-overview) (Personal / Business / Affiliate). Includes a dedicated [OpenClaw](https://docs.openclaw.ai/) integration guide for chat-channel scenarios — Telegram purchases, cron auto-renewals, mobile-camera context. |
+| `bitrefill` | Capability-driven routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), then wallet (balance, x402, send). Includes OpenClaw, Hermes, ChatGPT+Base MCP, and wallet matrix (Base MCP, AgentCash, CDP awal, Phantom, MetaMask). |
 
 ### Structure
 
 ```
-.mcp.json                             # Claude Code plugin: eCommerce MCP (HTTP) definition
+.mcp.json
 .claude-plugin/
 ├── plugin.json
 └── marketplace.json
 skills/bitrefill/
-├── SKILL.md                          # capability decision tree + safeguards summary
+├── SKILL.md
 └── references/
-    ├── browse.md                     # residential browser
-    ├── mcp.md                        # MCP setup per client
-    ├── cli.md                        # @bitrefill/cli
-    ├── api.md                        # Personal / Business / Affiliate REST
-    ├── host-openclaw.md              # OpenClaw Gateway integration
-    ├── capability-matrix.md          # per-client cheat sheet
-    ├── safeguards.md                 # spending policy + per-host hardening
+    ├── harnesses/
+    │   ├── decision-engine.md
+    │   ├── capability-matrix.md
+    │   ├── openclaw.md
+    │   └── claude-chat.md
+    ├── touchpoints/
+    │   ├── mcp.md
+    │   ├── x402.md
+    │   ├── cli.md
+    │   ├── cli-headless-auth.md
+    │   ├── api.md
+    │   └── browse.md
+    ├── wallets/
+    │   ├── matrix.md
+    │   ├── payment.md
+    │   ├── base-mcp.md
+    │   ├── siwx.md
+    │   ├── agentcash.md
+    │   ├── cdp-awal.md
+    │   ├── metamask.md
+    │   └── phantom.md
+    ├── safeguards.md
     └── troubleshooting.md
 ```
 

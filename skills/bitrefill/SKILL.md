@@ -1,66 +1,97 @@
 ---
 name: bitrefill
-description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, and eSIMs across 180+ countries, payable in crypto, Lightning, USDC via x402, or pre-funded account balance. Routes the host agent to its highest-fidelity channel (residential browser, MCP server, npm CLI, or REST API) based on detected runtime capabilities, with a dedicated OpenClaw integration guide for chat-channel scenarios. Triggers when the user mentions Bitrefill, gift cards, mobile top-up, eSIM data plan, refilling a phone, or asks to pay or check out with crypto, Lightning, USDC, or x402."
-compatibility: "Detects host capabilities at runtime. Paths require: browse — residential-IP browser; MCP — MCP-capable client + Bitrefill OAuth/API key; CLI — Node.js >=18 + shell + npm + @bitrefill/cli >=0.3.0 (headless login/verify via magic link); API — outbound HTTP + Bitrefill API key (Personal) or API ID/Secret (Business/Affiliate). OpenClaw host gets a dedicated guide."
+description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSIMs, 180+ countries. Capability routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), wallet (balance, x402, send). Favors autonomous purchase, minimal HITL. Triggers: Bitrefill, gift cards, mobile top-up, eSIM, crypto, Lightning, USDC, x402."
+compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (Base MCP web_request → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance, Base MCP, AgentCash, CDP awal, Phantom/MetaMask sign-only. OpenClaw + Claude Chat: dedicated harness guides."
 metadata:
   author: bitrefill
-  version: "2.1.5"
+  version: "3.0.0"
   homepage: "https://www.bitrefill.com"
   docs: "https://docs.bitrefill.com"
-  repository: "https://github.com/bitrefill/cli"
+  repository: "https://github.com/bitrefill/agents"
 ---
 
 # Bitrefill
 
-Bitrefill sells digital goods (gift cards, mobile top-ups, eSIMs) across 180+ countries and 1,500+ brands. Pay with crypto, Lightning, USDC via x402, or pre-funded account balance. Codes deliver instantly after payment confirms.
+Digital goods (gift cards, mobile top-ups, eSIMs) — 180+ countries, 1,500+ brands. Pay: crypto, Lightning, USDC x402, pre-funded balance.
 
-This skill **routes by capability, not by use case**. Same intent ("buy a Steam card") plays out differently across hosts. Pick a path below based on what your runtime can do.
+Routes by **capability intersection**, not fixed path. Probe harness + wallets → touchpoint + payment stack. **Lowest HITL wins.**
 
-## Pick a path
+## How to route
 
-Walk these checks **in order**. First match wins.
+1. Safeguards below → full policy [safeguards.md](references/safeguards.md).
+2. **Probe** → [decision-engine.md](references/harnesses/decision-engine.md).
+3. **OpenClaw?** (`~/.openclaw/`, `openclaw` on PATH) → [openclaw.md](references/harnesses/openclaw.md) first.
+4. **Claude Chat?** (claude.ai + `show_widget` + MCP) → [claude-chat.md](references/harnesses/claude-chat.md) first.
+5. **Unknown host?** → [capability-matrix.md](references/harnesses/capability-matrix.md).
+6. **Derive touchpoint** (catalog/checkout channel).
+7. **Derive wallet** at pay → [payment.md](references/wallets/payment.md).
 
-1. **Inside OpenClaw?** Check for `~/.openclaw/openclaw.json`, `~/.openclaw/skills/`, or `openclaw` on PATH. If yes → read [host-openclaw.md](references/host-openclaw.md) first. **Default purchase path: guest CLI via `exec`** (no auth). Sign in for `balance`/cashback. OpenClaw also supports MCP, API, Browse, chat-channel scenarios (Telegram, cron, mobile camera).
+### Touchpoint (first match after probe)
 
-2. **Browse-only intent (no purchase)?** If the user only wants to explore, compare prices, or learn how products work:
-   - Have a residential-IP browser (ChatGPT Atlas, Cursor browser tool, Claude/Playwright Chrome extension, OpenClaw on user host)? → [browse.md](references/browse.md).
-   - Datacenter egress only (ChatGPT web/Agent, Gemini consumer, Jules)? `www.bitrefill.com` returns **403 Cloudflare** to datacenter IPs. Use [mcp.md](references/mcp.md) `search-products` / `product-details` instead — they return the same catalog without scraping.
+| If | Read |
+| --- | --- |
+| `search-products` / `buy-products` visible (OAuth or API key) | [mcp.md](references/touchpoints/mcp.md) |
+| Base MCP `web_request` + guest USDC, no Bitrefill account | [x402.md](references/touchpoints/x402.md) Path 1 (JWT) |
+| Shell + npm, no Bitrefill MCP | [cli.md](references/touchpoints/cli.md) |
+| Direct HTTP only | [api.md](references/touchpoints/api.md) |
+| Browse-only + residential browser | [browse.md](references/touchpoints/browse.md) |
+| None viable | Send user `bitrefill.com` link |
 
-3. **MCP supported?** Bitrefill ships a remote HTTP/SSE MCP at `https://api.bitrefill.com/mcp`. Works on Claude.ai (Pro+), Cowork, Claude Desktop, Claude Code, ChatGPT (Plus+), Atlas, Codex CLI, Gemini CLI, Cursor, OpenCode, OpenClaw. **Highest-fidelity purchase channel — typed tool calls, OAuth or API key, no shell needed.** → [mcp.md](references/mcp.md).
+**Pay:** wallet supports x402 → x402; else on-chain `send`; signed-in → `balance` + `auto_pay` first. → [payment.md](references/wallets/payment.md), [matrix.md](references/wallets/matrix.md).
 
-4. **Shell + `npm install` available?** CLI ≥ 0.3.0: **guest checkout first** (no auth — `buy-products --email` + crypto). Sign in for `balance`, cashback, order history. → [cli.md](references/cli.md). Headless sign-in → [cli-headless-auth.md](references/cli-headless-auth.md).
+## Top spending safeguards
 
-5. **Outbound HTTP from agent loop?** Anywhere shell exists, plus Claude Code `WebFetch`. Last resort — verbose, no typed validation. → [api.md](references/api.md).
+**Real-money transactions.** Codes instant; digital goods non-refundable once fulfilled.
 
-6. **None of the above** (e.g. Gemini consumer free tier): give the user a `bitrefill.com` link and stop.
+- **Confirm before buy** unless user opted autonomous purchasing this session.
+- **Codes = cash** — never paste public channels; prefer in-memory.
+- **Dedicated low-balance account** — never give agent wallet seeds. Skill **not a wallet**.
+- **Log every purchase** — `invoice_id`, product, amount, payment method.
 
-Don't know which host you're in? Read [capability-matrix.md](references/capability-matrix.md) — per-client cheat sheet maps every leading agent product to its viable paths.
-
-## Top spending safeguards (read full list before any purchase)
-
-This skill enables **real-money transactions**. Codes deliver instantly and digital goods are non-refundable per EU consumer rights.
-
-- **Confirm before buying.** Present product, denomination, price, payment method. Wait for explicit user approval. Autonomous purchasing only when user opts in for the current session.
-- **Treat codes as cash.** Never paste in group chats or public channels. Prefer in-memory storage over plain-text logs. Advise user to redeem ASAP.
-- **Use a dedicated, low-balance account.** Never give the agent access to high-balance accounts or crypto wallet seeds. This skill is **not a wallet**.
-- **Log every purchase.** `invoice_id`, product, amount, payment method.
-
-Full safeguards + per-host hardening (OpenClaw exec-approvals, Cursor auto-approve, Codex sandbox, Claude Code allowlist) → [safeguards.md](references/safeguards.md).
+Full safeguards + per-host hardening → [safeguards.md](references/safeguards.md).
 
 ## References
 
+### Harnesses
+
 | File | Use when |
-|------|----------|
-| [browse.md](references/browse.md) | Agent has residential-IP browser; user wants to explore |
-| [mcp.md](references/mcp.md) | MCP-capable host; preferred purchase path |
-| [cli.md](references/cli.md) | Shell + npm; guest checkout or signed-in CLI ≥ 0.3.0 |
-| [cli-headless-auth.md](references/cli-headless-auth.md) | AgentMail or equivalent inbox + magic-link auth for headless agents |
-| [api.md](references/api.md) | HTTP-only runtime; Personal / Business / Affiliate REST tiers |
-| [host-openclaw.md](references/host-openclaw.md) | OpenClaw Gateway — guest CLI via `exec` preferred |
-| [capability-matrix.md](references/capability-matrix.md) | Per-client viable paths cheat sheet |
-| [safeguards.md](references/safeguards.md) | Spending policy + per-host hardening |
-| [troubleshooting.md](references/troubleshooting.md) | Common errors across all paths |
+| --- | --- |
+| [decision-engine.md](references/harnesses/decision-engine.md) | Capability probe + derivation |
+| [capability-matrix.md](references/harnesses/capability-matrix.md) | Per-host exec / egress / ranked stacks |
+| [openclaw.md](references/harnesses/openclaw.md) | OpenClaw Gateway — guest CLI via `exec` |
+| [claude-chat.md](references/harnesses/claude-chat.md) | claude.ai — MCP-first + `show_widget` |
+
+### Touchpoints
+
+| File | Use when |
+| --- | --- |
+| [mcp.md](references/touchpoints/mcp.md) | Bitrefill MCP OAuth'd |
+| [x402.md](references/touchpoints/x402.md) | x402 REST via Base MCP or direct egress |
+| [cli.md](references/touchpoints/cli.md) | Shell + `@bitrefill/cli` ≥ 0.3.0 |
+| [cli-headless-auth.md](references/touchpoints/cli-headless-auth.md) | AgentMail / magic-link sign-in |
+| [api.md](references/touchpoints/api.md) | v2 REST — Personal / Business / Affiliate |
+| [browse.md](references/touchpoints/browse.md) | Residential browser explore-only |
+
+### Wallets
+
+| File | Use when |
+| --- | --- |
+| [matrix.md](references/wallets/matrix.md) | Wallet × touchpoint × HITL ranking |
+| [payment.md](references/wallets/payment.md) | Pay-time decision tree |
+| [base-mcp.md](references/wallets/base-mcp.md) | Base MCP `web_request`, x402, `send` |
+| [siwx.md](references/wallets/siwx.md) | Connect → JWT, redemption SIWX |
+| [agentcash.md](references/wallets/agentcash.md) | Autonomous x402 via `fetch` |
+| [cdp-awal.md](references/wallets/cdp-awal.md) | Coinbase Agentic Wallet / awal |
+| [metamask.md](references/wallets/metamask.md) | MetaMask Agent Wallet (`mm` CLI) |
+| [phantom.md](references/wallets/phantom.md) | Phantom MCP sign-only |
+
+### Cross-cutting
+
+| File | Use when |
+| --- | --- |
+| [safeguards.md](references/safeguards.md) | Spending policy + host hardening |
+| [troubleshooting.md](references/troubleshooting.md) | Errors across all paths |
 
 ## Source of truth
 
-Skill summarizes and routes. For exhaustive enums (countries, payment methods, full endpoint list), follow link-outs to <https://docs.bitrefill.com>.
+Skill summarizes + routes. Exhaustive enums → <https://docs.bitrefill.com>.
