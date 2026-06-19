@@ -14,12 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Zip each skill
+      - name: Zip each plugin
         run: |
           mkdir -p dist
           for dir in skills/*/; do
             name=$(basename "$dir")
-            (cd skills && zip -r "../dist/${name}.zip" "$name")
+            zip -r "dist/${name}.zip" .claude-plugin .mcp.json "skills/${name}"
           done
 
       - name: Create release and upload assets
