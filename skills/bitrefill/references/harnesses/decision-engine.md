@@ -6,7 +6,9 @@ Capability-driven Bitrefill routing. Three phases — same order as [SKILL.md](.
 
 1. **Harness** — probe host, read harness guide.
 2. **Wallets** — probe payment tools, read wallet guides.
-3. **Combine** — pick touchpoint × wallet with lowest HITL for intent.
+3. **Combine** — pick the policy-compliant touchpoint × wallet with lowest HITL for intent.
+
+Routing is not authorization. No host override, autonomy rank, or lower-HITL route may weaken [budget-guard.md](../budget-guard.md), [safeguards.md](../safeguards.md), exact-total confirmation, host approval, idempotency, or reconciliation. Exclude a route if it cannot satisfy them before its first money-moving call.
 
 **Thinking:** one short line in the user's language — never deliberate paths, ranks, fees, or auth state. Choose stack silently; act.
 
@@ -27,6 +29,7 @@ exec_available      = agent shell | exec | terminal | @bitrefill/cli — Claude 
 egress_direct       = sandbox or agent HTTP to api.bitrefill.com without MCP proxy — Claude Chat: probe
 egress_mcp_proxy    = Base MCP web_request → api.bitrefill.com (hybrid plugin)
 egress_none         = chat-only; sandbox no outbound net
+bitrefill_rest_authorized = egress_direct + current authorized REST credential
 browser_residential = user-network browser (not datacenter)
 bitrefill_mcp_live  = search-products / buy-products visible (OAuth or API key)
 base_mcp_live       = get_wallets / web_request / initiate_x402_request visible
@@ -47,7 +50,7 @@ wallet_base_mcp     = Base MCP sign + x402 + send
 wallet_metamask     = mm CLI agent wallet
 wallet_phantom      = Phantom MCP evm_sign / evm_send
 wallet_none         = payment_link / human browser only
-bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
+bitrefill_balance   = pre-funded balance; safe two-step pay additionally requires bitrefill_rest_authorized
 ```
 
 ## Phase 3 — Combine: touchpoint × wallet
@@ -63,17 +66,17 @@ bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 | browse-only ∧ `browser_residential` | [../touchpoints/browse.md](../touchpoints/browse.md) |
 | else | send user `bitrefill.com` link |
 
-**OpenClaw override:** detect first → [openclaw.md](openclaw.md). Guest CLI via `exec` before MCP when no OAuth.
+**OpenClaw routing preference:** detect first → [openclaw.md](openclaw.md). Guest CLI via `exec` before MCP when no OAuth. This preference never overrides budget, confirmation, or approval policy.
 
 **Claude Chat override:** detect in Phase 1 → [claude-chat.md](claude-chat.md) §1. Signals: `show_widget` **or** `read_me`; MCP connector tools on claude.ai. **`sandbox_exec` true, `exec_available` false** — has code sandbox, not agent shell. Probe **`egress_direct`**. MCP-first for shopping; no pay-per-call browse when Base `sign` works; `show_widget` when available.
 
-**Triple-MCP (Bitrefill + Base + Phantom):** Bitrefill MCP catalog/checkout when OAuth'd → Base MCP x402 pay → Phantom sign-only if Phantom is payer (HTTP via Base MCP or Bitrefill MCP).
+**Bitrefill + wallet MCPs:** Bitrefill MCP owns catalog/checkout when OAuth'd. Choose exactly one payer: Base MCP x402 when Base pays, or Phantom sign-only fallback with a separate non-paying HTTP client when Phantom pays. Payer-only redemption proof must use that same wallet.
 
 ### Derive wallet (pay time)
 
 Global autonomy rank ([../wallets/matrix.md](../wallets/matrix.md)):
 
-1. **`bitrefill_balance`** → `balance` + `auto_pay: true`
+1. **`bitrefill_balance && bitrefill_rest_authorized`** → REST `auto_pay: false` invoice → reserve → pay same invoice
 2. **`wallet_agentcash` or `wallet_cdp`** → x402 on `x402_payment_url` or x402 REST `invoice/pay`
 3. **`wallet_base_mcp`** → `initiate_x402_request` / `complete_x402_request`; else `send` to `payment_info`
 4. **x402 REST Path 1** → SIWX via [../wallets/siwx.md](../wallets/siwx.md) + [../wallets/base-mcp.md](../wallets/base-mcp.md) or AgentCash
@@ -87,7 +90,7 @@ Details → [../wallets/payment.md](../wallets/payment.md).
 |-----------|------------|
 | ChatGPT sandbox no net + Base MCP yes | Base MCP `web_request` for x402 REST; ignore sandbox for API |
 | Bitrefill MCP OAuth'd + Base MCP yes | Bitrefill MCP catalog; Base MCP x402 for `usdc_base` pay |
-| Bitrefill MCP OAuth'd + Phantom yes | Bitrefill MCP + balance/x402; Phantom only if user wants Phantom as payer |
+| Bitrefill MCP OAuth'd + Phantom yes | Bitrefill MCP catalog + x402; balance only through separately authorized REST; Phantom only if user wants Phantom as payer |
 | Base MCP yes, no Bitrefill MCP | x402 REST Path 1 via Base MCP (ChatGPT+ dual connector) |
 | Phantom yes, no HTTP proxy | Don't use Phantom for API — pair with Base MCP or Bitrefill MCP |
 
@@ -95,7 +98,7 @@ Details → [../wallets/payment.md](../wallets/payment.md).
 
 | Rank | Touchpoint | Wallet | Residual HITL |
 |------|------------|--------|---------------|
-| 1 | Bitrefill MCP | `balance` + `auto_pay` | Purchase confirm only |
+| 1 | REST API | Two-step `balance` invoice/pay | Purchase confirm only |
 | 2 | x402 REST Path 1 | AgentCash `fetch` | Fund once + confirm |
 | 3 | x402 REST Path 1 | CDP awal (caps set) | Auth + caps once |
 | 4 | Bitrefill MCP | Base MCP x402 | OAuth + 1 Base approval/pay |

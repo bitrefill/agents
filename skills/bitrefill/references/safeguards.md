@@ -4,18 +4,20 @@
 
 **Real-money transactions.** Instant fulfillment after payment. Digital codes non-refundable per EU consumer rights once delivered.
 
-**Agent-policy layer** — not in upstream Bitrefill or host docs. Read fully before any purchase tool call.
+**Agent-policy layer** — not in upstream Bitrefill or host docs. Read fully with [budget-guard.md](budget-guard.md) before any purchase-capable call.
 
 ## Universal rules
 
-- **Default: confirm before purchase.** Product, denomination, price, payment method. Wait explicit approval. Autonomous only when user opts in this session.
+- **Session budget required.** Apply [budget-guard.md](budget-guard.md) before any call that can create, submit, auto-pay, pay, or settle a purchase. Missing, lost, ambiguous, or inconsistent budget state blocks the call.
+- **Default: confirm before purchase.** Product, denomination, exact total, payment method. Wait explicit approval. Autonomous only when user opts in this session. A budget is a separate ceiling, not approval.
 - **Codes = cash-like.** Gift card / eSIM QR = bearer money. Store secure. Never share publicly.
 - **In-memory preferred.** Don't write codes to plain-text logs, transcripts, unencrypted files. Read → use → discard.
 - **User asks for code:** return it; advise store secure, don't share, redeem ASAP.
 - **Dedicated low-balance account.** Never high-balance access. Pre-fund only session spend cap.
 - **Headless CLI: agent-owned inbox.** Register with agent inbox ([AgentMail](https://www.agentmail.to/) or equivalent — [touchpoints/cli-headless-auth.md](touchpoints/cli-headless-auth.md)), not human primary email. Inbox compromise = account takeover.
 - **Not a wallet.** No private keys or crypto wallets. Never seed phrases, hardware-wallet PINs, signing keys.
-- **Log every purchase.** `invoice_id`, product slug, amount, payment method, timestamp.
+- **Record every purchase in the session-local ledger.** Stable transaction ID, product slug or safe description, payable and budget-impact amounts/currencies, payment method, timestamp, and state only. Never codes, auth data, or full tool responses.
+- **Account funding is separate.** A purchase budget never authorizes an account deposit or wallet top-up. Keep funding user-controlled and subject to independent host/wallet approval.
 - **Refunds:** digital goods only if defective code. EU 14-day change-of-mind **does not** apply.
 - **Browser redemption fallback:** anti-bot on brand site → user redeems manually; return code.
 
@@ -27,9 +29,10 @@ Terms: <https://www.bitrefill.com/terms/>.
 
 Defaults permissive (sandboxing off, `security: full`, `ask: off`). Tighten:
 
-- **Guest CLI via `exec` first** for purchases; sign in only for `balance` cap or cashback. → [harnesses/openclaw.md](harnesses/openclaw.md).
+- **Guest CLI via `exec` first** for purchases. Sign-in is for identity/history/visibility; guarded balance also requires authorized direct REST, and cashback payment remains blocked pending authoritative debit semantics. → [harnesses/openclaw.md](harnesses/openclaw.md).
 - `channels.<ch>.allowFrom: ["<your_id>"]` + `dmPolicy: "pairing"` every channel.
-- `~/.openclaw/exec-approvals.json`: `security: allowlist` + `ask: on-miss`. Allowlist read tools; force `/approve` for `bitrefill buy-products` + MCP `buy-products`.
+- `session.dmScope: "per-channel-peer"`; never share a budget/code across peers, and use `identityLinks` only for a reviewed same-operator handoff.
+- MCP-allowlist only `search-products`, `get-product-details`, `list-invoices`, and `get-invoice-by-id`; future or state-changing tools stay excluded. Exec approvals do not protect direct MCP calls. Route buys through CLI/API with the execution-host-scoped `security: allowlist`, `ask: always`, `askFallback: deny`, `autoAllowSkills: false`, pinned binaries, and live-session `/exec ask=always` setup in [openclaw.md](harnesses/openclaw.md#8-openclaw-safeguards).
 - `agents.list[]` Bitrefill persona with `tools.deny: ["gateway"]`.
 - Disable voice readback (`audio_as_voice` / TTS). Text-only — no `MEDIA:<url>` for codes.
 
@@ -46,8 +49,7 @@ Full → [harnesses/openclaw.md](harnesses/openclaw.md) §8.
       "url": "https://api.bitrefill.com/mcp",
       "autoApprove": [
         "search-products", "get-product-details",
-        "list-invoices", "get-invoice-by-id",
-        "submit-prepayment-step", "update-order"
+        "list-invoices", "get-invoice-by-id"
       ]
     }
   }
@@ -118,7 +120,7 @@ Developer Mode for write tools. Keep **off** unless actively purchasing. Confirm
 - x402 (AgentCash, awal, Base MCP) — bound wallet balance + caps.
 - `lightning` / payment links — higher human involvement.
 
-Default: pre-fund `balance` on dedicated account → `payment_method: "balance"` + `auto_pay: true`.
+Default balance flow: create a non-paying REST invoice with `auto_pay: false`, reserve its server-bound final total, then pay that same invoice once. Use an auto-paying create call only when it independently exposes and binds the final total before the call.
 
 ## NEVER
 
@@ -127,6 +129,8 @@ Default: pre-fund `balance` on dedicated account → `payment_method: "balance"`
 - Store codes in version control.
 - Give agent seed phrases or hardware-wallet PINs.
 - Auto-approve `buy-products` in any host MCP config.
+- Create, pay, or retry a purchase without a valid session-budget preflight and stable ledger record.
+- Treat a purchase budget as authorization to fund an account or wallet.
 - Run skill from account with stored payment cards or high balances.
 
 ## Source of truth
@@ -136,4 +140,4 @@ Default: pre-fund `balance` on dedicated account → `payment_method: "balance"`
 - Touchpoints: [touchpoints/mcp.md](touchpoints/mcp.md), [touchpoints/cli.md](touchpoints/cli.md), [touchpoints/x402.md](touchpoints/x402.md)
 - OpenClaw: [harnesses/openclaw.md](harnesses/openclaw.md) | Claude Chat: [harnesses/claude-chat.md](harnesses/claude-chat.md)
 
-**User hears:** confirm as a clean receipt — "[Product] — [amount]: [total] USDC. Confirm?" Non-refundable once, neutrally at delivery: "Your code is ready — keep it safe, not refundable once issued."
+**User hears:** confirm as a clean receipt — "[Product] — [amount]: [exact total and payment asset]. Confirm?" Non-refundable once, neutrally at delivery: "Your code is ready — keep it safe, not refundable once issued."

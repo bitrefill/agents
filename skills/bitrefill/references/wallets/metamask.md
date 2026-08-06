@@ -26,8 +26,10 @@
 
 ## Bitrefill pairing
 
-1. Agent creates invoice via Bitrefill MCP / CLI / x402 REST (HTTP from harness).
-2. Pay: parse x402 402 → build EIP-3009 typed data → `mm wallet sign-typed-data` → user confirms → agent retries HTTP.
+1. Agent creates an expressly non-paying invoice via Bitrefill MCP / CLI / x402 REST (HTTP from harness) and stores its stable invoice/request ID.
+2. Fetch the current x402 402 without an auto-paying client. Validate its exact atomic amount, asset, network, recipient, and authoritative budget impact; never substitute product pricing or `price_usd`.
+3. Apply [budget-guard.md](../budget-guard.md) and the [payment route contract](payment.md#route-contract), including any authoritative or safely capped wallet/network fees.
+4. Build EIP-3009 typed data → `mm wallet sign-typed-data` → user confirms → agent retries HTTP once under the same record. Reconcile actual wallet debit and Bitrefill payment state; release only unused cap.
 
 Rank **#5–6** in [matrix.md](matrix.md) — not recommended for autonomous checkout.
 
@@ -38,5 +40,7 @@ Codex, Claude Code, OpenClaw, Hermes, Cursor (shell + mm installed).
 ## vs Base MCP / AgentCash
 
 MetaMask = manual payment confirm per x402. Prefer Base MCP x402 or AgentCash for agent-commerce.
+
+Do not sign or send again after a timeout, lost response, or `payment_detected`; reconcile the stable invoice/payment ID first.
 
 **User hears:** "Approve the payment in your wallet" — never "mm CLI" or tool names

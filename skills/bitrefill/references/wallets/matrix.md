@@ -8,7 +8,7 @@ Wallet × capability × Bitrefill touchpoint. Ordered by **autonomous purchase f
 
 | Rank | Wallet | HTTP proxy | x402 | SIWX | Autonomous | Best touchpoint |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | **Bitrefill balance** | via MCP/CLI | N/A | N/A | **High** (pre-fund) | Bitrefill MCP / signed-in CLI |
+| 1 | **Bitrefill balance** | direct REST | N/A | N/A | **High** (pre-fund) | REST `auto_pay: false` invoice → pay same invoice |
 | 2 | **AgentCash** | `fetch` (local) | **Auto** | **Auto** | **Highest** | x402 REST, `x402_payment_url` |
 | 3 | **CDP awal** | via x402 pay | **Auto under caps** | Manual | **High** | x402 REST, `x402_payment_url` |
 | 4 | **Base MCP** | `web_request` | Approve each | `sign` approve each | Partial | x402 Path 1, MCP invoice |
@@ -18,7 +18,7 @@ Wallet × capability × Bitrefill touchpoint. Ordered by **autonomous purchase f
 
 ## Pairing rules
 
-- **Bitrefill MCP OAuth'd** → catalog/checkout on MCP; pay balance first, then Base MCP x402 on `x402_payment_url`.
+- **Bitrefill MCP OAuth'd** → catalog on MCP. Balance additionally requires direct REST egress and an authorized REST credential for the two-step invoice/pay flow; otherwise skip it. Non-balance MCP invoices can use their guarded `x402_payment_url` or payment instrument.
 - **Base MCP only** → x402 REST Path 1 ([../touchpoints/x402.md](../touchpoints/x402.md)).
 - **Phantom + Base MCP** → Base MCP HTTP; Phantom SIWX if Phantom is payer ([phantom.md](phantom.md)).
 - **No wallet** → payment_link / human only.

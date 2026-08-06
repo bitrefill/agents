@@ -2,7 +2,7 @@
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 
-Per-host harness capabilities + **autonomy-first ranked stacks**. Probe at runtime — [decision-engine.md](decision-engine.md).
+Per-host harness capabilities + **autonomy-first ranked stacks**. Probe at runtime — [decision-engine.md](decision-engine.md). These ranks select only among policy-compliant routes: they never override [budget-guard.md](../budget-guard.md), [safeguards.md](../safeguards.md), confirmation, exact-total, approval, or reconciliation requirements.
 
 Legend: **MCP** → [../touchpoints/mcp.md](../touchpoints/mcp.md) | **x402** → [../touchpoints/x402.md](../touchpoints/x402.md) | **CLI** → [../touchpoints/cli.md](../touchpoints/cli.md) | **API** → [../touchpoints/api.md](../touchpoints/api.md) | **Browse** → [../touchpoints/browse.md](../touchpoints/browse.md) | **OpenClaw** → [openclaw.md](openclaw.md) | **Claude Chat** → [claude-chat.md](claude-chat.md)
 
@@ -15,10 +15,10 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 | Host | Exec | Egress | MCP | Browser | Ranked stack (autonomy-first) |
 |------|------|--------|-----|---------|------------------------------|
 | Claude.ai Free | Sandbox exec yes; no agent shell | MCP: no custom connectors; egress: probe | No | Chrome ext only | Link only |
-| Claude.ai Pro+ | Sandbox exec yes; no agent shell | **MCP** connectors; sandbox egress: **probe** | Yes | Chrome ext | MCP + balance → MCP + Base x402 → x402 REST via Base |
-| Cowork | Desktop shell | MCP + host | Yes | Chrome ext | MCP + balance → MCP + Base x402 → CLI |
-| Claude Desktop | No | MCP only | Yes | Chrome ext | MCP + balance → MCP + Base x402 |
-| Claude Code | Full shell | Direct + MCP | Yes | Chrome ext | MCP + balance → MCP + Base x402 → CLI → x402 REST |
+| Claude.ai Pro+ | Sandbox exec yes; no agent shell | **MCP** connectors; sandbox egress: **probe** | Yes | Chrome ext | REST two-step balance (capability-gated) → MCP + Base x402 → x402 REST via Base |
+| Cowork | Desktop shell | MCP + host | Yes | Chrome ext | REST two-step balance (capability-gated) → MCP + Base x402 → CLI |
+| Claude Desktop | No | MCP only | Yes | Chrome ext | MCP + Base x402 |
+| Claude Code | Full shell | Direct + MCP | Yes | Chrome ext | REST two-step balance (capability-gated) → MCP + Base x402 → CLI → x402 REST |
 
 **Claude Chat network paths:** (1) chat **MCP** (always for configured connectors), (2) **code sandbox** (Team: egress on/package mgrs; Enterprise: off; Pro/Max: user-controlled), (3) legacy **Analysis tool** (browser, no net). Bitrefill routing: **MCP only** → [claude-chat.md](claude-chat.md) §3.
 
@@ -27,10 +27,10 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 | Host | Exec | Egress | MCP | Browser | Ranked stack |
 |------|------|--------|-----|---------|--------------|
 | ChatGPT Free | No | None | No | Datacenter | Link only |
-| ChatGPT Plus+ / Desktop | Sandbox **no net** | **MCP host yes** | Yes | Datacenter | MCP + balance → **Base MCP x402 REST** (no Bitrefill account) |
+| ChatGPT Plus+ / Desktop | Sandbox **no net** | **MCP host yes** | Yes | Datacenter | **Base MCP x402 REST** (no Bitrefill account) |
 | ChatGPT Atlas | Limited | MCP + residential | Yes | **Residential** | MCP buy; Browse explore-only |
 | ChatGPT Agent | Sandbox shell | MCP + curl | Yes | Datacenter | MCP → CLI → Base x402 |
-| Codex CLI | Full shell | Allowlistable | Yes | MCP only | MCP + balance → CLI → AgentCash/awal |
+| Codex CLI | Full shell | Allowlistable | Yes | MCP only | REST two-step balance (capability-gated) → CLI → AgentCash/awal |
 
 **ChatGPT:** Code Interpreter can't curl; Base MCP `web_request` proxies `api.bitrefill.com` — full x402 shop without Bitrefill MCP when dual-connector configured.
 
@@ -40,23 +40,23 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 |------|------|--------|-----|---------|--------------|
 | Gemini Free | No | None | No | No | Link only |
 | Gemini Pro/Ultra | Limited | Google IPs | Limited | Auto Browse (often blocked) | MCP → CLI → link |
-| Gemini CLI | Full shell | Direct + MCP | Yes | MCP | MCP + balance → CLI → API |
+| Gemini CLI | Full shell | Direct + MCP | Yes | MCP | REST two-step balance (capability-gated) → CLI → API |
 | Jules | VM shell | VM egress | No | No | CLI → API (batch only) |
 
 ## Other hosts
 
 | Host | Exec | Egress | MCP | Browser | Ranked stack |
 |------|------|--------|-----|---------|--------------|
-| Cursor | Terminal | Direct + MCP | Yes (40-tool cap) | Built-in | MCP + balance → Base x402 → CLI |
-| OpenCode | Full shell | Direct + MCP | Yes | MCP | MCP + balance → CLI |
-| **OpenClaw / Pi** | `exec` | Host IP | Yes | Host IP | **Guest CLI exec** → balance → MCP → x402 |
+| Cursor | Terminal | Direct + MCP | Yes (40-tool cap) | Built-in | REST two-step balance (capability-gated) → Base x402 → CLI |
+| OpenCode | Full shell | Direct + MCP | Yes | MCP | REST two-step balance (capability-gated) → CLI |
+| **OpenClaw / Pi** | `exec` | Host IP | Yes | Host IP | **Guest CLI exec** → REST two-step balance (capability-gated) → MCP → x402 |
 | **Hermes** | `terminal` | Backend-dependent | Yes | Local/CDP | MCP (API key cron) → CLI → avoid cloud browse |
 
 ## Wallet availability by host
 
 | Wallet | Typical hosts | Bitrefill pairing |
 |--------|---------------|-------------------|
-| Bitrefill balance | Any OAuth'd MCP/CLI | Lowest HITL — pre-fund cap |
+| Bitrefill balance | Direct REST egress + authorized REST credential | Two-step REST invoice/pay; MCP/CLI sign-in alone is insufficient |
 | Base MCP | Cursor, ChatGPT+, Claude+connector | x402 REST Path 1, MCP invoice pay |
 | AgentCash | OpenClaw, Hermes, Codex (local MCP) | Autonomous x402 |
 | CDP awal | Codex, OpenClaw, Hermes | Autonomous x402 under caps |
@@ -66,6 +66,8 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 Full wallet matrix → [../wallets/matrix.md](../wallets/matrix.md).
 
 ## Quick decision
+
+Apply the budget guard and safeguards before following any route below. If a ranked route cannot provide the exact payable amount or required approval before a money-moving call, skip it; routing priority is never an exception.
 
 1. OpenClaw? → [openclaw.md](openclaw.md) — guest CLI first.
 2. Claude Chat (claude.ai + `show_widget`)? → [claude-chat.md](claude-chat.md) — MCP-first + generative UI.

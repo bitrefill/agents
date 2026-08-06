@@ -138,7 +138,7 @@ function buildSiweMessage(info, address, chainIdCaip2){
 }
 ```
 
-No JavaScript runtime **and** no Base MCP `sign`: Path 2 (no connect) or AgentCash `fetch` (handles SIWX internally). **Claude Chat:** Base MCP `sign` first; else sandbox Node when `egress_direct` probe succeeds — not Path 2. Prefer bundled scripts when agent shell (`exec`) or sandbox Node + egress available.
+No JavaScript runtime **and** no Base MCP `sign`: Path 2 (no connect) or AgentCash `fetch` (handles SIWX internally). Path 2 remains a paid route: inspect each challenge non-paying first and apply [budget-guard.md](../budget-guard.md) plus the [payment route contract](payment.md#route-contract). **Claude Chat:** Base MCP `sign` first; else sandbox Node when `egress_direct` probe succeeds — not Path 2. Prefer bundled scripts when agent shell (`exec`) or sandbox Node + egress available.
 
 ## Security
 

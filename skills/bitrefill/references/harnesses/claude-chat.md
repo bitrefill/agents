@@ -138,11 +138,13 @@ Probe at session start — especially egress.
 
 | Rank | Touchpoint | Wallet | Residual HITL |
 | --- | --- | --- | --- |
-| 1 | Bitrefill MCP | `balance` + `auto_pay: true` | Confirm purchase only |
+| 1 | REST API | Two-step `balance` invoice/pay | Confirm purchase only |
 | 2 | Bitrefill MCP | Base MCP x402 on `x402_payment_url` | OAuth + 1 Base approval/pay |
 | 3 | Guest checkout (wallet sign-in) | Base MCP sign + pay | 1 wallet sign-in + 1 pay |
 | 4 | Bitrefill MCP | Base MCP `send` | OAuth + 1 send/pay |
 | 5 | Bitrefill MCP | `payment_link` / Lightning | Human completes pay |
+
+Rank 1 requires proven direct REST egress plus an authorized REST credential for the non-paying invoice and later pay call; connector OAuth alone is insufficient. Otherwise skip balance. An auto-paying create call is eligible only when it independently exposes a server-bound final cart total before the call.
 
 **Avoid:** `@bitrefill/cli`, **pay-per-call browse** when Base wallet sign-in works, routing shopping via sandbox when MCP is live, datacenter browse checkout.
 
@@ -150,16 +152,18 @@ Probe at session start — especially egress.
 
 ## 7. Primary workflow — Bitrefill MCP + Base MCP
 
+This harness guide never overrides [safeguards.md](../safeguards.md) or the mandatory [session budget guard](../budget-guard.md). Missing or invalid current-session budget state blocks every purchase-capable tool below.
+
 1. **Search** — `search-products(query, country=<Alpha-2>, product_type=...)`.
-2. **Detail** — `get-product-details(product_id, currency="USDC")` → exact `package_value` / `package_id`.
-3. **Confirm** — product, denomination, exact price with user before buy.
-4. **Buy** — `buy-products(cart_items=[...], payment_method="usdc_base", return_payment_link=true)` (or `"balance"` + `auto_pay: true` when pre-funded).
-5. **Pay** ([../wallets/payment.md](../wallets/payment.md)):
-   - **Best:** `payment_method: "balance"` + `auto_pay: true`.
-   - **Default USDC:** Base MCP `initiate_x402_request(url=x402_payment_url, method, maxPayment)` → user approves Base Account → `complete_x402_request(requestId)`. `maxPayment` slightly above `price_usd`.
-   - **Fallback:** Base MCP `send` to `payment_info.address` / `payment_info.altcoinPrice`.
-6. **Poll** — `get-invoice-by-id(invoice_id)` until `invoice_status: complete` / `orders_delivery_status: all_delivered`.
-7. **Deliver** — `orders[].redemption_info`; log per safeguards; never paste codes in shared channels.
+2. **Detail** — `get-product-details(product_id, currency="USDC")` → validate product and denomination; treat pricing as an estimate unless it explicitly binds a final total to this cart.
+3. **Establish terms** — create/reuse the stable request record. For `balance` + auto-pay, obtain a server-bound final cart total before `buy-products`; if unavailable, create a supported non-paying REST invoice (`auto_pay: false`) and later pay that same invoice, or block. For non-balance methods, `buy-products` may create the non-paying invoice that establishes the final terms, but do not expose or pay them yet.
+4. **Confirm and reserve** — show the exact invoice/challenge amount, budget impact, and bounded fees; reserve them before exposing a payment instrument or making a payment call.
+5. **Pay once** ([../wallets/payment.md](../wallets/payment.md)):
+   - **Best:** create the REST `balance` invoice with `auto_pay: false`, reserve it, then pay that same invoice once. Use auto-pay only with an independently bound pre-call total.
+   - **Default USDC:** inspect the current 402 challenge without auto-payment, reserve its exact atomic asset amount and bounded fees, then Base MCP `initiate_x402_request(...)` → user approves → `complete_x402_request(requestId)`.
+   - **Fallback:** guarded Base MCP `send` using the current invoice's exact address, asset, network, amount, and bounded fees.
+6. **Poll and reconcile** — `get-invoice-by-id(invoice_id)` plus wallet/payment status until authoritative. Settle the actual debit, release only unused authorization, then wait for `orders_delivery_status: all_delivered`.
+7. **Deliver** — `orders[].redemption_info`; record safe metadata in the session-local ledger; never paste codes in shared channels.
 
 MCP tools → [../touchpoints/mcp.md](../touchpoints/mcp.md). Base MCP pay → [../wallets/base-mcp.md](../wallets/base-mcp.md).
 
@@ -170,8 +174,8 @@ When Bitrefill MCP unavailable (no OAuth, connector error, guest commerce):
 **Do not** fall back to pay-per-call browse (Path 2). **Do not** claim code execution is unavailable — use Base MCP `web_request` + `sign` when connected; sandbox + egress only when Base MCP missing.
 
 1. **Wallet sign-in once** — user approves Base sign message; session lasts ~2 h (agent holds token in memory only).
-2. Search → detail → create order (no per-search payment while signed in).
-3. User confirms price → **one** Base Account payment approval.
+2. Search → detail → validate the current-session budget → create a non-paying order (no per-search payment while signed in).
+3. User confirms the exact price and budget impact → reserve it → **one** Base Account payment approval.
 4. Poll delivery → wallet sign-in again only if codes need an extra proof.
 
 User hears: "Sign in with Base" then "Approve payment" — not micro-fees or path names.
@@ -233,6 +237,8 @@ Primary button → host **`sendPrompt(text)`**. Prompt must carry context for ne
 | Invoice created | "Confirm and pay [amount] USDC" | Base MCP x402 pay |
 | Payment confirmed | "Check delivery status" | `get-invoice-by-id` or x402 status poll |
 
+A widget CTA only resumes the conversation; it never bypasses [budget preflight and reservation](../budget-guard.md) before the mapped action.
+
 **Secondary CTA** = lateral escape only (new search, help, different product). Never forward in funnel.
 
 ### UI/UX rules (host + Bitrefill)
@@ -265,7 +271,8 @@ Primary button → host **`sendPrompt(text)`**. Prompt must carry context for ne
 ## 10. Claude Chat safeguards
 
 - Per-tool approval on; **never whitelist `buy-products`**.
-- Confirm product, denomination, exact USDC total before pay.
+- Require valid current-session budget state and reservation per [budget-guard.md](../budget-guard.md); `show_widget` approval is not budget approval.
+- Confirm product, denomination, exact payable total and asset before pay.
 - JWT / tokens in-memory only (~2 h); never log or paste in chat.
 - Redemption codes: deliver privately; never shared project threads.
 - **`show_widget` = presentation only** — payment still needs explicit MCP pay approval.
@@ -295,7 +302,7 @@ Full policy → [../safeguards.md](../safeguards.md).
 | `show_widget` rejected | `read_me` with `interactive` first; `i_have_seen_read_me: true` |
 | Sandbox egress but Bitrefill fails | Expected on default allowlist — use MCP connectors |
 | Wrong "no code execution" claim | Claude Chat has sandbox exec; only egress is uncertain — probe §4 |
-| `INVOICE_NOT_PAYABLE` on pay | Already settled — poll status |
+| `INVOICE_NOT_PAYABLE` on pay | Outcome is not implied: poll invoice plus wallet/payment status; do not settle, release, or retry from this error alone |
 | Widget CTA dead | `<script>` must call `sendPrompt(...)` after stream completes |
 
 ## Source of truth
@@ -305,4 +312,4 @@ Full policy → [../safeguards.md](../safeguards.md).
 - MCP: [../touchpoints/mcp.md](../touchpoints/mcp.md) | x402: [../touchpoints/x402.md](../touchpoints/x402.md) | Base MCP: [../wallets/base-mcp.md](../wallets/base-mcp.md)
 - Routing: [decision-engine.md](decision-engine.md), [capability-matrix.md](capability-matrix.md)
 
-**User hears:** "Cerco la carta regalo…" → "Sign in with your Base wallet once" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your Base Account" → "Your code is ready."
+**User hears:** "Cerco la carta regalo…" → when required, "Sign in with your wallet once" → "[Product] — [amount]: [exact total] [payment asset]. Confirm?" → "Approve the payment" → "Your code is ready."

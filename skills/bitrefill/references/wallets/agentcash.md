@@ -21,10 +21,10 @@ Docs: [agentcash.dev](https://agentcash.dev/docs/mcp-mode)
 
 | Touchpoint | Flow |
 | --- | --- |
-| x402 REST Path 1 | `fetch` handles connect SIWX, JWT, micro-fees, `invoice/pay` |
-| Bitrefill MCP / CLI | `fetch` or `awal x402 pay` on `x402_payment_url` from invoice |
+| x402 REST Path 1 | `fetch` handles connect SIWX and JWT; use automatic payment only after the current challenge is inspected and reserved |
+| Bitrefill MCP / CLI | `fetch` on a known `x402_payment_url` only after its current challenge terms and fees are reserved |
 
-Rank **#2** in [matrix.md](matrix.md) — after Bitrefill `balance` + `auto_pay`.
+Rank **#2** in [matrix.md](matrix.md) — after a pre-reserved two-step Bitrefill balance payment.
 
 ## Setup
 
@@ -39,7 +39,9 @@ OpenClaw, Hermes, Codex CLI, Cursor (local MCP), cron/automation.
 ## Security
 
 - Local private key — treat `~/.agentcash/wallet.json` as sensitive.
-- Pre-fund only session spend cap.
+- Pre-fund only a small independent wallet cap; it is not the session budget.
+- Apply [budget-guard.md](../budget-guard.md) and the [payment route contract](payment.md#route-contract) before every automatic payment. Do not use `fetch` to probe a paid route when it can pay before exposing the exact charge and stable identifier; obtain the current 402 challenge through a non-paying client or use the signed-in fee-free route, otherwise block.
+- For invoice payment, reserve the selected challenge's exact USDC amount, authoritative budget impact, and separate fee components under the attempt ID. Call `fetch` once with `maxAmount` equal to that selected USD/USDC payable cap; never pass the budget amount or a fee aggregate. If the host cannot preserve the exact decimal in AgentCash's JSON-number field, block. Reconcile the returned string `paymentInfo.amount`, transaction, and network plus Bitrefill status. A timeout never authorizes an automatic retry.
 - Still confirm purchases per [../safeguards.md](../safeguards.md) unless user opts autonomous session.
 
 ## vs Base MCP

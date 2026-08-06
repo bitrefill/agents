@@ -64,7 +64,7 @@ Example: `https://www.bitrefill.com/us/en/gift-cards/food/?minRating=5&minReward
 
 ## Purchase from browser?
 
-Possible but slow, risky. Anti-bot may block brand redemption. Prefer [mcp.md](mcp.md) or [cli.md](cli.md). Browser checkout only option → [../safeguards.md](../safeguards.md) — confirm with user, log invoice ID, treat code as cash.
+Possible but slow, risky. Anti-bot may block brand redemption. Prefer [mcp.md](mcp.md) or [cli.md](cli.md). Browser checkout only option → apply [safeguards.md](../safeguards.md), [budget-guard.md](../budget-guard.md), and [payment.md](../wallets/payment.md). Product pages and carts are estimates until the checkout binds a final total to this exact cart. Before the final purchase click—or before exposing a payment link, address, or Lightning invoice—store its stable checkout/invoice ID and reserve the exact total plus authoritative or safely capped payment/network fees. If the checkout can charge before exposing those terms, block. Reconcile the same record from Bitrefill and payment status; an abandoned tab, timeout, or delivery failure is not proof of non-payment.
 
 ## Source of truth
 

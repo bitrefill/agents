@@ -7,7 +7,7 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 | Item | Status |
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
-| Skill | `bitrefill` v3.1 — harness × touchpoint × wallet routing |
+| Skill | `bitrefill` v3.3 — harness × touchpoint × wallet routing with a per-session purchase budget guard |
 | Plugin | `.claude-plugin/marketplace.json` + manifest; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) via root [`.mcp.json`](.mcp.json) (Claude Code / Cowork) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
@@ -21,7 +21,7 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 /reload-plugins
 ```
 
-Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.1.0`.
+Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Latest published release pin: `bitrefill/agents@v3.2.0`.
 
 Update:
 
@@ -53,18 +53,29 @@ Via the cross-host installer:
 npx skills add bitrefill/agents -a openclaw -y
 ```
 
-Or via OpenClaw's own [ClawHub](https://clawhub.ai) registry:
+Or from a reviewed local checkout of this repository:
 
 ```bash
-openclaw skills install bitrefill
+openclaw skills install ./skills/bitrefill --as bitrefill --global
+openclaw skills info bitrefill --agent <agent_id> --json
 openclaw gateway restart
 ```
 
-Then wire the eCommerce MCP for typed purchase tools:
+Do not use the bare ClawHub slug `bitrefill`: it is not an owner-qualified Bitrefill release. Verify the resolved source before enabling purchases.
+
+Then wire eCommerce MCP for typed read/status tools; keep purchase tools filtered so buys remain CLI-approval-gated:
 
 ```bash
-openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_KEY"
+openclaw mcp add bitrefill \
+  --url https://api.bitrefill.com/mcp \
+  --transport streamable-http \
+  --auth oauth \
+  --include 'search-products,get-product-details,list-invoices,get-invoice-by-id'
+openclaw mcp login bitrefill
+openclaw mcp doctor bitrefill --probe
 ```
+
+These commands require an OpenClaw build whose `openclaw mcp --help` lists `add`, `login`, and `doctor`; otherwise use the JSON fallback in the full guide and keep MCP disabled if OAuth or the read-only allowlist cannot be verified.
 
 Full setup, channel-aware scenarios, and hardening: [skills/bitrefill/references/harnesses/openclaw.md](skills/bitrefill/references/harnesses/openclaw.md).
 
@@ -105,6 +116,7 @@ skills/bitrefill/
     │   ├── cdp-awal.md
     │   ├── metamask.md
     │   └── phantom.md
+    ├── budget-guard.md
     ├── safeguards.md
     └── troubleshooting.md
 ```
