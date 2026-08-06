@@ -1,10 +1,10 @@
 ---
 name: bitrefill
-description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSIMs, 180+ countries. Capability routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), wallet (balance, x402, send). Favors autonomous purchase, minimal HITL. Triggers: Bitrefill, gift cards, mobile top-up, eSIM, crypto, Lightning, USDC, x402."
+description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSIMs, 180+ countries. Capability routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), wallet (balance, x402, send). Favors low-HITL purchasing within user controls, including a per-session budget guard. Triggers: Bitrefill, gift cards, mobile top-up, eSIM, crypto, Lightning, USDC, x402, session budget, spending limit."
 compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (Base MCP web_request → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance, Base MCP, AgentCash, CDP awal, Phantom/MetaMask sign-only. OpenClaw + Claude Chat: dedicated harness guides."
 metadata:
   author: bitrefill
-  version: "3.2.0"
+  version: "3.3.0"
   homepage: "https://www.bitrefill.com"
   docs: "https://docs.bitrefill.com"
   repository: "https://github.com/bitrefill/agents"
@@ -15,6 +15,10 @@ metadata:
 Digital goods (gift cards, mobile top-ups, eSIMs) — 180+ countries, 1,500+ brands. Pay: crypto, Lightning, USDC x402, pre-funded balance.
 
 Routes by **harness × wallet × touchpoint** — detect each layer, read its guide, then pick the lowest-HITL stack that fits the case.
+
+## Mandatory budget policy
+
+For **every** session-budget intent—including set, status, change, and reset—read [budget-guard.md](references/budget-guard.md) fully before answering or changing state. Read it fully again before every ledger read/mutation and before processing status, payment, refund, or reversal evidence, even after a read-only tool call. Also read it with [safeguards.md](references/safeguards.md) immediately before every purchase-capable call, including create, submit, auto-pay, pay, retry, and settle. Missing, unloaded, ambiguous, or inconsistent budget state blocks the call.
 
 ## User-facing language
 
@@ -28,13 +32,13 @@ Concierge voice — crypto should feel like buying a gift card, not wiring a wal
 | --- | --- |
 | connect / SIWX / JWT | "Sign in with your Base wallet once" (free — just to browse) |
 | search / detail | "Searching for [product]…" |
-| invoice/create | "[Product] — [amount]: [total] USDC. Confirm?" |
+| invoice/create | "[Product] — [amount]: [payable total] [asset]. Confirm?" |
 | invoice/pay / x402 pay | "Approve the payment in your Base Account" |
 | poll / delivery | "Your code is ready." |
 
 **Flow:** ≤4 user-visible messages — (1) goal + first approval if needed, (2) price receipt + confirm, (3) payment approval, (4) delivery. Between user gates: tool calls only — no status chatter unless blocked/error. Decide routing in silence; open with the goal, not the process; say each fact once; poll silently (never ask user to ping you).
 
-**Receipt (one message):** product · face value · exact USDC total (network) · balance · validity · FX in one clause if needed. **Delivery:** code + non-refundable once, neutrally.
+**Receipt (one message):** product · face value · exact payable total and asset/network · separate fees · budget impact · balance · validity · FX reference in one clause if needed. **Delivery:** code + non-refundable once, neutrally.
 
 **Reference doc banner** (copy verbatim to top of each guide): *Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.*
 
@@ -42,7 +46,7 @@ When Bitrefill sign-in is missing but Base wallet works: **one wallet sign-in**,
 
 ## How to route
 
-Safeguards → [safeguards.md](references/safeguards.md). Then three phases — **read the guide for each layer before acting**:
+The mandatory budget policy above applies before routing. Then route through three phases — **read the guide for each layer before acting**:
 
 ### 1. Detect harness → read harness instructions
 
@@ -63,7 +67,7 @@ Probe payment capabilities available **in this session** (independent of catalog
 
 | Signal | Wallet doc |
 | --- | --- |
-| Signed-in Bitrefill + pre-funded balance | [payment.md](references/wallets/payment.md) — `balance` + `auto_pay` |
+| Pre-funded balance + direct REST egress/credential | [payment.md](references/wallets/payment.md) — non-paying REST invoice, then pay the same invoice |
 | Base MCP (`get_wallets`, `sign`, x402, `send`) | [base-mcp.md](references/wallets/base-mcp.md); guest sign-in → [siwx.md](references/wallets/siwx.md) |
 | AgentCash / CDP awal | [agentcash.md](references/wallets/agentcash.md), [cdp-awal.md](references/wallets/cdp-awal.md) |
 | Phantom / MetaMask (sign-only) | [phantom.md](references/wallets/phantom.md), [metamask.md](references/wallets/metamask.md) |
@@ -90,7 +94,7 @@ Cross **harness limits**, **wallet availability**, and **intent** (browse vs buy
 
 | Touchpoint | Prefer wallet |
 | --- | --- |
-| Bitrefill MCP | `balance` + `auto_pay` → Base MCP pay → payment link |
+| Bitrefill MCP | Non-balance invoice → Base MCP pay → payment link; balance only with separate authorized REST capability |
 | Guest checkout (x402 REST) | AgentCash / awal → Base MCP sign-in + pay → never pay-per-call browse when sign-in works |
 | CLI | Same wallet rank as above at `buy-products` time |
 
@@ -101,9 +105,11 @@ Conflict resolution + global rank → [decision-engine.md](references/harnesses/
 **Real-money transactions.** Codes instant; digital goods non-refundable once fulfilled.
 
 - **Confirm before buy** unless user opted autonomous purchasing this session.
+- **Session budget required** — validate, preflight, and reserve through [budget-guard.md](references/budget-guard.md). Missing or inconsistent state blocks the purchase.
+- **Budget is not consent** — it never replaces purchase confirmation or host approval.
 - **Codes = cash** — never paste public channels; prefer in-memory.
 - **Dedicated low-balance account** — never give agent wallet seeds. Skill **not a wallet**.
-- **Log every purchase** — `invoice_id`, product, amount, payment method.
+- **Record every purchase in the session ledger** — stable ID, product, amount, currency, payment method, timestamp, state; never codes or full tool responses.
 
 Full safeguards + per-host hardening → [safeguards.md](references/safeguards.md).
 
@@ -147,6 +153,7 @@ Full safeguards + per-host hardening → [safeguards.md](references/safeguards.m
 | File | Use when |
 | --- | --- |
 | [safeguards.md](references/safeguards.md) | Spending policy + host hardening |
+| [budget-guard.md](references/budget-guard.md) | Mandatory per-session cap, reservation, idempotency, reconciliation |
 | [troubleshooting.md](references/troubleshooting.md) | Errors across all paths |
 
 ## Source of truth

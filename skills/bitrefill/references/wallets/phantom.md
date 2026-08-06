@@ -31,11 +31,11 @@ Docs: [docs.phantom.com/phantom-mcp-server](https://docs.phantom.com/phantom-mcp
 
 ## Bitrefill pairing
 
-**Triple-MCP pattern (Cursor):**
+**Paired-MCP pattern (Cursor):**
 
-1. **Bitrefill MCP** — catalog + `buy-products` when OAuth'd
-2. **Base MCP** — `initiate_x402_request` on `x402_payment_url` (preferred pay)
-3. **Phantom** — SIWX only if Phantom wallet is payer: Base MCP `web_request` for HTTP + Phantom `evm_sign` for header
+1. **Bitrefill MCP** — catalog + expressly non-paying invoice when OAuth'd; store its stable invoice/request ID.
+2. **Base MCP payer (preferred)** — inspect the current x402 challenge, apply [budget-guard.md](../budget-guard.md) and the [payment route contract](payment.md#route-contract), then use the Base x402 tools. Base—not Phantom—is then the payer and must sign any later payer-only request.
+3. **Phantom payer fallback** — use a non-paying HTTP client for the current challenge, reserve it under the invoice record, sign its typed data with Phantom `evm_sign-typed`, and retry HTTP once. Use Phantom `evm_sign` for payer-only SIWX afterward.
 
 Don't use Phantom `pay` for Bitrefill x402.
 
@@ -53,7 +53,8 @@ Rank **#7** in [matrix.md](matrix.md) — sign-only fallback.
 ## Security
 
 - Agent embedded wallet — not user's main Phantom extension.
-- Confirm every on-chain send after simulation preview.
+- Confirm every on-chain send after simulation preview. For a direct send, validate the current invoice recipient, exact amount, asset, and network; reserve its authoritative budget impact plus a safe simulated network/wallet fee cap under the invoice ID before `confirmed: true`.
+- For manual x402 signing, reserve the selected challenge's exact atomic asset amount and bounded fees, never `price_usd`; send/retry once, then reconcile actual wallet debit and Bitrefill status under the same record. A timeout or transaction hash never authorizes another send.
 - Never deliver redemption codes via voice/TTS.
 
 ## vs Base MCP

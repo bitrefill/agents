@@ -2,7 +2,7 @@
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 
-Agent must **sign up / sign in** without human at keyboard — unlock `balance`, cashback, order history.
+Agent must **sign up / sign in** without human at keyboard — unlock account identity, balance/rewards visibility, and order history. Sign-in alone does not make CLI balance or cashback auto-pay safe; guarded balance uses the authorized REST two-step route in [cli.md](cli.md), and guarded cashback payment remains blocked pending authoritative debit semantics.
 
 **Guest checkout needs no inbox** — `--email` on `buy-products` + pay crypto. Fastest first try → [cli.md](cli.md) § Guest checkout.
 
@@ -41,8 +41,6 @@ Agent inbox address = Bitrefill email. Signup = login (same command).
 
 ```bash
 npm install -g @bitrefill/cli
-
-bitrefill init --openclaw    # optional
 
 bitrefill login --email bitrefill-agent@agentmail.to
 ```

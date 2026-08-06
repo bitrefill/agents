@@ -18,6 +18,8 @@ From source: `git clone https://github.com/bitrefill/cli.git && cd cli && pnpm i
 
 **No `login` / `verify`.** Works while `whoami` shows `identity: unregistered`. Fastest autonomous path — search, quote, invoice, pay crypto or payment link.
 
+Every `buy-products` example below is valid only after [budget-guard.md](../budget-guard.md) establishes the current-session record. A guest call may create the non-paying invoice used to learn final terms; do not expose or pay its payment instrument until that exact impact is confirmed and reserved.
+
 ```bash
 bitrefill search-products --query "Amazon" --country IT
 bitrefill get-product-details --product_id "amazon_it-italy"
@@ -29,20 +31,22 @@ bitrefill buy-products \
   --email "agent@example.com"
 ```
 
-Response: `invoice_id`, `payment_link`, optional `x402_payment_url` / Lightning invoice. Poll `get-invoice-by-id --invoice_id <uuid>`. Receipt → `--email`. Invoice expires ~30 min.
+Response: `invoice_id`, `payment_link`, optional `x402_payment_url` / Lightning invoice. Poll `get-invoice-by-id --invoice_id <uuid>`. Receipt → `--email`. Use the returned `expiration_minutes` and authoritative status; never infer expiry from a local default.
 
-Guest payment: crypto or `--return_payment_link true`. Pay → [../wallets/payment.md](../wallets/payment.md). **`balance` / `cashback` need signed-in account** (below).
+Guest payment: crypto or `--return_payment_link true`. Pay → [../wallets/payment.md](../wallets/payment.md). A signed-in account is necessary but not sufficient for guarded `balance`; the safe route also needs authorized direct REST. Guarded `cashback` remains blocked pending authoritative debit semantics.
 
 ## Sign up / sign in (balance, cashback, order history)
 
-After guest try, sign in when human wants **managed agent spending** or **rewards**:
+After guest try, sign in when the human needs account identity, order history, or rewards visibility:
 
 | Signed-in benefit | Why |
 |-------------------|-----|
-| **`--payment_method balance`** | Instant from pre-funded store credit — spending cap, no on-chain wait |
-| **`--payment_method cashback`** | Pay from rewards balance (BTC) |
+| **Balance visibility / authorization** | Enables the separate guarded REST two-step route; CLI auto-pay is not sufficient |
+| **Cashback visibility** | Inspect rewards; guarded cashback payment remains blocked pending authoritative debit semantics |
 | **Cashback on purchases** | Eligible products earn rewards |
 | **`list-orders` / `list-invoices`** | Order history + redemption codes |
+
+Do not use `cashback` as a guarded payment method until the current provider contract authoritatively exposes its exact pre-call total and debit semantics. A rewards balance is not permission to bypass the budget.
 
 Same `login` for new + existing. Headless inbox → [cli-headless-auth.md](cli-headless-auth.md).
 
@@ -51,13 +55,9 @@ bitrefill login --email you@example.com
 bitrefill verify --code GGWK87DR              # email magic-link code
 bitrefill verify --code GGWK87DR --otp 122407   # + TOTP when 2FA
 bitrefill whoami --json
-
-# signed-in buy — instant from balance
-bitrefill buy-products \
-  --cart_items '[{"product_id":"amazon_it-italy","package_id":"10"}]' \
-  --payment_method balance \
-  --email "you@example.com"
 ```
+
+Do not execute a signed-in CLI `buy-products --payment_method balance` inside the guard: the documented command can debit during invoice creation without first returning a server-bound exact total. Use [api.md](api.md)'s authorized REST `auto_pay: false` invoice, reserve its returned total, then pay that same invoice.
 
 **Verify gotchas:**
 
@@ -71,7 +71,7 @@ bitrefill buy-products \
 bitrefill init                    # optional OpenClaw wiring only
 ```
 
-`init` no longer stores API keys. OpenClaw only: merges MCP config + generates `~/.openclaw/skills/bitrefill/SKILL.md`.
+`init` no longer stores API keys. OpenClaw only: it merges MCP config and generates `~/.openclaw/skills/bitrefill/SKILL.md`. That high-priority generated skill can shadow newer plugin/`extraDirs` content. Prefer MCP-only configuration or manually install the complete current skill; do not enable purchases until the effective source, version, and mandatory budget/safeguard content are verified.
 
 ## Auth
 
@@ -133,9 +133,11 @@ bitrefill llm-context -o BITREFILL-MCP.md
 
 ## OpenClaw quick-bootstrap
 
-Optional `bitrefill init --openclaw`: MCP stub in `~/.openclaw/openclaw.json` + skill SKILL.md. **Not required for guest CLI** — install CLI, guest checkout via `exec`. OpenClaw prefers guest CLI first → [../harnesses/openclaw.md](../harnesses/openclaw.md). Hardening → exec-approvals for `buy-products`.
+`bitrefill init --openclaw` creates an MCP stub plus a high-priority generated skill. Prefer MCP-only configuration or manually install the complete current skill. If `init` is used, verify the effective `bitrefill` source/version and confirm its resolved `SKILL.md` mandates `budget-guard.md` and `safeguards.md`; otherwise keep purchase tools disabled. → [../harnesses/openclaw.md](../harnesses/openclaw.md).
 
 ## Workflow
+
+Apply [the session budget guard](../budget-guard.md) before `buy-products` and every later payment command. Do not use signed-in CLI balance auto-pay in the guarded flow; route balance through the authorized REST two-step path. For crypto or a payment link, attach the returned `invoice_id` to the same request record and keep its reservation until authoritative status confirms payment or non-payment.
 
 Subcommands from remote MCP (`bitrefill --help` after connect). Core:
 
@@ -144,10 +146,10 @@ search-products  →  get-product-details  →  buy-products  →  get-invoice-b
 ```
 
 1. **Search** — `search-products`. *(say: "Searching for [product]…")*
-2. **Get price** — `get-product-details`. *(silent)*
-3. **Prepare order** — `buy-products`. Confirm with user first. *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
-4. **Pay** → [../wallets/payment.md](../wallets/payment.md). *(say: "Approve the payment in your Base Account")*
-5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
+2. **Get estimate** — `get-product-details`; validate the product and a coarse budget estimate, but do not call catalog pricing a final total. *(silent)*
+3. **Establish terms** — for guest/non-balance payment, create one expressly non-paying invoice with `buy-products` under a `proposed` attempt, attach its ID, and withhold its payment instrument. For balance, use the REST `auto_pay: false` invoice flow; do not use CLI auto-pay unless an exact cart total is independently bound and reserved before the call. Block `cashback` unless its exact pre-call debit semantics are authoritative.
+4. **Confirm, reserve, and pay once** — show the invoice's exact payable components and budget impact, reserve them, then [pay](../wallets/payment.md) against that same attempt. A recreate follows [budget-guard.md](../budget-guard.md): freeze an authoritatively unpaid attempt, create one new attempt, and never let late responses cross attempts. *(say: "[Product] — [amount]: [total]. Confirm?")*
+5. **Reconcile and deliver** — `get-invoice-by-id` until payment and delivery state are authoritative; settle or release the reservation once. *(say: "Your code is ready.")*
 
 ### 1. Search
 
@@ -188,12 +190,6 @@ bitrefill buy-products \
   --return_payment_link true \
   --email "agent@example.com"
 
-# Signed-in — instant from store credit
-bitrefill buy-products \
-  --cart_items '[{"product_id": "steam-usa", "package_id": 5}]' \
-  --payment_method balance \
-  --email "you@example.com"
-
 # Signed-in — crypto via x402
 bitrefill buy-products \
   --cart_items '[{"product_id": "steam-usa", "package_id": 5}]' \
@@ -202,7 +198,7 @@ bitrefill buy-products \
 # Duration package
 bitrefill buy-products \
   --cart_items '[{"product_id": "spotify-usa", "package_id": "1 Month"}]' \
-  --payment_method balance
+  --payment_method usdc_base
 
 # Named eSIM
 bitrefill buy-products \
@@ -212,7 +208,7 @@ bitrefill buy-products \
 
 Response: `invoice_id`, `payment_link`, `x402_payment_url`, `payment_info` (`address`, `paymentUri`, `altcoinPrice`).
 
-**Pay** → [../wallets/payment.md](../wallets/payment.md): x402 on `x402_payment_url`, Base MCP `send` to `payment_info`, or `balance` when signed in.
+**Pay** → [../wallets/payment.md](../wallets/payment.md): x402 on `x402_payment_url` or Base MCP `send` to `payment_info`. For balance, leave the CLI path and use [api.md](api.md)'s authorized REST two-step flow.
 
 ### 4. Track / Redeem
 
@@ -222,7 +218,7 @@ bitrefill list-orders --include_redemption_info true   # signed-in only
 bitrefill get-order-by-id --order_id "ID"              # signed-in only
 ```
 
-Invoices expire 180 min. Expired = create new.
+Use the invoice's authoritative expiry/status. Recreate only after confirmed unpaid expiry releases its principal: freeze the attempt, retain any settled fee, then create one new attempt/idempotency key under the same logical purchase with a fresh confirmed total and reservations.
 
 ## Critical gotchas
 
@@ -231,12 +227,12 @@ Invoices expire 180 min. Expired = create new.
 - Named/duration `package_id` exact, case-sensitive. WRONG `"1GB"`. RIGHT `"1GB, 7 Days"`.
 - Country uppercase Alpha-2. WRONG `us`, `USA`. RIGHT `US`.
 - `login`/`verify` only when not signed in. `logout` before switching accounts.
-- Guest: `--payment_method balance`/`cashback` fail — crypto or sign in first.
+- Guest: `--payment_method balance`/`cashback` fail. Use crypto; guarded balance requires sign-in plus the authorized REST two-step route, and guarded cashback remains blocked.
 - Signed-in + 2FA: `verify` needs **both** `--code` (email) + `--otp` (authenticator).
 
 ## Payment methods
 
-Pay-time routing → [../wallets/payment.md](../wallets/payment.md). Signed-in: prefer `balance` + pre-funded cap. Guest: `usdc_base` or `lightning` + wallet from [../wallets/matrix.md](../wallets/matrix.md).
+Pay-time routing → [../wallets/payment.md](../wallets/payment.md). Prefer balance only through authorized direct REST with `auto_pay: false`, then pay that pre-reserved invoice. Guest: `usdc_base` or `lightning` + wallet from [../wallets/matrix.md](../wallets/matrix.md).
 
 ## Source of truth
 
@@ -244,4 +240,4 @@ Pay-time routing → [../wallets/payment.md](../wallets/payment.md). Signed-in: 
 - <https://docs.bitrefill.com/docs/crypto-payments> — payment methods
 - `bitrefill manifest --json` / `bitrefill llm-context` — live tool list + schemas
 
-**User hears:** "Searching for [product]…" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment" → "Your code is ready."
+**User hears:** "Searching for [product]…" → "[Product] — [amount]: [exact total and payment asset]. Confirm?" → "Approve the payment" → "Your code is ready."

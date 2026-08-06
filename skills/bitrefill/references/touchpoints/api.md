@@ -18,6 +18,8 @@ Base URL: `https://api.bitrefill.com/v2`
 
 Key: <https://www.bitrefill.com/account/developers>.
 
+Apply [the session budget guard](../budget-guard.md) before `POST /invoices`, `POST /invoices/{id}/pay`, `POST /esims`, eSIM invoice payment, or a BRGC batch. Product and package responses are estimates for budget purposes: only a current, server-bound total for this exact cart is authoritative. With `auto_pay: true`, that total and its reservation must exist before creation. If it does not, create an expressly non-paying invoice with `auto_pay: false`, or block when that is unsupported. Reserve the returned invoice total before any pay call, payment link, crypto address, or Lightning invoice is exposed.
+
 ```bash
 export BITREFILL_API_KEY=YOUR_API_KEY
 H="Authorization: Bearer $BITREFILL_API_KEY"
@@ -35,21 +37,26 @@ curl -H "$H" "https://api.bitrefill.com/v2/products/search?q=amazon"
 # 4. Product details
 curl -H "$H" https://api.bitrefill.com/v2/products/amazon-us
 
-# 5. Buy (balance, instant)
+# 5a. Create a server-bound but non-paying balance invoice
 curl -X POST -H "$H" -H "Content-Type: application/json" \
   -d '{
     "products": [{"product_id":"amazon-us","package_id":"amazon-us<&>50","quantity":1}],
     "payment_method": "balance",
-    "auto_pay": true
+    "auto_pay": false
   }' \
   https://api.bitrefill.com/v2/invoices
+
+# 5b. Validate and reserve the authoritative invoice total under its ID,
+# then pay that same invoice once:
+curl -X POST -H "$H" -H "Content-Type: application/json" -d '{}' \
+  https://api.bitrefill.com/v2/invoices/{invoice_id}/pay
 
 # 6. Order / redemption
 curl -H "$H" https://api.bitrefill.com/v2/orders/{order_id}
 # → data.redemption_info.code, .link, .pin, .instructions
 ```
 
-Crypto: omit `auto_pay`, set `payment_method: "bitcoin"|"lightning"|"usdc_base"|...`, include `refund_address` for crypto, poll `GET /invoices/{id}` until `status: "complete"`.
+Crypto: omit `auto_pay`, set `payment_method: "bitcoin"|"lightning"|"usdc_base"|...`, and include `refund_address` where required. Treat the returned invoice's payment amount, asset, network, expiry, and invoice ID as the payment terms. Apply [the guarded payment routing](../wallets/payment.md) before exposing or paying them, then poll `GET /invoices/{id}` until the outcome is authoritative.
 
 ## Business API
 
@@ -80,6 +87,7 @@ Apply: <https://www.bitrefill.com/affiliate>. Same auth as Business. Adds `GET /
 - `GET /invoices/{id}` — status
 - `GET /orders/{id}` — redemption info
 - `POST /esims` — create eSIM invoice (or top-up via `esim_id`)
+- `POST /esims/invoice/{id}/pay` — pay an unpaid eSIM invoice
 - `GET /esims` / `GET /esims/{id}` — list / get user eSIMs
 
 Webhooks: `webhook_url` on invoice creation → notification when delivered.

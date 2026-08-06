@@ -4,6 +4,8 @@
 
 Common errors all paths. Full enum: <https://docs.bitrefill.com/docs/error-codes>, <https://docs.bitrefill.com/docs/References>.
 
+Any instruction below to retry or recreate a purchase-capable call is subject to [budget-guard.md](budget-guard.md): reconcile first, retain unknown exposure, keep the logical purchase key, freeze the old attempt only after its principal is authoritatively unpaid, then create one new attempt/idempotency key with fresh charge reservations. Read-only and authentication retries do not need a purchase record.
+
 ## Browse path
 
 ### `403 Forbidden` on bitrefill.com
@@ -57,7 +59,7 @@ Both `product_id` AND `package_id` required per item.
 
 ### `Too big: expected array to have <=15 items`
 
-Split into multiple `buy-products` calls.
+Split only after the user confirms the batched plan. Keep the same overall user intent, but give every batch its own stable purchase record and exact total. Serialize quote → reserve → call → reconcile for one batch before reserving the next; never reuse one reservation across calls.
 
 ### `per_page must be less than 500`
 
@@ -135,7 +137,7 @@ Fix: drop `--category`, change `--country`, or `--in_stock false`.
 
 ### `429 Too Many Requests`
 
-Rate limited. Defaults: 60 req/10 min most endpoints; 60 req/min on `/products` + `/products/search` + 1000 product req/hr; 1 req/3 s on `/ping`. Back off + retry. Cache catalog.
+Rate limited. Defaults: 60 req/10 min most endpoints; 60 req/min on `/products` + `/products/search` + 1000 product req/hr; 1 req/3 s on `/ping`. Back off; retry reads normally, but never blindly retry a purchase-capable call. Cache catalog.
 
 ### `RESOURCE_NOT_FOUND` on `GET /invoices/{id}`
 
@@ -147,13 +149,13 @@ Bad slug. Verify via `search-products`.
 
 ### Invoice expired
 
-**180 minutes**. Can't re-pay. Create new.
+Read the authoritative status first. Only confirmed unpaid expiry releases principal exposure. Freeze that attempt, retain any settled ancillary fee, then create one new attempt/idempotency key under the same logical purchase. Obtain and confirm a fresh exact total, reserve every new charge, and attach the replacement invoice only to that attempt. Never retry from a local timer.
 
 ## OpenClaw-specific
 
 ### Cron purchase failed silently
 
-`exec-approvals.json` `ask: on-miss` but no operator for `/approve`. Pre-approve `bitrefill buy-products` for trusted SKU/amount, or schedule when operator available.
+Cron is quote-only; do **not** schedule or pre-approve `buy-products`. The operator starts a live session with a new explicit budget and confirms the current exact purchase before the approval-gated CLI call. Reconcile any earlier attempt before creating another.
 
 ### Pi can't see Bitrefill MCP
 
@@ -171,7 +173,7 @@ Node not paired or offline. `openclaw nodes list`. Re-pair via Control UI (`open
 
 ### `402` after SIWX send
 
-Stale nonce (5 min expiry), wrong EIP-55 checksum, malformed payload. Re-fetch challenge, re-sign. → [wallets/siwx.md](wallets/siwx.md).
+Stale nonce (5 min expiry), wrong EIP-55 checksum, malformed payload. Reconcile any possible charge first. Re-fetch and re-sign only under the same logical record, reserving the exact new challenge amount or delta before sending. → [wallets/siwx.md](wallets/siwx.md).
 
 ### `403` on SIWX route
 
@@ -179,11 +181,11 @@ Signing wallet ≠ invoice payer. Sign with payer wallet.
 
 ### HTTP `500` on `invoice/create`
 
-Wrong `package_value` — exact string from product detail. Confirm no onchain charge before retry.
+Wrong `package_value` — exact string from product detail. Reconcile any paid access-fee charge, prove the principal unpaid, freeze that attempt, then create one new attempt with a fresh quote, confirmation, and charge reservations.
 
 ### `INVOICE_NOT_PAYABLE` on pay
 
-Already settled — poll `invoice/status` or `get-invoice-by-id`.
+Outcome is not implied. Poll `invoice/status` or `get-invoice-by-id`, reconcile wallet/payment evidence, and never issue another pay call from this error alone.
 
 ### Base MCP `web_request` rejected
 
