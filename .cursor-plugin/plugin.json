@@ -1,0 +1,17 @@
+{
+  "name": "bitrefill",
+  "displayName": "Bitrefill",
+  "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, card, Apple Pay, Google Pay, crypto or balance payments",
+  "author": {
+    "name": "Bitrefill",
+    "email": "support@bitrefill.com"
+  },
+  "homepage": "https://www.bitrefill.com",
+  "repository": "https://github.com/bitrefill/agents",
+  "license": "MIT",
+  "logo": "assets/logo.png",
+  "keywords": ["bitrefill", "gift-cards", "esim", "mobile-topup", "shopping", "payments"],
+  "category": "integrations",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

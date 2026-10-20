@@ -12,7 +12,7 @@
 - **Codes = cash-like.** Gift card / eSIM QR = bearer money. Store secure. Never share publicly.
 - **In-memory preferred.** Don't write codes to plain-text logs, transcripts, unencrypted files. Read → use → discard.
 - **User asks for code:** return it; advise store secure, don't share, redeem ASAP.
-- **Dedicated low-balance account.** Never high-balance access. Pre-fund only session spend cap.
+- **Dedicated low-balance account for autonomous buying.** Never high-balance access. Pre-fund only session spend cap.
 - **Headless CLI: agent-owned inbox.** Register with agent inbox ([AgentMail](https://www.agentmail.to/) or equivalent — [touchpoints/cli-headless-auth.md](touchpoints/cli-headless-auth.md)), not human primary email. Inbox compromise = account takeover.
 - **Not a wallet.** No private keys or crypto wallets. Never seed phrases, hardware-wallet PINs, signing keys.
 - **Log every purchase.** `invoice_id`, product slug, amount, payment method, timestamp.
@@ -35,24 +35,9 @@ Defaults permissive (sandboxing off, `security: full`, `ask: off`). Tighten:
 
 Full → [harnesses/openclaw.md](harnesses/openclaw.md) §8.
 
-### Cursor
+### Cursor / Grok Bot
 
-`.cursor/mcp.json` `autoApprove` may include read tools. **Never** `buy-products`:
-
-```json
-{
-  "mcpServers": {
-    "bitrefill": {
-      "url": "https://api.bitrefill.com/mcp",
-      "autoApprove": [
-        "search-products", "get-product-details",
-        "list-invoices", "get-invoice-by-id",
-        "submit-prepayment-step", "update-order"
-      ]
-    }
-  }
-}
-```
+**Never** add `buy-products` to Cursor's MCP allowlist (`mcpAllowlist` in `.cursor/permissions.json`; CLI: `permissions.allow` in `.cursor/cli.json`) or buy in **Run Everything** mode (CLI: `--force`). In **Auto-review** (default), add a `buy-products` rule to `autoRun.block_instructions` in `.cursor/permissions.json`. Grok Bot: never **Always allow** `buy-products`; add an Auto-review **Ask first** rule for it.
 
 ### Codex CLI
 
@@ -127,7 +112,7 @@ Default: pre-fund `balance` on dedicated account → `payment_method: "balance"`
 - Store codes in version control.
 - Give agent seed phrases or hardware-wallet PINs.
 - Auto-approve `buy-products` in any host MCP config.
-- Run skill from account with stored payment cards or high balances.
+- Run autonomous purchasing from an account with stored payment cards or high balances.
 
 ## Source of truth
 

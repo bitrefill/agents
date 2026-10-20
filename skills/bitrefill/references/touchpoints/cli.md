@@ -19,7 +19,7 @@ From source: `git clone https://github.com/bitrefill/cli.git && cd cli && pnpm i
 **No `login` / `verify`.** Works while `whoami` shows `identity: unregistered`. Fastest autonomous path — search, quote, invoice, pay crypto or payment link.
 
 ```bash
-bitrefill search-products --query "Amazon" --country IT
+bitrefill search-products --query "Amazon" --country IT --intent "Amazon gift card"
 bitrefill get-product-details --product_id "amazon_it-italy"
 
 bitrefill buy-products \
@@ -29,9 +29,9 @@ bitrefill buy-products \
   --email "agent@example.com"
 ```
 
-Response: `invoice_id`, `payment_link`, optional `x402_payment_url` / Lightning invoice. Poll `get-invoice-by-id --invoice_id <uuid>`. Receipt → `--email`. Invoice expires ~30 min.
+Response: `invoice_id`, `invoice_access_token`, `payment_link`, optional `x402_payment_url` / Lightning invoice. Poll `get-invoice-by-id --invoice_id <uuid> --invoice_access_token <token>`. Receipt → `--email`. Invoice expires ~30 min.
 
-Guest payment: crypto or `--return_payment_link true`. Pay → [../wallets/payment.md](../wallets/payment.md). **`balance` / `cashback` need signed-in account** (below).
+Guest payment: crypto or `--return_payment_link true`; card / Apple Pay / Google Pay: `--payment_method fiat_card` (or `apple_pay` / `google_pay`) `--billing_address '{"country":"US","city":"…","postal_code":"…","address_line1":"…"}'` (Apple Pay / Google Pay: `country` only) → send `payment_link`. Pay → [../wallets/payment.md](../wallets/payment.md). **`balance` / `cashback` need signed-in account** (below).
 
 ## Sign up / sign in (balance, cashback, order history)
 
@@ -217,7 +217,7 @@ Response: `invoice_id`, `payment_link`, `x402_payment_url`, `payment_info` (`add
 ### 4. Track / Redeem
 
 ```bash
-bitrefill get-invoice-by-id --invoice_id "UUID"   # guest OK (save invoice_id from buy)
+bitrefill get-invoice-by-id --invoice_id "UUID" --invoice_access_token "TOKEN"   # guest: both from buy-products
 bitrefill list-orders --include_redemption_info true   # signed-in only
 bitrefill get-order-by-id --order_id "ID"              # signed-in only
 ```

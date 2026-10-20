@@ -28,24 +28,19 @@ URL: `https://docs.bitrefill.com/mcp`. Docs index for code-help. **Not purchases
 
 ## Per-client setup
 
-### Cursor — `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global)
+### Cursor / Grok Bot
+
+**Bitrefill** plugin (Cursor: **Customize**; Grok Bot: **Connect apps**) bundles eCommerce MCP via `.mcp.json`; sign in when asked (Cursor CLI: `agent mcp login <id>`, id from `agent mcp list`). Manual setup if plugin not installed — `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):
 
 ```json
 {
   "mcpServers": {
-    "bitrefill": {
-      "url": "https://api.bitrefill.com/mcp",
-      "autoApprove": [
-        "search-products", "get-product-details",
-        "list-invoices", "get-invoice-by-id",
-        "submit-prepayment-step", "update-order"
-      ]
-    }
+    "bitrefill": { "url": "https://api.bitrefill.com/mcp" }
   }
 }
 ```
 
-Keep `buy-products` **out** of `autoApprove`. 40-tool cap across all servers.
+Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safeguards.md) § Cursor / Grok Bot. 40-tool cap across all servers.
 
 ### Claude Code
 
