@@ -52,6 +52,7 @@ Probe what host you are on (exec/shell, egress, MCP connectors, browser, generat
 | --- | --- |
 | Claude Chat (`show_widget` or `read_me`, MCP on claude.ai) | [claude-chat.md](references/harnesses/claude-chat.md) |
 | OpenClaw (`~/.openclaw/`, `openclaw` on PATH) | [openclaw.md](references/harnesses/openclaw.md) |
+| Grok Bot or Cursor (Bot cloud computer; Cursor IDE, CLI or cloud agent) | [grok-bot.md](references/harnesses/grok-bot.md) |
 | Known host, need defaults | [capability-matrix.md](references/harnesses/capability-matrix.md) |
 | Probe signals + derivation rules | [decision-engine.md](references/harnesses/decision-engine.md) § Phase 1 |
 
