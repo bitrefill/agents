@@ -12,7 +12,7 @@
 - **Codes = cash-like.** Gift card / eSIM QR = bearer money. Store secure. Never share publicly.
 - **In-memory preferred.** Don't write codes to plain-text logs, transcripts, unencrypted files. Read → use → discard.
 - **User asks for code:** return it; advise store secure, don't share, redeem ASAP.
-- **Dedicated low-balance account.** Never high-balance access. Pre-fund only session spend cap.
+- **Dedicated low-balance account for autonomous buying.** Never high-balance access. Pre-fund only session spend cap.
 - **Headless CLI: agent-owned inbox.** Register with agent inbox ([AgentMail](https://www.agentmail.to/) or equivalent — [touchpoints/cli-headless-auth.md](touchpoints/cli-headless-auth.md)), not human primary email. Inbox compromise = account takeover.
 - **Not a wallet.** No private keys or crypto wallets. Never seed phrases, hardware-wallet PINs, signing keys.
 - **Log every purchase.** `invoice_id`, product slug, amount, payment method, timestamp.
@@ -127,7 +127,7 @@ Default: pre-fund `balance` on dedicated account → `payment_method: "balance"`
 - Store codes in version control.
 - Give agent seed phrases or hardware-wallet PINs.
 - Auto-approve `buy-products` in any host MCP config.
-- Run skill from account with stored payment cards or high balances.
+- Run autonomous purchasing from an account with stored payment cards or high balances.
 
 ## Source of truth
 

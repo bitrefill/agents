@@ -1,6 +1,6 @@
 ---
 name: bitrefill
-description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSIMs, 180+ countries. Capability routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), wallet (balance, x402, send). Favors autonomous purchase, minimal HITL. Triggers: Bitrefill, gift cards, mobile top-up, eSIM, crypto, Lightning, USDC, x402."
+description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSIMs, 180+ countries. Capability routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), wallet (balance, x402, send). Confirms each purchase with the user. Triggers: Bitrefill, gift cards, mobile top-up, eSIM, crypto, Lightning, USDC, x402."
 compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (Base MCP web_request → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance, Base MCP, AgentCash, CDP awal, Phantom/MetaMask sign-only. OpenClaw + Claude Chat: dedicated harness guides."
 metadata:
   author: bitrefill
@@ -102,7 +102,7 @@ Conflict resolution + global rank → [decision-engine.md](references/harnesses/
 
 - **Confirm before buy** unless user opted autonomous purchasing this session.
 - **Codes = cash** — never paste public channels; prefer in-memory.
-- **Dedicated low-balance account** — never give agent wallet seeds. Skill **not a wallet**.
+- **Dedicated low-balance account** for autonomous buying — never give agent wallet seeds. Skill **not a wallet**.
 - **Log every purchase** — `invoice_id`, product, amount, payment method.
 
 Full safeguards + per-host hardening → [safeguards.md](references/safeguards.md).
