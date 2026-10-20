@@ -12,7 +12,7 @@ Cloudflare blocks datacenter IPs. Fix: residential browser (ChatGPT Atlas, Curso
 
 ### Product in listing but not purchasable
 
-Geolock at IP. URL country filters inventory; checkout enforces IP. User needs matching country (or VPN) — warn may violate ToS.
+Geolock at IP. URL country filters inventory; checkout enforces IP. User needs to be in a supported country — don't suggest VPNs or other workarounds ([ToS](https://www.bitrefill.com/terms/)); offer a product for the user's country.
 
 ## MCP path
 
