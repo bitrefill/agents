@@ -1,6 +1,6 @@
 # Bitrefill Agent Skills
 
-A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.com) — enabling AI coding agents to browse, buy, and manage gift cards, mobile top-ups, and eSIMs across 180+ countries with crypto, Lightning, USDC via x402, or pre-funded account balance.
+A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.com) — enabling AI agents to browse, buy, and manage gift cards, mobile top-ups, and eSIMs across 180+ countries with crypto, Lightning, USDC via x402, pre-funded account balance, card, Apple Pay or Google Pay.
 
 ## Status
 
@@ -32,6 +32,10 @@ Update:
 ```
 
 **Cowork:** Customize → Plugins → add `bitrefill/agents` → install **bitrefill**. **claude.ai:** Connectors only → [claude-chat.md](skills/bitrefill/references/harnesses/claude-chat.md). Other hosts → [mcp.md](skills/bitrefill/references/touchpoints/mcp.md).
+
+### Cursor / Grok Bot (plugin: skill + MCP)
+
+Cursor: **Customize** → search **Bitrefill** → **Install**. Grok Bot: **Connect apps** → **Bitrefill** → **Add**. Both get the skill and the connector in [`.mcp.json`](.mcp.json) (OAuth with your Bitrefill account). Each purchase is confirmed with you unless you opt into autonomous buying; without a connected account the skill checks out as a guest through npm `@bitrefill/cli`. Host guide → [grok-bot.md](skills/bitrefill/references/harnesses/grok-bot.md). Bitrefill [Terms](https://www.bitrefill.com/terms/) and [Privacy Policy](https://www.bitrefill.com/privacy/) apply.
 
 ### skills CLI
 

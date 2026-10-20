@@ -43,6 +43,9 @@ claude --plugin-dir ./
   plugin.json          # Plugin manifest (name, version, author)
   marketplace.json     # Marketplace catalog listing the plugin
 .mcp.json              # Optional — MCP server definitions (eCommerce HTTP MCP for this repo)
+.cursor-plugin/
+  plugin.json          # Cursor / Grok Bot manifest (skills + .mcp.json)
+assets/logo.png        # Plugin logo
 skills/
   <skill-name>/
     SKILL.md            # Required — frontmatter + agent instructions
