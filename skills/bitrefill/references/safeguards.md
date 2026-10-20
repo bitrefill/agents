@@ -35,24 +35,9 @@ Defaults permissive (sandboxing off, `security: full`, `ask: off`). Tighten:
 
 Full → [harnesses/openclaw.md](harnesses/openclaw.md) §8.
 
-### Cursor
+### Cursor / Grok Bot
 
-`.cursor/mcp.json` `autoApprove` may include read tools. **Never** `buy-products`:
-
-```json
-{
-  "mcpServers": {
-    "bitrefill": {
-      "url": "https://api.bitrefill.com/mcp",
-      "autoApprove": [
-        "search-products", "get-product-details",
-        "list-invoices", "get-invoice-by-id",
-        "submit-prepayment-step", "update-order"
-      ]
-    }
-  }
-}
-```
+**Never** add `buy-products` to Cursor's MCP allowlist (`mcpAllowlist` in `.cursor/permissions.json`; CLI: `permissions.allow` in `.cursor/cli.json`) or buy in **Run Everything** mode (CLI: `--force`). In **Auto-review** (default), add a `buy-products` rule to `autoRun.block_instructions` in `.cursor/permissions.json`. Grok Bot: never **Always allow** `buy-products`; add an Auto-review **Ask first** rule for it.
 
 ### Codex CLI
 
