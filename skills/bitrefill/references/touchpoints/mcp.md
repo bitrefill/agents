@@ -45,6 +45,21 @@ URL: `https://docs.bitrefill.com/mcp`. Docs index for code-help. It can also sen
 
 Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safeguards.md) § Cursor / Grok Bot.
 
+### Hermes Agent
+
+**Bitrefill** plugin (`hermes plugins install bitrefill/agents --enable`, Hermes ≥ 0.22.3) bundles eCommerce MCP via root `mcp.json` and has Hermes ask before every `buy-products`. Sign in once per profile, on the Hermes machine as the user that runs it (other profile: `hermes -p <profile> …`):
+
+```shell
+hermes mcp add bitrefill --url https://api.bitrefill.com/mcp --auth oauth --connect-timeout 300
+hermes config set mcp_servers.bitrefill.trust untrusted
+```
+
+Run the second line only after the first prints `Saved 'bitrefill'`; `hermes mcp list` shows `bitrefill` with transport `?` → `hermes mcp remove bitrefill`, then both again. Keep the name `bitrefill`; enable all tools. Over SSH: open the printed URL on any device, sign in, then paste the full address the browser lands on (`http://127.0.0.1:2789x/callback?…`, including `iss=`; `code` and `state` alone are rejected), or first forward the port Hermes prints (usually `ssh -L 27890:127.0.0.1:27890 <host>`). Hermes Desktop: with the plugin enabled, run the two lines above in a terminal first. Desktop refuses the link below while the plugin is enabled, and **Authenticate** until those lines have run; after that, **Connectors** → **bitrefill** → **Authenticate** signs in again. Without the plugin: open the link below → confirm → **Connectors** → **bitrefill** → **Authenticate**. Then `/reload-mcp` (gateway: `hermes gateway restart`). Re-auth: `hermes mcp login bitrefill`. Sign in only on the Hermes machine, never from a chat. Rules → [../harnesses/hermes.md](../harnesses/hermes.md); hardening → [../safeguards.md](../safeguards.md) § Hermes.
+
+```text
+hermes://mcp/install?name=bitrefill&config=eyJ1cmwiOiJodHRwczovL2FwaS5iaXRyZWZpbGwuY29tL21jcCIsImF1dGgiOiJvYXV0aCIsInRydXN0IjoidW50cnVzdGVkIiwidG9vbF9jb3N0cyI6eyJidXktcHJvZHVjdHMiOnsiY3JlZGl0cyI6MSwibm90ZSI6InJlYWwgbW9uZXk7IEhlcm1lcyBhc2tzIGJlZm9yZSBldmVyeSBvcmRlciJ9fSwic3BlbmRfbGltaXQiOjAuNSwiY29zdF91bml0Ijoib3JkZXJzIn0
+```
+
 ### Claude Code
 
 **bitrefill** plugin from this repo auto-registers eCommerce MCP via `.mcp.json`. Manual setup if plugin not installed:

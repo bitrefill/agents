@@ -55,6 +55,36 @@ Auto-run read-only tools; **never** allowlist `buy-products`. Purchase sessions:
 
 Grok Bot: keep Auto-review on; Settings → General → Auto-review → Custom Rules → **Ask first** "before any Bitrefill buy-products call"; never **Always allow** a `buy-products` approval; codes in 1:1 chat only → [harnesses/grok-bot.md](harnesses/grok-bot.md).
 
+### Hermes
+
+The plugin marks `bitrefill` `trust: untrusted` and prices `buy-products` above the per-chat spend limit, so Hermes asks before every order, also under `/yolo` and `approvals.mode: off`; each answer covers only that order (0.22.3–0.22.5 also offer **Session** / **Always**, which still cover one). Hermes declines in cron, one-shot (`hermes -z`, `-Q`) and other unattended runs. `hermes mcp add bitrefill` keeps that limit while the plugin is enabled but resets trust: once it saves, run `hermes config set mcp_servers.bitrefill.trust untrusted`. Disabling or removing the plugin drops the limit: `hermes mcp remove bitrefill` first. **Never** answer **Always**, buy under `/yolo`, or set `spend_limit` to `0`. Autonomous buying = the user setting `trust: full` and `spend_limit` to the orders allowed per chat, from a dedicated low-balance account. Gateway: allow only yourself; every chat of the profile shares its sign-in.
+
+`terminal` and `execute_code` have no purchase prompt. Keep the Bitrefill CLI signed out on this machine (`whoami --json` → `"identity":"unregistered"`) and run `hermes tools disable code_execution` on the buying profile (gateway: add `--platform <platform>`); `execute_code` skips `approvals.deny`. Then block signed-in CLI buys, x402 payers and self-reconfiguration in `terminal` with `approvals.deny`, checked before `/yolo`, `approvals.mode: off` and cron — a backstop for plain commands, not obfuscated ones:
+
+```yaml
+approvals:
+  deny:
+    - "*bitrefill*buy-products*--payment_method*balance*"
+    - "*bitrefill*buy-products*--payment_method*cashback*"
+    - "*bitrefill*buy-products*--saved_fiat_card_id*"
+    - "*bitrefill* login*--email*"
+    - "*bitrefill* verify*--code*"
+    - "*bitrefill-cli*"
+    - "*awal*x402*pay*"
+    - "*x402/invoice/pay*"
+    - "*hermes*config*set*"
+    - "*hermes*config.yaml*"
+    - "*hermes*mcp*add*"
+    - "*hermes*plugins*disable*"
+    - "*hermes*plugins*remove*"
+    - "*hermes*plugins*uninstall*"
+    - "*hermes*plugins*rm *"
+    - "*hermes*tools*enable*"
+    - "*mcp-tokens*"
+```
+
+`approvals.deny` sees `terminal` only, not MCP tools: a wallet MCP that pays on its own (AgentCash `fetch` is marked read-only, so trust does not stop it) can settle a Bitrefill invoice unprompted. Price its paying tool above the limit (`mcp_servers.<wallet>.tool_costs: {<tool>: 1}`, `spend_limit: 0.5`) or keep it out of the shopping profile.
+
 ### Codex CLI
 
 ```bash
@@ -85,6 +115,8 @@ codex --sandbox workspace-write --ask-for-approval on-request
   }
 }
 ```
+
+Also deny your SSH key directory in both lists.
 
 ### Claude Desktop / Claude.ai web
 
@@ -143,6 +175,6 @@ Default: pre-fund `balance` on dedicated account → `payment_method: "balance"`
 - ToS: <https://www.bitrefill.com/terms/> | Refunds: <https://docs.bitrefill.com/docs/refunds>
 - Routing: [harnesses/decision-engine.md](harnesses/decision-engine.md)
 - Touchpoints: [touchpoints/mcp.md](touchpoints/mcp.md), [touchpoints/cli.md](touchpoints/cli.md), [touchpoints/x402.md](touchpoints/x402.md)
-- OpenClaw: [harnesses/openclaw.md](harnesses/openclaw.md) | Claude Chat: [harnesses/claude-chat.md](harnesses/claude-chat.md)
+- OpenClaw: [harnesses/openclaw.md](harnesses/openclaw.md) | Claude Chat: [harnesses/claude-chat.md](harnesses/claude-chat.md) | Grok Bot / Cursor: [harnesses/grok-bot.md](harnesses/grok-bot.md) | Hermes: [harnesses/hermes.md](harnesses/hermes.md)
 
 **User hears:** confirm as a clean receipt — "[Product] — [amount]: [total] USDC. Confirm?" (card / Apple Pay / Google Pay: [total] USD; iDEAL / EPS / P24 / Bancontact: [total] EUR; balance: its sub-account). Non-refundable once, neutrally at delivery: "Your code is ready — keep it safe, not refundable once issued."
