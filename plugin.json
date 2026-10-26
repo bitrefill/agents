@@ -107,6 +107,21 @@
         "countries": [],
         "release_notes": "Purchases stay behind the user's explicit OK and quote the real charge; wallet and email sign-in resist spoofed messages; wallet pages list today's agent wallets; MCP/CLI invoices pay by balance, send or payment link (x402 only on x402 REST invoices); MCP uses OAuth or a Bearer-header API key. Portable plugin manifests, assets and release ZIP are validated."
       }
+    },
+    "com.nousresearch.hermes": {
+      "servers": {
+        "bitrefill": {
+          "trust": "untrusted",
+          "costs": {
+            "buy-products": {
+              "credits": 1,
+              "note": "real money; Hermes asks before every order"
+            }
+          },
+          "spend_limit": 0.5,
+          "cost_unit": "orders"
+        }
+      }
     }
   }
 }
