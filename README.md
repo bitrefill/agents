@@ -41,6 +41,18 @@ claude plugin update bitrefill@bitrefill-skills
 
 Cursor: copy this repo to `~/.cursor/plugins/local/bitrefill` and run **Developer: Reload Window**; once Bitrefill is listed on Cursor Marketplace, **Customize** → **Bitrefill** → **Install**. Grok Bot installs it from that listing. Both get the skill and the connector in [`.mcp.json`](.mcp.json) (OAuth with your Bitrefill account). Host guide → [grok-bot.md](skills/bitrefill/references/harnesses/grok-bot.md).
 
+### Hermes Agent (plugin: skill + MCP)
+
+Hermes ≥ 0.22.3:
+
+```bash
+hermes plugins install bitrefill/agents --enable
+hermes mcp add bitrefill --url https://api.bitrefill.com/mcp --auth oauth --connect-timeout 300
+hermes config set mcp_servers.bitrefill.trust untrusted
+```
+
+Run the last line only after `mcp add` prints `Saved 'bitrefill'`. Root [`plugin.json`](plugin.json) + [`mcp.json`](mcp.json) give Hermes the skill and the connector; `mcp add` signs in with your Bitrefill account (OAuth; Hermes stores the tokens per profile). Sign in on the Hermes machine, not in chat; SSH and Hermes Desktop → [mcp.md](skills/bitrefill/references/touchpoints/mcp.md) § Hermes Agent. Connector purchases spend real money: Hermes asks before every order, also under `/yolo`, each answer covers only that order, and the connector never buys in cron or other unattended runs. That prompt comes from the plugin, so run `hermes mcp remove bitrefill` before you disable or remove it. Every chat of a signed-in profile (Telegram, Discord…) shares its Bitrefill account; the skill buys only in your DM. Without sign-in the skill checks out as a guest by running `npx -y @bitrefill/cli@0.3.0` in the terminal (needs Node.js; downloads the CLI and its dependencies from npm; sends your email to api.bitrefill.com; keeps a guest token in `~/.config/bitrefill-cli/`; no Hermes prompt, since it only opens invoices you pay by link or crypto). Hardening for `terminal` and `execute_code` → [safeguards.md](skills/bitrefill/references/safeguards.md) § Hermes. Tools come from Bitrefill's server at runtime, not from the installed commit; the skill's wallet sign-in scripts are for other hosts. Host guide → [hermes.md](skills/bitrefill/references/harnesses/hermes.md). Bitrefill [Terms](https://www.bitrefill.com/terms/) and [Privacy Policy](https://www.bitrefill.com/privacy/) apply.
+
 ### skills CLI
 
 ```bash
@@ -124,7 +136,8 @@ skills/bitrefill/
     │   ├── capability-matrix.md
     │   ├── openclaw.md
     │   ├── claude-chat.md
-    │   └── grok-bot.md
+    │   ├── grok-bot.md
+    │   └── hermes.md
     ├── touchpoints/
     │   ├── mcp.md
     │   ├── x402.md
