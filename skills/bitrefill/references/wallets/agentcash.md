@@ -32,7 +32,7 @@ Docs: [agentcash.dev](https://agentcash.dev/docs/mcp-mode)
 
 ## Hosts
 
-OpenClaw, Hermes, Codex CLI, Cursor (local MCP), cron/automation.
+OpenClaw, Codex CLI, Cursor (local MCP), cron/automation. Not Hermes → [../harnesses/hermes.md](../harnesses/hermes.md).
 
 ## Security
 

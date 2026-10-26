@@ -48,7 +48,7 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 | **Grok Bot** | Cloud computer | Direct + MCP | Yes (plugin connector) | — | Connected account: MCP + balance; else guest CLI → link ([grok-bot.md](grok-bot.md)) |
 | OpenCode | Full shell | Direct + MCP | Yes | MCP | MCP + balance → CLI |
 | **OpenClaw / Pi** | `exec` | Host IP | Yes | Host IP | **Guest CLI exec** → balance → MCP → x402 |
-| **Hermes** | `terminal` | Backend-dependent | Yes | Local/CDP | MCP (API key cron) → CLI → avoid cloud browse |
+| **Hermes** → [hermes.md](hermes.md) | `terminal` | Backend-dependent | Yes — plugin connector (OAuth) | Local/CDP | MCP (Hermes asks every order; never cron) → guest CLI (`npx`) → link |
 
 ## Wallet availability by host
 
@@ -56,8 +56,8 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 |--------|---------------|-------------------|
 | Bitrefill balance | Any OAuth'd MCP/CLI | Lowest HITL — pre-fund cap |
 | Coinbase Wallet MCP | Cursor, ChatGPT+, Claude+connector | x402 REST Path 1, MCP invoice `send` |
-| AgentCash | OpenClaw, Hermes, Codex (local MCP) | Autonomous x402 |
-| CDP awal | Codex, OpenClaw, Hermes | Autonomous x402 under caps; `send` |
+| AgentCash | OpenClaw, Codex (local MCP) | Autonomous x402 |
+| CDP awal | Codex, OpenClaw | Autonomous x402 under caps; `send` |
 | MetaMask mm CLI | Codex, Claude Code, OpenClaw | x402 or `send`; user confirms each payment |
 | Kite, Bankr, Alby, Tether WDK, Pay | Shell or local MCP hosts | x402 REST or MCP / CLI send |
 

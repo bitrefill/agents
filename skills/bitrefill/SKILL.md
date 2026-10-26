@@ -2,7 +2,7 @@
 name: bitrefill
 description: "Use when the user wants to browse or buy gift cards, mobile top-ups or eSIMs on Bitrefill, or manage Bitrefill orders. Detect available shopping and payment tools, check regional availability and pricing, and confirm purchases with the user. Do not activate for unrelated cryptocurrency, wallet or payment requests."
 license: MIT
-compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (wallet HTTP → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance + agent wallets (wallet matrix). OpenClaw + Claude Chat: dedicated harness guides."
+compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (wallet HTTP → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance + agent wallets (wallet matrix). Harness guides: OpenClaw, Claude Chat, Grok Bot/Cursor, Hermes."
 metadata:
   author: bitrefill
   version: "4.0.0"
@@ -52,7 +52,8 @@ Probe what host you are on (exec/shell, egress, MCP connectors, browser, generat
 | If you detect | Read |
 | --- | --- |
 | Claude Chat (`show_widget` or `read_me`, MCP on claude.ai) | [claude-chat.md](references/harnesses/claude-chat.md) |
-| OpenClaw (`~/.openclaw/`, `openclaw` on PATH) | [openclaw.md](references/harnesses/openclaw.md) |
+| Hermes Agent (`skill_view` + `terminal` tools; system prompt names Hermes Agent), even with `~/.openclaw/` | [hermes.md](references/harnesses/hermes.md) |
+| OpenClaw (`~/.openclaw/`, `openclaw` on PATH; not Hermes Agent) | [openclaw.md](references/harnesses/openclaw.md) |
 | Grok Bot or Cursor (Bot cloud computer; Cursor IDE, CLI or cloud agent) | [grok-bot.md](references/harnesses/grok-bot.md) |
 | Known host, need defaults | [capability-matrix.md](references/harnesses/capability-matrix.md) |
 | Probe signals + derivation rules | [decision-engine.md](references/harnesses/decision-engine.md) § Phase 1 |
@@ -118,6 +119,7 @@ Full safeguards + per-host hardening → [safeguards.md](references/safeguards.m
 | [openclaw.md](references/harnesses/openclaw.md) | OpenClaw Gateway — guest CLI via `exec` |
 | [claude-chat.md](references/harnesses/claude-chat.md) | claude.ai — MCP-first + `show_widget` |
 | [grok-bot.md](references/harnesses/grok-bot.md) | Grok Bot and Cursor — connected account via MCP, else guest CLI |
+| [hermes.md](references/harnesses/hermes.md) | Hermes Agent — connector asks every order, guest CLI via `terminal` |
 
 ### Touchpoints
 

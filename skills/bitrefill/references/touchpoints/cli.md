@@ -25,7 +25,7 @@ bitrefill get-product-details --product_id "amazon_it-italy"
 bitrefill buy-products \
   --cart_items '[{"product_id":"amazon_it-italy","package_value":"10"}]' \
   --payment_method lightning \
-  --return_payment_link true \
+  --return_payment_link false \
   --email "agent@example.com"
 ```
 
@@ -34,6 +34,8 @@ Response: `invoice_id`, `invoice_access_token`, `payment_link`; `payment_info` (
 Guest payment: crypto from a wallet (`--return_payment_link false`) or `payment_link`; card / Apple Pay / Google Pay: `--payment_method fiat_card` (or `apple_pay` / `google_pay`) `--billing_address '{"country":"US","city":"…","postal_code":"…","address_line1":"…"}'` (Apple Pay / Google Pay: `country` only) → send `payment_link`. Pay → [../wallets/payment.md](../wallets/payment.md). **`balance` / `cashback` need signed-in account** (below).
 
 ## Sign up / sign in (balance, cashback, order history)
+
+Not on Hermes → [../harnesses/hermes.md](../harnesses/hermes.md).
 
 After guest try, sign in when human wants **managed agent spending** or **rewards**:
 
