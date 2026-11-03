@@ -65,6 +65,8 @@ bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 
 **OpenClaw override:** detect first → [openclaw.md](openclaw.md). Guest CLI via `exec` before MCP when no OAuth.
 
+**Grok Bot / Cursor override:** detect → [grok-bot.md](grok-bot.md). Connector signed in (`get-balances` visible) → MCP + `balance`; else guest CLI; no shell → `bitrefill.com` link.
+
 **Claude Chat override:** detect in Phase 1 → [claude-chat.md](claude-chat.md) §1. Signals: `show_widget` **or** `read_me`; MCP connector tools on claude.ai. **`sandbox_exec` true, `exec_available` false** — has code sandbox, not agent shell. Probe **`egress_direct`**. MCP-first for shopping; no pay-per-call browse when Base `sign` works; `show_widget` when available.
 
 **Triple-MCP (Bitrefill + Base + Phantom):** Bitrefill MCP catalog/checkout when OAuth'd → Base MCP x402 pay → Phantom sign-only if Phantom is payer (HTTP via Base MCP or Bitrefill MCP).

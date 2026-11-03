@@ -72,14 +72,14 @@ Check `get-balances` before paying by balance. Short → offer a balance top-up 
 ## Bootstrap (optional)
 
 ```bash
-bitrefill init                    # optional OpenClaw wiring only
+bitrefill init --openclaw         # avoid
 ```
 
-`init` no longer stores API keys. OpenClaw only: merges MCP config + generates `~/.openclaw/skills/bitrefill/SKILL.md`.
+`init` signs you out and resets CLI state (clears the stored session). With OpenClaw it also writes an MCP stub in `~/.openclaw/openclaw.json` that needs `BITREFILL_API_KEY`, plus `~/.openclaw/skills/bitrefill/SKILL.md`. Wire MCP via [../harnesses/openclaw.md](../harnesses/openclaw.md) § 4 instead.
 
 ## Auth
 
-CLI 0.3.0: **guest checkout needs no sign-in.** Account auth = OAuth client_credentials (auto on first MCP connect) + email magic-link. No `--api-key`, no `credentials.json`.
+**Guest checkout needs no sign-in.** Account auth = OAuth client_credentials (auto on first MCP connect) + email magic-link. No `--api-key`, no `credentials.json`.
 
 | Step | Command | Notes |
 |------|---------|-------|
@@ -104,7 +104,7 @@ bitrefill verify --code "$CODE" --otp "$(op item get Bitrefill --otp)"
 
 Server may return `browser_url` for passkey/WebAuthn — open in browser, retry.
 
-**Developer API keys** (Personal REST / key-in-path MCP) separate from CLI auth. → [mcp.md](mcp.md), [api.md](api.md).
+**Developer API keys** (Personal REST / Bearer-header MCP) separate from CLI auth. → [mcp.md](mcp.md), [api.md](api.md). Server override: `BASE_URL` (default `https://api.bitrefill.com/mcp`). The CLI ignores `MCP_URL` and `BITREFILL_API_KEY`.
 
 ## Global flags
 
@@ -137,7 +137,7 @@ bitrefill llm-context -o BITREFILL-MCP.md
 
 ## OpenClaw quick-bootstrap
 
-Optional `bitrefill init --openclaw`: MCP stub in `~/.openclaw/openclaw.json` + skill SKILL.md. **Not required for guest CLI** — install CLI, guest checkout via `exec`. OpenClaw prefers guest CLI first → [../harnesses/openclaw.md](../harnesses/openclaw.md). Hardening → exec-approvals for `buy-products`.
+Skip `bitrefill init` (§ Bootstrap). **Guest CLI needs no setup** — install CLI, guest checkout via `exec`. OpenClaw prefers guest CLI first → [../harnesses/openclaw.md](../harnesses/openclaw.md). Hardening → exec-approvals for `buy-products`.
 
 ## Workflow
 

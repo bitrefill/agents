@@ -25,7 +25,11 @@ Geolock at IP. URL country filters inventory; checkout enforces IP. User needs t
 
 ### `StreamableHTTPError` with HTML body
 
-Wrong `MCP_URL`. Unset env or set `https://api.bitrefill.com/mcp`.
+Wrong server URL. CLI: unset `BASE_URL` (default `https://api.bitrefill.com/mcp`; the CLI ignores `MCP_URL` and `BITREFILL_API_KEY`). MCP clients: set the connector URL to `https://api.bitrefill.com/mcp`.
+
+### `410` on `/mcp/<key>`
+
+Keys never go in the URL. Use `https://api.bitrefill.com/mcp` with an `Authorization: Bearer <api key>` header, or OAuth.
 
 ### OAuth loop (Cursor / Claude.ai)
 

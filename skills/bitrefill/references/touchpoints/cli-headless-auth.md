@@ -42,8 +42,6 @@ Agent inbox address = Bitrefill email. Signup = login (same command).
 ```bash
 npm install -g @bitrefill/cli@0.3
 
-bitrefill init --openclaw    # optional
-
 bitrefill login --email bitrefill-agent@agentmail.to
 ```
 

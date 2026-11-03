@@ -118,6 +118,7 @@ Full safeguards + per-host hardening → [safeguards.md](references/safeguards.m
 | [capability-matrix.md](references/harnesses/capability-matrix.md) | Per-host exec / egress / ranked stacks |
 | [openclaw.md](references/harnesses/openclaw.md) | OpenClaw Gateway — guest CLI via `exec` |
 | [claude-chat.md](references/harnesses/claude-chat.md) | claude.ai — MCP-first + `show_widget` |
+| [grok-bot.md](references/harnesses/grok-bot.md) | Grok Bot and Cursor — connected account via MCP, else guest CLI |
 
 ### Touchpoints
 

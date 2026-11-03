@@ -54,7 +54,7 @@ exec: bitrefill buy-products \
   --email "user@example.com"
 ```
 
-`--intent` (required, non-empty) = the user's goal; context only. Guest flow → [../touchpoints/cli.md](../touchpoints/cli.md) § Guest checkout. Optional: `bitrefill init --openclaw` (skill + MCP stub — not required for guest).
+`--intent` (required, non-empty) = the user's goal; context only. Guest flow → [../touchpoints/cli.md](../touchpoints/cli.md) § Guest checkout. Skip `bitrefill init` → [../touchpoints/cli.md](../touchpoints/cli.md) § Bootstrap.
 
 **Upgrade signed-in** when human wants store-credit cap (`balance`), cashback, order history:
 
@@ -72,7 +72,8 @@ Docker sandbox: `setupCommand: "npm install -g @bitrefill/cli@0.3"`, `network` n
 When: typed MCP tool calls without shell, or MCP-native integrations. **Not required for guest** — guest CLI faster (zero config).
 
 ```bash
-openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp"
+openclaw mcp set bitrefill '{"url":"https://api.bitrefill.com/mcp","transport":"streamable-http","auth":"oauth"}'
+openclaw mcp login bitrefill
 ```
 
 Or edit `~/.openclaw/openclaw.json`:
@@ -82,16 +83,18 @@ Or edit `~/.openclaw/openclaw.json`:
   "mcp": {
     "servers": {
       "bitrefill": {
-        "url": "https://api.bitrefill.com/mcp"
+        "url": "https://api.bitrefill.com/mcp",
+        "transport": "streamable-http",
+        "auth": "oauth"
       }
     }
   }
 }
 ```
 
-Developer API key (optional): [../touchpoints/mcp.md](../touchpoints/mcp.md). Guest MCP may still need OAuth; **guest CLI avoids this.**
+Developer API key (optional): drop `auth`, send it as a Bearer header → [../touchpoints/mcp.md](../touchpoints/mcp.md). Guest MCP may still need OAuth; **guest CLI avoids this.**
 
-Transport: SSE/HTTP or `transport: "streamable-http"`. Restrict per-agent via `agents.list[].tools.allow`/`deny`. Source: <https://docs.openclaw.ai/cli/mcp.md>.
+Transport: streamable HTTP only (the server has no SSE stream; an omitted `transport` means `sse`). Restrict per-agent via `agents.list[].tools.allow`/`deny`. Source: <https://docs.openclaw.ai/cli/mcp.md>.
 
 Then → [../touchpoints/mcp.md](../touchpoints/mcp.md).
 

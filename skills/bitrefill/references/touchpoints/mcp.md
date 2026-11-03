@@ -8,7 +8,7 @@
 
 ### eCommerce MCP — purchases
 
-URL: `https://api.bitrefill.com/mcp` (OAuth) **or** `https://api.bitrefill.com/mcp/YOUR_API_KEY` (key-in-path).
+URL: `https://api.bitrefill.com/mcp`, authenticated by OAuth **or** an API key in the `Authorization: Bearer <api key>` header. Never put the key in the URL (`/mcp/<key>` returns 410).
 
 12 tools; **(g)** = visible to guests (7), the other 5 need a signed-in account:
 
@@ -23,7 +23,7 @@ URL: `https://api.bitrefill.com/mcp` (OAuth) **or** `https://api.bitrefill.com/m
 - `list-saved-fiat-cards` — saved cards → `saved_fiat_card_id`
 - `search_help_articles` **(g)** → `get_help_article` **(g)** — help center. `list_help_articles` **(g)** returns no articles: browse a topic by searching with `category`
 
-Auth: OAuth (interactive) or API key from <https://www.bitrefill.com/account/developers>.
+Auth: OAuth (interactive) or API key from <https://www.bitrefill.com/account/developers> sent as the Bearer header.
 
 ### Development MCP — docs only
 
@@ -51,21 +51,15 @@ Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safegua
 
 ```bash
 claude mcp add --transport http bitrefill https://api.bitrefill.com/mcp
+# API key instead of OAuth:
+claude mcp add --transport http bitrefill https://api.bitrefill.com/mcp --header "Authorization: Bearer $BITREFILL_API_KEY"
 ```
 
-Or edit `~/.claude.json`. Output cap: `MAX_MCP_OUTPUT_TOKENS` (default 25000).
+OAuth: `/mcp` → bitrefill → Authenticate. Output cap: `MAX_MCP_OUTPUT_TOKENS` (default 25000).
 
-### Claude Desktop — `claude_desktop_config.json`
+### Claude Desktop
 
-macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`. Windows: `%APPDATA%\Claude\claude_desktop_config.json`.
-
-```json
-{
-  "mcpServers": {
-    "bitrefill": { "url": "https://api.bitrefill.com/mcp" }
-  }
-}
-```
+Settings → Connectors → Add custom connector → `https://api.bitrefill.com/mcp` (OAuth). Remote servers are connectors, not `claude_desktop_config.json` entries.
 
 ### Claude.ai (web) — Pro / Max / Team / Enterprise
 
@@ -93,14 +87,14 @@ OAuth: `codex mcp login bitrefill`.
 {
   "mcpServers": {
     "bitrefill": {
-      "url": "https://api.bitrefill.com/mcp",
+      "httpUrl": "https://api.bitrefill.com/mcp",
       "headers": { "Authorization": "Bearer ${BITREFILL_API_KEY}" }
     }
   }
 }
 ```
 
-OAuth: `gemini mcp auth bitrefill`.
+`httpUrl` = streamable HTTP (`url` selects the SSE transport). OAuth: run `/mcp auth bitrefill` inside Gemini CLI (omit `headers`).
 
 ### OpenCode — `opencode.jsonc`
 
@@ -108,18 +102,24 @@ OAuth: `gemini mcp auth bitrefill`.
 {
   "mcp": {
     "bitrefill": {
+      "type": "remote",
       "url": "https://api.bitrefill.com/mcp",
-      "headers": { "Authorization": "Bearer ${BITREFILL_API_KEY}" }
+      "headers": { "Authorization": "Bearer {env:BITREFILL_API_KEY}" }
     }
   }
 }
 ```
 
+OAuth: `opencode mcp auth bitrefill` (omit `headers`).
+
 ### OpenClaw → [../harnesses/openclaw.md](../harnesses/openclaw.md)
 
 ```bash
-openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_KEY"
+openclaw mcp set bitrefill '{"url":"https://api.bitrefill.com/mcp","transport":"streamable-http","auth":"oauth"}'
+openclaw mcp login bitrefill
 ```
+
+API key instead of OAuth: drop `"auth"`, add `"headers":{"Authorization":"Bearer ${BITREFILL_API_KEY}"}`.
 
 ## Workflow
 
