@@ -9,24 +9,27 @@ Pay-time routing after touchpoint creates invoice. **Lowest HITL first** — [ma
 ## Decision tree
 
 ```
-1. bitrefill_balance available?
+1. User asked for card, Apple Pay, Google Pay (priced in USD) or iDEAL, EPS, P24, Bancontact (EUR)?
+   → saved card when signed in, else billing address → payment_link
+
+2. bitrefill_balance available?
    → get-balances covers the total? payment_method: "balance" (debits at once)
-   → short: offer a Bitrefill Gift Card top-up (bitrefill-giftcard-usd / -eur) or go to 2
+   → short: offer a Bitrefill Gift Card top-up (bitrefill-giftcard-usd / -eur) or go to 3
    → no balance_currency = primary sub-account (can be BTC): name it in the confirm
 
-2. wallet_agentcash or wallet_cdp?
+3. wallet_agentcash or wallet_cdp?
    → x402 on x402_payment_url or x402 REST invoice/pay
 
-3. wallet_base_mcp + x402 tools?
+4. wallet_base_mcp + x402 tools?
    → initiate_x402_request → approve → complete_x402_request
 
-4. wallet_base_mcp, no x402?
+5. wallet_base_mcp, no x402?
    → send USDC on base to payment_info address/amount
 
-5. wallet_phantom / wallet_metamask?
+6. wallet_phantom / wallet_metamask?
    → Manual: orchestrate HTTP separately; sign typed data / send tx (high HITL)
 
-6. Else
+7. Else
    → return_payment_link or Lightning — human completes
 ```
 
@@ -52,6 +55,7 @@ CLI: `--payment_method usdc_base` → same fields in JSON.
 - Browse/create/status: JWT (`X-Access-Token`) or x402 micro-fees
 - **`invoice/pay`**: always x402 — never JWT-waived
 - `maxPayment`: `"0.01"` micro-fees; slightly above `price_usd` for pay
+- The 402 amount must equal the invoice price before paying; otherwise stop
 
 ## Payment method risk
 
@@ -68,7 +72,7 @@ Full enum → <https://docs.bitrefill.com/docs/crypto-payments>.
 
 ## Confirm before pay
 
-Present product, denomination, exact USDC total, payment method. Wait explicit approval unless session opted autonomous ([../safeguards.md](../safeguards.md)).
+Present product, denomination, the real charge for the chosen method (`payment_price`, e.g. 10 EUR Vodafone costs 10.61 EUR; on x402 `price_usdc`), its coin and network, the sub-account for balance (debited as soon as `buy-products` runs) and the recipient for top-ups. Wait for explicit approval unless the user opted into autonomous buying in chat ([../safeguards.md](../safeguards.md)).
 
 *(say: "[Product] — [face value]: [total] USDC on [network]. Your balance: [balance]. Valid [N] min. Confirm?")*
 

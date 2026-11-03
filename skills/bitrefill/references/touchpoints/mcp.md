@@ -27,7 +27,7 @@ Auth: OAuth (interactive) or API key from <https://www.bitrefill.com/account/dev
 
 ### Development MCP — docs only
 
-URL: `https://docs.bitrefill.com/mcp`. Docs index for code-help. **Not purchases.** Integration authoring only.
+URL: `https://docs.bitrefill.com/mcp`. Docs index for code-help. It can also send API requests: never give it an API key or use it for orders or invoices.
 
 ## Per-client setup
 
@@ -128,8 +128,8 @@ search-products  →  get-product-details  →  buy-products  →  get-invoice-b
 ```
 
 1. **Search** — `search-products(..., intent=<user's goal>)`. *(say: "Searching for [product]…" — tool title: "Search gift cards")*
-2. **Get price** — `get-product-details(..., currency="USDC")`. *(silent)*
-3. **Prepare order** — `buy-products(...)`. Max 15 items. Confirm with user first. *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
+2. **Get price** — `get-product-details(..., currency="USDC")` (card / Apple Pay / Google Pay: `USD`; iDEAL / EPS / P24 / Bancontact: `EUR`) → total = `packages[].payment_price` summed per cart line, never the face value. *(silent)*
+3. **Prepare order** — `buy-products(...)`. Max 15 items. Confirm with user first (top-ups: with the recipient number). *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
 4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` (debits at once) → Base MCP pay → `send`. *(say: "Approve the payment in your Base Account")*
 5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
 

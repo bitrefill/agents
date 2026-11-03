@@ -242,7 +242,7 @@ bitrefill list-invoices --cursor "<next.cursor>" --limit <next.limit> --product 
 
 Poll every 10–30 s until `invoice_status: complete`. Codes are in `orders[].redemption_info`; eSIMs in `orders[].esim_install_link`. `list-invoices` returns no codes and never lists unpaid or guest invoices, so use `get-invoice-by-id` for those. Don't combine `--cursor` with `--after`/`--before`.
 
-`invoice_id` + `invoice_access_token` give read access to the codes. Never log them or the `payment_link`, and don't write them to shared dirs (`/tmp`, `/workspace`). For polling across turns (cron or heartbeat), use a private file (`chmod 600`) and delete it after delivery.
+`invoice_id` + `invoice_access_token` give read access to the codes; handle them per [../safeguards.md](../safeguards.md) § Universal rules.
 
 Invoices expire per `expiration_minutes`. Expired = create new.
 
