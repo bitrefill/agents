@@ -130,7 +130,7 @@ search-products  →  get-product-details  →  buy-products  →  get-invoice-b
 1. **Search** — `search-products(..., intent=<user's goal>)`. *(say: "Searching for [product]…" — tool title: "Search gift cards")*
 2. **Get price** — `get-product-details(..., currency="USDC")` (card / Apple Pay / Google Pay: `USD`; iDEAL / EPS / P24 / Bancontact: `EUR`) → total = `packages[].payment_price` summed per cart line, never the face value. *(silent)*
 3. **Prepare order** — `buy-products(...)`. Max 15 items. Confirm with user first (top-ups: with the recipient number). *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
-4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` (debits at once) → Base MCP pay → `send`. *(say: "Approve the payment in your Base Account")*
+4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` (debits at once) → wallet send → payment link. *(say: "Approve the payment in your wallet")*
 5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
 
 Logging per [../safeguards.md](../safeguards.md).
@@ -146,4 +146,4 @@ Logging per [../safeguards.md](../safeguards.md).
 - <https://docs.bitrefill.com/docs/ecommerce-mcp> | <https://docs.bitrefill.com/docs/development-mcp> | <https://docs.bitrefill.com/docs/setup-guides>
 - Per-client: <https://docs.bitrefill.com/docs/use-with-cursor>, `/use-with-claude-chat`, `/use-with-claude-code`, `/use-with-chatgpt`
 
-**User hears:** "Searching for [product]…" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your Base Account" → "Your code is ready."
+**User hears:** "Searching for [product]…" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your wallet" → "Your code is ready."

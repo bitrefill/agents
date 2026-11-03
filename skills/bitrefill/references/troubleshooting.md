@@ -201,13 +201,9 @@ Wrong `package_value` — exact string from product detail. Confirm no onchain c
 
 Already settled — poll `invoice/status` or `get-invoice-by-id`.
 
-### Base MCP `web_request` rejected
+### Coinbase Wallet MCP `web_request` rejected
 
 Hostname not allowlisted — only `api.bitrefill.com` (not `docs.bitrefill.com`). → [wallets/base-mcp.md](wallets/base-mcp.md).
-
-### Phantom `wallet_balances` schema error
-
-Known Phantom MCP issue — use `wallet_addresses` + external balance, or Base MCP `get_portfolio`.
 
 ## Source of truth
 

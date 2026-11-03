@@ -15,10 +15,10 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 | Host | Exec | Egress | MCP | Browser | Ranked stack (autonomy-first) |
 |------|------|--------|-----|---------|------------------------------|
 | Claude.ai Free | Sandbox exec yes; no agent shell | MCP: no custom connectors; egress: probe | No | Chrome ext only | Link only |
-| Claude.ai Pro+ | Sandbox exec yes; no agent shell | **MCP** connectors; sandbox egress: **probe** | Yes | Chrome ext | MCP + balance → MCP + Base x402 → x402 REST via Base |
-| Cowork | Desktop shell | MCP + host | Yes | Chrome ext | MCP + balance → MCP + Base x402 → CLI |
-| Claude Desktop | No | MCP only | Yes | Chrome ext | MCP + balance → MCP + Base x402 |
-| Claude Code | Full shell | Direct + MCP | Yes | Chrome ext | MCP + balance → MCP + Base x402 → CLI → x402 REST |
+| Claude.ai Pro+ | Sandbox exec yes; no agent shell | **MCP** connectors; sandbox egress: **probe** | Yes | Chrome ext | MCP + balance → MCP + wallet send → x402 REST |
+| Cowork | Desktop shell | MCP + host | Yes | Chrome ext | MCP + balance → MCP + wallet send → CLI |
+| Claude Desktop | No | MCP only | Yes | Chrome ext | MCP + balance → MCP + wallet send |
+| Claude Code | Full shell | Direct + MCP | Yes | Chrome ext | MCP + balance → MCP + wallet send → CLI → x402 REST |
 
 **Claude Chat network:** shop via MCP connectors, not the code sandbox → [claude-chat.md](claude-chat.md) §4.
 
@@ -27,12 +27,12 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 | Host | Exec | Egress | MCP | Browser | Ranked stack |
 |------|------|--------|-----|---------|--------------|
 | ChatGPT Free | No | None | No | Datacenter | Link only |
-| ChatGPT Plus+ / Desktop | Sandbox **no net** | **MCP host yes** | Yes | Datacenter | MCP + balance → **Base MCP x402 REST** (no Bitrefill account) |
+| ChatGPT Plus+ / Desktop | Sandbox **no net** | **MCP host yes** | Yes | Datacenter | MCP + balance → **x402 REST via Coinbase Wallet MCP** (no Bitrefill account) |
 | ChatGPT Atlas | Limited | MCP + residential | Yes | **Residential** | MCP buy; Browse explore-only |
-| ChatGPT Agent | Sandbox shell | MCP + curl | Yes | Datacenter | MCP → CLI → Base x402 |
+| ChatGPT Agent | Sandbox shell | MCP + curl | Yes | Datacenter | MCP → CLI → x402 REST |
 | Codex CLI | Full shell | Allowlistable | Yes | MCP only | MCP + balance → CLI → AgentCash/awal |
 
-**ChatGPT:** Code Interpreter can't curl; Base MCP `web_request` proxies `api.bitrefill.com` — full x402 shop without Bitrefill MCP when dual-connector configured.
+**ChatGPT:** Code Interpreter can't curl; Coinbase Wallet MCP `web_request` proxies `api.bitrefill.com` — full x402 shop without Bitrefill MCP when dual-connector configured.
 
 ## Google
 
@@ -47,7 +47,7 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 
 | Host | Exec | Egress | MCP | Browser | Ranked stack |
 |------|------|--------|-----|---------|--------------|
-| Cursor | Terminal | Direct + MCP | Yes | Built-in | MCP + balance → Base x402; not signed in → guest CLI ([grok-bot.md](grok-bot.md)) |
+| Cursor | Terminal | Direct + MCP | Yes | Built-in | MCP + balance → wallet send; not signed in → guest CLI ([grok-bot.md](grok-bot.md)) |
 | **Grok Bot** | Cloud computer | Direct + MCP | Yes (plugin connector) | — | Connected account: MCP + balance; else guest CLI → link ([grok-bot.md](grok-bot.md)) |
 | OpenCode | Full shell | Direct + MCP | Yes | MCP | MCP + balance → CLI |
 | **OpenClaw / Pi** | `exec` | Host IP | Yes | Host IP | **Guest CLI exec** → balance → MCP → x402 |
@@ -58,11 +58,11 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 | Wallet | Typical hosts | Bitrefill pairing |
 |--------|---------------|-------------------|
 | Bitrefill balance | Any OAuth'd MCP/CLI | Lowest HITL — pre-fund cap |
-| Base MCP | Cursor, ChatGPT+, Claude+connector | x402 REST Path 1, MCP invoice pay |
+| Coinbase Wallet MCP | Cursor, ChatGPT+, Claude+connector | x402 REST Path 1, MCP invoice `send` |
 | AgentCash | OpenClaw, Hermes, Codex (local MCP) | Autonomous x402 |
-| CDP awal | Codex, OpenClaw, Hermes | Autonomous x402 under caps |
-| Phantom MCP | Cursor (connector) | SIWX sign only — pair with Base/Bitrefill MCP for HTTP |
-| MetaMask mm CLI | Codex, Claude Code, OpenClaw | Manual sign — not autonomous |
+| CDP awal | Codex, OpenClaw, Hermes | Autonomous x402 under caps; `send` |
+| MetaMask mm CLI | Codex, Claude Code, OpenClaw | x402 or `send`; user confirms each payment |
+| Kite, Bankr, Alby, Tether WDK, Pay | Shell or local MCP hosts | x402 REST or MCP / CLI send |
 
 Full wallet matrix → [../wallets/matrix.md](../wallets/matrix.md).
 
@@ -72,7 +72,7 @@ Full wallet matrix → [../wallets/matrix.md](../wallets/matrix.md).
 2. Claude Chat (claude.ai + `show_widget`)? → [claude-chat.md](claude-chat.md) — MCP-first + generative UI.
 3. Grok Bot or Cursor? → [grok-bot.md](grok-bot.md) — connected account via MCP, else guest CLI.
 4. `search-products` visible? → [../touchpoints/mcp.md](../touchpoints/mcp.md) + [../wallets/payment.md](../wallets/payment.md).
-5. Base MCP `web_request` + guest USDC? → [../touchpoints/x402.md](../touchpoints/x402.md) Path 1.
+5. x402 wallet, no Bitrefill account? → [../touchpoints/x402.md](../touchpoints/x402.md) Path 1.
 6. Shell, no MCP? → [../touchpoints/cli.md](../touchpoints/cli.md).
 7. Else → [decision-engine.md](decision-engine.md) full probe.
 
