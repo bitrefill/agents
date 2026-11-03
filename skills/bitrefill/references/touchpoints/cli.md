@@ -1,4 +1,4 @@
-# Path: CLI
+# Touchpoint: CLI
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 
@@ -90,17 +90,7 @@ bitrefill init --openclaw         # avoid
 | Sign out | `logout` | revokes session; keeps `client_id` |
 | Full reset | `reset` | clears all local state + revokes session |
 
-**TOTP via 1Password** ([`op read`](https://www.1password.dev/cli/reference/commands/read)):
-
-```bash
-bitrefill verify --code "$CODE" --otp "$(op read 'op://Vault/Bitrefill/one-time password?attribute=otp')"
-```
-
-Shorthand ([`op item get --otp`](https://www.1password.dev/cli/reference/management-commands/item#item-get)):
-
-```bash
-bitrefill verify --code "$CODE" --otp "$(op item get Bitrefill --otp)"
-```
+**TOTP via 1Password** → [cli-headless-auth.md](cli-headless-auth.md#totp-via-1password).
 
 Server may return `browser_url` for passkey/WebAuthn — open in browser, retry.
 

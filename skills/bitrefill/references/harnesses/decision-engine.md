@@ -32,7 +32,7 @@ bitrefill_mcp_live  = search-products / buy-products visible (OAuth or API key)
 base_mcp_live       = get_wallets / web_request / initiate_x402_request visible
 ```
 
-**Claude Chat — two network layers:** (1) **Code sandbox** — execution always available; **egress variable** — quick probe to `api.bitrefill.com` (see [claude-chat.md](claude-chat.md) §4). Default allowlist often **excludes** `api.bitrefill.com`. (2) **Chat MCP** — works **regardless of sandbox egress**. Route Bitrefill shopping via MCP when connectors live; sandbox HTTP only when MCP missing and egress probe succeeds.
+**Claude Chat:** code sandbox and chat MCP are separate network layers; shop via MCP when connectors are live → [claude-chat.md](claude-chat.md) §4.
 
 **Legacy Analysis tool** (browser JS, no net) mutually exclusive with code execution — ignore if code execution on.
 

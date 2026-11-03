@@ -1,4 +1,4 @@
-# Path: MCP
+# Touchpoint: MCP
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 
@@ -139,7 +139,7 @@ Logging per [../safeguards.md](../safeguards.md).
 
 - **ChatGPT** custom MCP needs Plus+; write tools need Developer Mode (admin on workspaces).
 - **Claude.ai** consumer needs Pro+ for custom URLs.
-- **Claude Chat network:** sandbox egress varies by plan; **MCP connectors work regardless**. Legacy Analysis tool (browser JS) has no net. Route Bitrefill via MCP — not sandbox curl. → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4.
+- **Claude Chat network:** route Bitrefill via MCP, not sandbox curl → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4.
 
 ## Source of truth
 

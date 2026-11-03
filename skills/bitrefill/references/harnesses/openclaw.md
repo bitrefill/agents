@@ -4,7 +4,7 @@
 
 [OpenClaw](https://docs.openclaw.ai/) — self-hosted Gateway bridging chat apps (Telegram, WhatsApp, Slack, Discord, iMessage, Signal, Matrix, Teams, …) to coding agents like **Pi**. **Superset host:** full shell, agentskills.io skill loader, MCP, mobile-node camera/canvas, cron, multi-channel routing.
 
-Install + harden Bitrefill skill here; path files for workflow.
+Install + harden Bitrefill skill here; touchpoint guides for workflow.
 
 **Priority:** **guest CLI via `exec`** (no auth, fastest) → signed-in CLI (`login`/`verify`, `balance`, cashback) → MCP → API → Browse. Shell + MCP — prefer guest CLI unless typed MCP tools needed or signed-in for `balance`.
 

@@ -122,7 +122,7 @@ bitrefill whoami --json
 | `unknown command 'login'` | Already signed in — `logout` first |
 | `Failed to establish a session` | `reset`, retry |
 | Invalid / expired code | Re-run `login --email`; headless → poll agent inbox ([touchpoints/cli-headless-auth.md](touchpoints/cli-headless-auth.md)) |
-| Missing TOTP | `verify --code … --otp "$(op read 'op://Vault/Item/one-time password?attribute=otp')"` |
+| Missing TOTP | `verify --code … --otp <totp>`; 1Password → [touchpoints/cli-headless-auth.md](touchpoints/cli-headless-auth.md#totp-via-1password) |
 
 State: `~/.config/bitrefill-cli/<host>.v1.json`. `logout` revokes session; `reset` clears all.
 

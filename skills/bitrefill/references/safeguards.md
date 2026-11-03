@@ -29,15 +29,7 @@ Terms: <https://www.bitrefill.com/terms/>.
 
 ### OpenClaw
 
-Defaults permissive (sandboxing off, `security: full`, `ask: off`). Tighten:
-
-- **Guest CLI via `exec` first** for purchases; sign in only for `balance` cap or cashback. → [harnesses/openclaw.md](harnesses/openclaw.md).
-- `channels.<ch>.allowFrom: ["<your_id>"]` + `dmPolicy: "pairing"` every channel.
-- `~/.openclaw/exec-approvals.json`: `security: allowlist` + `ask: on-miss`. Allowlist read tools; force `/approve` for `bitrefill buy-products` + MCP `buy-products`.
-- `agents.list[]` Bitrefill persona with `tools.deny: ["gateway"]`.
-- Disable voice readback (`audio_as_voice` / TTS). Text-only — no `MEDIA:<url>` for codes.
-
-Full → [harnesses/openclaw.md](harnesses/openclaw.md) §8.
+Defaults are permissive (sandboxing off, `security: full`, `ask: off`): apply [harnesses/openclaw.md](harnesses/openclaw.md) §8 before any purchase.
 
 ### Cursor / Grok Bot
 

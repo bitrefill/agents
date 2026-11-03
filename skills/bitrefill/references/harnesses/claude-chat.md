@@ -40,7 +40,7 @@ Plain shopping language. Match the user's language when they write in Italian, e
 
 **Tool-call titles** — shopping verbs, not endpoints: "Search gift cards", "Get product price", "Sign in with Base wallet", "Approve USDC payment", "Check delivery" — never `web_request`, `/x402/connect`, `Orchestrated API strategy`, etc.
 
-**Message budget:** ≤4 user-visible assistant messages per purchase — (1) goal + first approval if needed, (2) price receipt + confirm, (3) payment approval, (4) delivery. Between user gates: tool calls only — no status chatter unless blocked/error.
+**Message budget:** ≤4 user-visible messages per purchase → [../../SKILL.md](../../SKILL.md) § User-facing language.
 
 **Bad:** "Procedo con il flusso ottimale… Step 1: cerco Amazon Italy su Bitrefill MCP… Il Path 1 richiede script Node… Devo usare Path 2 (pay-per-call)."
 
