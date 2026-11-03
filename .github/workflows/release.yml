@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'
 
 permissions:
   contents: write
@@ -12,20 +12,31 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Zip each plugin
+      - name: Check every version matches the tag
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          fail=0
+          check() { [ "$2" = "$tag" ] || { echo "::error file=$1::version $2 != tag $tag"; fail=1; }; }
+          check .claude-plugin/plugin.json "$(jq -r .version .claude-plugin/plugin.json)"
+          check .claude-plugin/marketplace.json "$(jq -r .metadata.version .claude-plugin/marketplace.json)"
+          for f in skills/*/SKILL.md; do
+            check "$f" "$(sed -n 's/^  version: *"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' "$f" | head -1)"
+          done
+          exit $fail
+
+      - name: Zip the plugin
         run: |
           mkdir -p dist
-          for dir in skills/*/; do
-            name=$(basename "$dir")
-            zip -r "dist/${name}.zip" .claude-plugin .mcp.json "skills/${name}"
-          done
+          zip -r -MM dist/bitrefill.zip LICENSE README.md .claude-plugin .cursor-plugin .mcp.json assets skills
 
       - name: Create release and upload assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
-          files: dist/*.zip
+          files: dist/bitrefill.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

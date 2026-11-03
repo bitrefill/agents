@@ -1,0 +1,56 @@
+name: Check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Parse the manifests
+        run: for f in .claude-plugin/*.json .cursor-plugin/plugin.json .mcp.json; do jq empty "$f"; done
+
+      - name: Validate the plugin
+        run: npx --yes @anthropic-ai/claude-code@2.1.317 plugin validate .
+
+      - name: Check relative links and anchors
+        shell: python
+        run: |
+          import pathlib, re, sys
+
+          def slug(heading):
+              heading = re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', heading).replace('`', '')
+              return re.sub(r'[^\w\- ]', '', heading.strip().lower()).replace(' ', '-')
+
+          def anchors(path):
+              seen, found, fence = {}, set(), False
+              for line in path.read_text(encoding='utf-8').splitlines():
+                  if line.startswith('```'):
+                      fence = not fence
+                  match = None if fence else re.match(r'#{1,6}\s+(.*)', line)
+                  if match:
+                      s = slug(match.group(1))
+                      n = seen.get(s, 0)
+                      seen[s] = n + 1
+                      found.add(s if n == 0 else f'{s}-{n}')
+              return found
+
+          bad = 0
+          for md in pathlib.Path('.').rglob('*.md'):
+              text = re.sub(r'```.*?```', '', md.read_text(encoding='utf-8'), flags=re.S)
+              for link in re.findall(r'\]\(([^)\s]+)\)', text):
+                  if re.match(r'(https?|mailto):', link):
+                      continue
+                  path, _, frag = link.partition('#')
+                  target = md.parent / path if path else md
+                  if not target.exists() or (frag and target.suffix == '.md' and frag not in anchors(target)):
+                      print(f'::error file={md}::broken link {link}')
+                      bad = 1
+          sys.exit(bad)

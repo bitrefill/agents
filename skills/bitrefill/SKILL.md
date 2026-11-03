@@ -1,6 +1,7 @@
 ---
 name: bitrefill
 description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSIMs, 180+ countries. Capability routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST, CLI, API, browse), wallet (balance, x402, send). Confirms each purchase with the user. Triggers: Bitrefill, gift cards, mobile top-up, eSIM, crypto, Lightning, USDC, x402."
+license: MIT
 compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (wallet HTTP → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance + agent wallets (wallet matrix). OpenClaw + Claude Chat: dedicated harness guides."
 metadata:
   author: bitrefill
