@@ -13,12 +13,12 @@ Pay-time routing after touchpoint creates invoice. **Lowest HITL first** — [ma
    → payment_method: "balance" + auto_pay: true (MCP/CLI)
 
 2. wallet_agentcash or wallet_cdp?
-   → x402 on x402_payment_url or x402 REST invoice/pay
+   → x402 REST invoice/create → x402 on invoice/pay
 
-3. wallet_base_mcp + x402 tools?
+3. wallet_base_mcp + x402 tools + x402 REST invoice?
    → initiate_x402_request → approve → complete_x402_request
 
-4. wallet_base_mcp, no x402?
+4. wallet_base_mcp + MCP/CLI invoice (or no x402)?
    → send USDC on base to payment_info address/amount
 
 5. wallet_phantom / wallet_metamask?
@@ -32,16 +32,15 @@ Pay-time routing after touchpoint creates invoice. **Lowest HITL first** — [ma
 
 ### Bitrefill MCP / CLI invoice fields
 
-After `buy-products`:
+After `buy-products`. x402 pays only invoices from x402 REST `invoice/create`; MCP/CLI invoices are not x402-payable.
 
 | Field | Use |
 | --- | --- |
-| `x402_payment_url` | Base MCP x402, AgentCash, awal |
 | `payment_info.address` + `payment_info.altcoinPrice` | Base MCP `send` (direct USDC) |
 | `payment_link` | Human browser checkout |
 | `balance` + `auto_pay` | Skip wallet — instant from pre-funded account |
 
-MCP: `payment_method: "usdc_base"`, `return_payment_link: true` → pay `x402_payment_url`.
+MCP: `payment_method: "usdc_base"` → Base MCP `send` to `payment_info.address` / `payment_info.altcoinPrice`.
 
 CLI: `--payment_method usdc_base` → same fields in JSON.
 

@@ -34,7 +34,7 @@ Docs: [docs.phantom.com/phantom-mcp-server](https://docs.phantom.com/phantom-mcp
 **Triple-MCP pattern (Cursor):**
 
 1. **Bitrefill MCP** — catalog + `buy-products` when OAuth'd
-2. **Base MCP** — `initiate_x402_request` on `x402_payment_url` (preferred pay)
+2. **Base MCP** — `send` USDC to `payment_info` (pay)
 3. **Phantom** — SIWX only if Phantom wallet is payer: Base MCP `web_request` for HTTP + Phantom `evm_sign` for header
 
 Don't use Phantom `pay` for Bitrefill x402.

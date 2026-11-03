@@ -139,10 +139,9 @@ Probe at session start — especially egress.
 | Rank | Touchpoint | Wallet | Residual HITL |
 | --- | --- | --- | --- |
 | 1 | Bitrefill MCP | `balance` + `auto_pay: true` | Confirm purchase only |
-| 2 | Bitrefill MCP | Base MCP x402 on `x402_payment_url` | OAuth + 1 Base approval/pay |
-| 3 | Guest checkout (wallet sign-in) | Base MCP sign + pay | 1 wallet sign-in + 1 pay |
-| 4 | Bitrefill MCP | Base MCP `send` | OAuth + 1 send/pay |
-| 5 | Bitrefill MCP | `payment_link` / Lightning | Human completes pay |
+| 2 | Guest checkout (wallet sign-in) | Base MCP sign + pay | 1 wallet sign-in + 1 pay |
+| 3 | Bitrefill MCP | Base MCP `send` | OAuth + 1 send/pay |
+| 4 | Bitrefill MCP | `payment_link` / Lightning | Human completes pay |
 
 **Avoid:** `@bitrefill/cli`, **pay-per-call browse** when Base wallet sign-in works, routing shopping via sandbox when MCP is live, datacenter browse checkout.
 
@@ -156,8 +155,7 @@ Probe at session start — especially egress.
 4. **Buy** — `buy-products(cart_items=[...], payment_method="usdc_base", return_payment_link=true)` (or `"balance"` + `auto_pay: true` when pre-funded).
 5. **Pay** ([../wallets/payment.md](../wallets/payment.md)):
    - **Best:** `payment_method: "balance"` + `auto_pay: true`.
-   - **Default USDC:** Base MCP `initiate_x402_request(url=x402_payment_url, method, maxPayment)` → user approves Base Account → `complete_x402_request(requestId)`. `maxPayment` slightly above `price_usd`.
-   - **Fallback:** Base MCP `send` to `payment_info.address` / `payment_info.altcoinPrice`.
+   - **Default USDC:** Base MCP `send` to `payment_info.address` / `payment_info.altcoinPrice` → user approves Base Account.
 6. **Poll** — `get-invoice-by-id(invoice_id)` until `invoice_status: complete` / `orders_delivery_status: all_delivered`.
 7. **Deliver** — `orders[].redemption_info`; log per safeguards; never paste codes in shared channels.
 
@@ -230,7 +228,7 @@ Primary button → host **`sendPrompt(text)`**. Prompt must carry context for ne
 | --- | --- | --- |
 | Search results | "See details for [product name]" | `get-product-details` or x402 detail |
 | Product detail | "Buy [amount] on [product name]" | `buy-products` or x402 create |
-| Invoice created | "Confirm and pay [amount] USDC" | Base MCP x402 pay |
+| Invoice created | "Confirm and pay [amount] USDC" | Base MCP `send` (MCP) or x402 pay (x402 REST) |
 | Payment confirmed | "Check delivery status" | `get-invoice-by-id` or x402 status poll |
 
 **Secondary CTA** = lateral escape only (new search, help, different product). Never forward in funnel.

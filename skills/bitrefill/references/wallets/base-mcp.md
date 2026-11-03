@@ -23,8 +23,8 @@ Pair with [../touchpoints/x402.md](../touchpoints/x402.md) (Path 1/2) or Bitrefi
 | --- | --- | --- |
 | Catalog / browse | `web_request` | *(silent — or "Searching…")* |
 | Wallet sign-in / codes | `get_wallets`, `sign` | "Sign in with your Base wallet once" |
-| Pay order | x402 tools | "Approve the payment in your Base Account" |
-| Direct USDC (no x402) | `send` | "Approve the USDC transfer in your Base Account" |
+| Pay x402 REST invoice | x402 tools | "Approve the payment in your Base Account" |
+| Pay MCP/CLI invoice (direct USDC) | `send` | "Approve the USDC transfer in your Base Account" |
 
 All writes need Base Account approval. Poll `get_request_status(requestId)` after approval.
 

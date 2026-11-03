@@ -30,7 +30,7 @@ Docs: [docs.cdp.coinbase.com/agentic-wallet](https://docs.cdp.coinbase.com/agent
 | Touchpoint | Flow |
 | --- | --- |
 | x402 REST | `awal x402 pay https://api.bitrefill.com/x402/...` |
-| MCP/CLI invoice | Pay `x402_payment_url` from `buy-products` response |
+| MCP/CLI invoice | Not x402-payable → x402 REST `invoice/create` |
 
 Rank **#3** in [matrix.md](matrix.md).
 
@@ -50,7 +50,7 @@ Codex CLI, OpenClaw (`exec`), Hermes (`terminal`), any shell host.
 npx awal x402 pay "https://api.bitrefill.com/x402/gift-cards/search?q=amazon&country=US"
 ```
 
-Invoice pay: URL/method/body from 402 envelope or `x402_payment_url`.
+Invoice pay: URL/method/body from `invoice/create` `next_step`.
 
 ## Security
 

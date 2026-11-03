@@ -29,7 +29,7 @@ bitrefill buy-products \
   --email "agent@example.com"
 ```
 
-Response: `invoice_id`, `invoice_access_token`, `payment_link`, optional `x402_payment_url` / Lightning invoice. Poll `get-invoice-by-id --invoice_id <uuid> --invoice_access_token <token>`. Receipt → `--email`. Invoice expires ~30 min.
+Response: `invoice_id`, `invoice_access_token`, `payment_link`, optional Lightning invoice. Poll `get-invoice-by-id --invoice_id <uuid> --invoice_access_token <token>`. Receipt → `--email`. Invoice expires ~30 min.
 
 Guest payment: crypto or `--return_payment_link true`; card / Apple Pay / Google Pay: `--payment_method fiat_card` (or `apple_pay` / `google_pay`) `--billing_address '{"country":"US","city":"…","postal_code":"…","address_line1":"…"}'` (Apple Pay / Google Pay: `country` only) → send `payment_link`. Pay → [../wallets/payment.md](../wallets/payment.md). **`balance` / `cashback` need signed-in account** (below).
 
@@ -210,9 +210,9 @@ bitrefill buy-products \
   --payment_method usdc_base
 ```
 
-Response: `invoice_id`, `payment_link`, `x402_payment_url`, `payment_info` (`address`, `paymentUri`, `altcoinPrice`).
+Response: `invoice_id`, `payment_link`, `payment_info` (`address`, `paymentUri`, `altcoinPrice`).
 
-**Pay** → [../wallets/payment.md](../wallets/payment.md): x402 on `x402_payment_url`, Base MCP `send` to `payment_info`, or `balance` when signed in.
+**Pay** → [../wallets/payment.md](../wallets/payment.md): Base MCP `send` to `payment_info`, or `balance` when signed in.
 
 ### 4. Track / Redeem
 
