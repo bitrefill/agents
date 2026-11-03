@@ -50,7 +50,7 @@ Same `login` for new + existing. Headless inbox → [cli-headless-auth.md](cli-h
 
 ```bash
 bitrefill login --email you@example.com
-bitrefill verify --code GGWK87DR              # email magic-link code
+bitrefill verify --code GGWK87DR              # code from the sign-in email
 bitrefill verify --code GGWK87DR --otp 122407   # + TOTP when 2FA
 bitrefill whoami --json
 
@@ -79,7 +79,7 @@ bitrefill init --openclaw         # avoid
 
 ## Auth
 
-**Guest checkout needs no sign-in.** Account auth = OAuth client_credentials (auto on first MCP connect) + email magic-link. No `--api-key`, no `credentials.json`.
+**Guest checkout needs no sign-in.** Account auth = OAuth client_credentials (auto on first MCP connect) + a sign-in code sent by email. No `--api-key`, no `credentials.json`.
 
 | Step | Command | Notes |
 |------|---------|-------|

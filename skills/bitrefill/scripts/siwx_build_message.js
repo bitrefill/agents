@@ -22,9 +22,19 @@
  *   skeletonOut        skeleton output path (default /tmp/siwx_payload.json)
  *   chainId            CAIP-2 chain to bind to (default eip155:8453 = Base). Use the
  *                      chain the invoice was paid on.
+ *
+ * Safety: refuses challenges whose domain / URI is not https://api.bitrefill.com, so
+ * a spoofed 402 body cannot get the wallet to sign in to another site.
  */
 'use strict';
 const fs = require('fs');
+
+const BITREFILL_HOST = 'api.bitrefill.com';
+function assertBitrefillUrl(u, what){
+  let url;
+  try { url = new URL(u); } catch { throw new Error(what + ' is not a valid URL: ' + u); }
+  if (url.origin !== 'https://' + BITREFILL_HOST || url.username || url.password) throw new Error(what + ' not allowed: ' + u);
+}
 
 // ---- keccak-256 (Ethereum) + EIP-55 checksum, self-contained -------------
 const RC = [
@@ -79,7 +89,7 @@ function toChecksumAddress(addr){
 function buildSiweMessage(p){
   const header = `${p.domain} wants you to sign in with your Ethereum account:`;
   let prefix = header + '\n' + p.address;
-  if (p.statement) prefix += '\n\n' + p.statement;
+  prefix += p.statement ? '\n\n' + p.statement : '\n'; // EIP-4361: no statement still leaves two empty lines before URI
   const suffix = [
     `URI: ${p.uri}`,
     `Version: ${p.version}`,
@@ -98,8 +108,13 @@ function buildSiweMessage(p){
 async function loadChallenge(src){
   let body;
   if (/^https?:\/\//i.test(src)) {
-    const res = await fetch(src); // Node built-in fetch
-    body = await res.json();
+    assertBitrefillUrl(src, 'challenge URL');
+    // /x402/connect only answers POST (GET is 404); other SIWX routes answer GET
+    const method = /\/x402\/connect\/?$/.test(new URL(src).pathname) ? 'POST' : 'GET';
+    const res = await fetch(src, { method }); // Node built-in fetch
+    const text = await res.text();
+    if (res.status !== 402) throw new Error(`expected 402 challenge, got ${res.status}: ${text.slice(0, 200)}`);
+    body = JSON.parse(text);
   } else {
     body = JSON.parse(fs.readFileSync(src, 'utf8'));
   }
@@ -123,6 +138,9 @@ async function main(){
   const address = toChecksumAddress(rawAddress);
   const ext = await loadChallenge(challengeSrc);
   const info = ext.info || ext;
+  if (!info.domain || !info.uri || !info.nonce) throw new Error('challenge missing domain/uri/nonce');
+  if (info.domain !== BITREFILL_HOST) throw new Error('challenge domain not allowed: ' + info.domain);
+  assertBitrefillUrl(info.uri, 'challenge uri');
   const chains = ext.supportedChains || [];
   const chain =
     chains.find((c) => c.chainId === preferredChainId) ||

@@ -61,7 +61,7 @@ Bundled helpers instead of hand-rolling checksum/message/payload:
 | Script | Usage |
 | --- | --- |
 | [`../../scripts/siwx_build_message.js`](../../scripts/siwx_build_message.js) | `node siwx_build_message.js <wallet> <challengeUrlOrFile> [skeletonOut] [chainId]` — prints `MESSAGE_START`…`MESSAGE_END` |
-| [`../../scripts/siwx_send.js`](../../scripts/siwx_send.js) | `node siwx_send.js <signature> [skeletonPath] [method] [--no-send]` — prints `SIGN_IN_WITH_X_HEADER:::`; omit `--no-send` for direct POST/GET, or with Base MCP `web_request` |
+| [`../../scripts/siwx_send.js`](../../scripts/siwx_send.js) | `node siwx_send.js <signature> [skeletonPath] [method] [--no-send]` — prints `SIGN_IN_WITH_X_HEADER:::`; method defaults to POST for `/x402/connect`, else GET; omit `--no-send` for direct POST/GET, or with Base MCP `web_request` |
 
 **Base MCP transport:** save 402 JSON from `web_request` → build script → `sign` → `siwx_send.js … --no-send` → retry route via `web_request` with header `sign-in-with-x`.
 
@@ -125,9 +125,10 @@ function toChecksumAddress(addr){
   return out;
 }
 function buildSiweMessage(info, address, chainIdCaip2){
+  if (info.domain !== 'api.bitrefill.com' || new URL(info.uri).origin !== 'https://api.bitrefill.com') throw new Error('challenge not from api.bitrefill.com');
   const chainNum = parseInt(/^eip155:(\d+)$/.exec(chainIdCaip2)[1], 10);
   let prefix = `${info.domain} wants you to sign in with your Ethereum account:\n${address}`;
-  if (info.statement) prefix += '\n\n' + info.statement;
+  prefix += info.statement ? '\n\n' + info.statement : '\n';
   const suffix = [
     `URI: ${info.uri}`, `Version: ${info.version}`, `Chain ID: ${chainNum}`,
     `Nonce: ${info.nonce}`, `Issued At: ${info.issuedAt}`,

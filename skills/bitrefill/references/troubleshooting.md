@@ -103,12 +103,12 @@ Exact, case-sensitive. WRONG `"1GB"`, `"300 nc"`. RIGHT `"1GB, 7 Days"`, `"PUBG 
 
 ### CLI auth failure (≥ 0.3.0)
 
-OAuth client_credentials + email magic link — not API keys, not browser OAuth.
+OAuth client_credentials + a sign-in code sent by email — not API keys, not browser OAuth.
 
 ```bash
 bitrefill reset
 bitrefill login --email you@example.com
-bitrefill verify --code 123456                     # add --otp for TOTP
+bitrefill verify --code GGWK87DR                   # add --otp for TOTP
 bitrefill whoami --json
 ```
 

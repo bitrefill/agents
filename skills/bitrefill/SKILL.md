@@ -128,7 +128,7 @@ Full safeguards + per-host hardening → [safeguards.md](references/safeguards.m
 | [mcp.md](references/touchpoints/mcp.md) | Bitrefill MCP OAuth'd |
 | [x402.md](references/touchpoints/x402.md) | x402 REST via Base MCP or direct egress |
 | [cli.md](references/touchpoints/cli.md) | Shell + `@bitrefill/cli` ≥ 0.3.0 |
-| [cli-headless-auth.md](references/touchpoints/cli-headless-auth.md) | AgentMail / magic-link sign-in |
+| [cli-headless-auth.md](references/touchpoints/cli-headless-auth.md) | AgentMail / email-code sign-in |
 | [api.md](references/touchpoints/api.md) | v2 REST — Personal / Business / Affiliate |
 | [browse.md](references/touchpoints/browse.md) | Residential browser explore-only |
 
