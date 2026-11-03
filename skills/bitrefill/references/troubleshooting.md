@@ -37,57 +37,65 @@ Startup filter rejects: `NODE_OPTIONS`, `PYTHONSTARTUP`, `PYTHONPATH`, `PERL5OPT
 
 ### MCP output truncated
 
-Claude Code: `MAX_MCP_OUTPUT_TOKENS=50000`. OpenClaw: `tools.toolResultMaxChars` (default 16000). Paginate: `--per_page 25`, multiple `list-orders`.
+Claude Code: `MAX_MCP_OUTPUT_TOKENS=50000`. OpenClaw: `tools.toolResultMaxChars` (default 16000). Paginate: `search-products --per_page 25 --page N` (max 250 per page); `list-invoices --limit 10` (max 20), then pass every key of the result's `next` (cursor, limit, product) until `next` is absent.
 
 ## CLI path
+
+A call failed if the exit code is 1, or the JSON output has an `error` key or a key starting `MCP error` (those exit 0). Missing options and bad enum values exit 1 with the message on stderr.
 
 ### `cart_items` JSON shape error
 
 ```
 # WRONG (object)
---cart_items '{"product_id": "steam-usa", "package_id": 5}'
+--cart_items '{"product_id": "steam-usa", "package_value": "5"}'
 
 # RIGHT (array)
---cart_items '[{"product_id": "steam-usa", "package_id": 5}]'
+--cart_items '[{"product_id": "steam-usa", "package_value": "5"}]'
 ```
 
 ### `Invalid denomination 'undefined'`
 
-Both `product_id` AND `package_id` required per item.
+Only `product_id` is required by the schema; send `package_value` (string, exact from `get-product-details` `packages`) for the amount.
 
 ### `Too big: expected array to have <=15 items`
 
 Split into multiple `buy-products` calls.
 
-### `per_page must be less than 500`
+### `Too big: expected number to be <=250 at per_page`
 
-Server limit. Max 500.
+Returned as an `MCP error -32602` key. `per_page` max 250.
 
 ### `error: required option '--<name>' not specified`
 
-Client validation. Add missing option.
+Client validation (exit 1). Add the missing option. Search needs `--intent` (`error: required option '--intent <value>' not specified`).
+
+### `Too small: expected string to have >=1 characters at intent`
+
+Empty `intent`, returned as an `MCP error -32602` key (`Input validation error: Invalid arguments for tool search-products: …`). Pass the user's goal as a non-empty string; MCP clients that omit it get the same `Input validation error … at intent`.
+
+### `rate_limit_reached`
+
+Too many calls in a short window (MCP and CLI). Wait a minute, then retry with fewer calls.
+
+### `Search service not available`
+
+`SERVICE_UNAVAILABLE` from `search-products` means `country` is not an uppercase 2-letter code (`us`, `USA`). Retry with `US`.
+
+### `Product '<slug>' was not found.`
+
+`RESOURCE_NOT_FOUND`; `details.suggestions` lists close products (`slug`, `name`). Take the slug from `search-products` (REST: `GET /products/search?q=`).
 
 ### "Must be one of" enum errors
 
 | Option | Valid values | Common mistakes |
 |--------|--------------|-----------------|
-| `--payment_method` | `bitcoin`, `lightning`, `ethereum`, `usdc_polygon`, `usdt_polygon`, `usdc_erc20`, `usdt_erc20`, `usdc_arbitrum`, `usdc_solana`, `usdc_base`, `eth_base`, `balance` | `paypal`, `visa`, `USDC_BASE` (case-sensitive) |
-| `--product_type` | `giftcard`, `esim` | `giftcards`, `gift_card`, `sim` |
-| `--country` | `US`, `IT`, `BR` (uppercase Alpha-2) | `us`, `USA`, `"United States"` |
+| `--payment_method` | Crypto: `bitcoin`, `lightning`, `ark`, `ethereum`, `eth_base`, `eth_arbitrum`, `bnb_bsc`, `solana`, `dogecoin`, `dash`, `litecoin`, `ton`, `sui`; USDC: `usdc_base`, `usdc_polygon`, `usdc_arbitrum`, `usdc_erc20`, `usdc_solana`, `usdc_bsc`, `usdc_sui`, `usdc_tempo`; USDT: `usdt_erc20`, `usdt_trc20`, `usdt_polygon`, `usdt_arbitrum`, `usdt_solana`, `usdt_bsc`, `usdt_sui`, `usdt_ton`, `usdt_lightning`, `usdt_tempo`; other: `brusd_arbitrum`, `brusd_bsc`, `brusd_polygon`, `brusd_erc20`, `brusd_base`, `brc_solana` · Link-only (return `payment_link`): `fiat_card`, `apple_pay`, `google_pay`, `ideal`, `eps`, `p24`, `bancontact` (need `billing_address`), `binance_pay`, `kraken_pay` · Account (signed-in): `balance`, `cashback`. Per product → `get-product-details` `payment_methods` | `paypal`, `visa`, `card` (use `fiat_card`), `USDC_BASE` (case-sensitive) |
+| `--product_type` | `giftcard`, `esim`, `refill` | `giftcards` (results say `giftcards`, the filter takes the singular), `gift_card`, `sim` |
+| `--category` | A slug from the error's list or from a `--query "*"` result's `categories` | Invented slugs: error `Must be one of: …` lists every valid slug |
 
-### Wrong `package_id` for named denominations
+### Wrong `package_value` for named denominations
 
 Exact, case-sensitive. WRONG `"1GB"`, `"300 nc"`. RIGHT `"1GB, 7 Days"`, `"PUBG New State 300 NC"`. Get from `get-product-details` `packages` array.
-
-### Compound key in `package_id`
-
-```
-# WRONG
---cart_items '[{"product_id": "steam-usa", "package_id": "steam-usa<&>5"}]'
-
-# RIGHT (value after <&>)
---cart_items '[{"product_id": "steam-usa", "package_id": 5}]'
-```
 
 ### CLI auth failure (≥ 0.3.0)
 
@@ -114,17 +122,25 @@ bitrefill whoami --json
 
 State: `~/.config/bitrefill-cli/<host>.v1.json`. `logout` revokes session; `reset` clears all.
 
-Pre-0.3.0 (`credentials.json`, `--api-key`): upgrade CLI. Developer API keys still work for [touchpoints/mcp.md](touchpoints/mcp.md) / [touchpoints/api.md](touchpoints/api.md) only.
+The CLI takes no `--api-key` and reads no `credentials.json`. Developer API keys work for [touchpoints/mcp.md](touchpoints/mcp.md) / [touchpoints/api.md](touchpoints/api.md) only.
+
+### Help-center questions
+
+`search_help_articles --query "<question>"` → `get_help_article --id <id>`. `list_help_articles` returns no articles: browse a topic by searching within a category (`--category`; an unknown one errors with the valid slugs, also listed as `availableCategories` in each reply).
 
 ### Empty search results, no error
 
-`found: 0`, no error. Causes: bad `--category` slug; product unavailable in `--country`; `--in_stock true` (default) filters OOS.
+`found: 0`, no error. Causes: product not sold in `--country` (omitted = `US`); `--query "*"` (also the default) lists in-stock products only; `--in_stock true` drops out-of-stock items. `in_stock` is unset by default, so name searches include sold-out items (`in_stock: false` = can't buy now, try again later).
 
-Fix: drop `--category`, change `--country`, or `--in_stock false`.
+Fix: set the user's `--country`, search by brand name, or drop `--in_stock true`.
 
 ### Unpaid invoices missing from list
 
-`list-invoices` defaults `--only_paid true`. Use `--only_paid false`.
+`list-invoices` returns paid invoices only (`payment_detected`, `payment_confirmed`, `complete`), 20 per page max (follow `next`). `only_paid` is not an option: MCP servers ignore unknown arguments, the CLI rejects it as `unknown option`. Unpaid invoices are read one at a time, and guest invoices never appear in the list, even after sign-in. Check those with `get-invoice-by-id --invoice_id <id>` (guest: also `--invoice_access_token <token>`), using the values from the `buy-products` response. An empty list does not mean nothing is outstanding.
+
+### `RESOURCE_NOT_FOUND` on `get-invoice-by-id`
+
+Guest: `--invoice_access_token` (from `buy-products`) is missing or wrong. Signed-in: the invoice is a guest purchase or belongs to another account, so pass its token. Also check that the id is the invoice UUID, not a 24-hex order id.
 
 ## API path
 
@@ -139,15 +155,11 @@ Rate limited. Defaults: 60 req/10 min most endpoints; 60 req/min on `/products` 
 
 ### `RESOURCE_NOT_FOUND` on `GET /invoices/{id}`
 
-Bad invoice ID. Verify via `list-invoices`.
-
-### `Product '{slug}' is not available`
-
-Bad slug. Verify via `search-products`.
+Bad invoice ID. Use the `id` returned by `POST /invoices`.
 
 ### Invoice expired
 
-**180 minutes**. Can't re-pay. Create new.
+Unpaid invoices expire (`expiration_minutes` on the invoice) and can't be re-paid. Create a new one.
 
 ## OpenClaw-specific
 

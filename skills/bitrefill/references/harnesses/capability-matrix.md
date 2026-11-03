@@ -20,7 +20,7 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 | Claude Desktop | No | MCP only | Yes | Chrome ext | MCP + balance → MCP + Base x402 |
 | Claude Code | Full shell | Direct + MCP | Yes | Chrome ext | MCP + balance → MCP + Base x402 → CLI → x402 REST |
 
-**Claude Chat network paths:** (1) chat **MCP** (always for configured connectors), (2) **code sandbox** (Team: egress on/package mgrs; Enterprise: off; Pro/Max: user-controlled), (3) legacy **Analysis tool** (browser, no net). Bitrefill routing: **MCP only** → [claude-chat.md](claude-chat.md) §3.
+**Claude Chat network paths:** (1) chat **MCP** (always for configured connectors), (2) **code sandbox** (Team: egress on/package mgrs; Enterprise: off; Pro/Max: user-controlled), (3) legacy **Analysis tool** (browser, no net). Bitrefill routing: **MCP only** → [claude-chat.md](claude-chat.md) §4.
 
 ## OpenAI
 

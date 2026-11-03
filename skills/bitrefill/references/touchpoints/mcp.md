@@ -10,15 +10,18 @@
 
 URL: `https://api.bitrefill.com/mcp` (OAuth) **or** `https://api.bitrefill.com/mcp/YOUR_API_KEY` (key-in-path).
 
-7 tools:
+12 tools; **(g)** = visible to guests (7), the other 5 need a signed-in account:
 
-- `search-products` — keyword + country + category
-- `get-product-details` — packages (denominations) + pricing
-- `buy-products` — create invoice
-- `submit-prepayment-step` — multi-step bill-payment forms
-- `get-invoice-by-id` — poll status + redemption info
-- `list-invoices` — history
+- `search-products` **(g)** — keyword + country (default `US`) + category + `product_type` (`giftcard` | `esim` | `refill`); **`intent` required**, non-empty: the user's broad goal, context only (results unchanged)
+- `get-product-details` **(g)** — packages (`package_value`, `package_currency`, `payment_price`, `payment_currency`) + `payment_methods` + `recipient_type`
+- `buy-products` **(g)** — create invoice: `cart_items[]` (≤ 15) {`product_id`, `package_value` (string); `refill_input` per `recipient_type` (`phone_number`: country code + number, digits only, e.g. `4915123456789`; `mixed` eSIMs: omit for a new eSIM); `bill_payment_id` for prepayment products; optional `gift`} + `payment_method` + optional `coupon_code`. Fiat methods (`fiat_card`, `apple_pay`, `google_pay`, `ideal`, `eps`, `p24`, `bancontact`) take `billing_address` (country always; `fiat_card` also city, postal_code, address_line1), or signed-in `saved_fiat_card_id` with `fiat_card`, and return a `payment_link` only. `balance` takes optional `balance_currency` (USD / EUR / BTC) and debits at once. `package_id` deprecated. Guests also pass `email` (receipt); signed-in receipts go to the account email
+- `submit-prepayment-step` — prepayment forms (bill payments, prepaid cards): loop until `step: "final"`, then pass its `billPaymentId` as `bill_payment_id`
+- `get-invoice-by-id` **(g)** — poll status + redemption info. Guest: pass `invoice_access_token` from `buy-products` (required, else "not found"; together with `invoice_id` it unlocks the codes, so treat it like a password). Signed-in: your own invoices need no token
+- `list-invoices` — paid-invoice history, newest first (no codes; `limit` ≤ 20, page with `next`)
 - `update-order` — track balance / archive orders
+- `get-balances` — store credit per sub-account (USD / EUR / BTC) + cashback; check it before paying by `balance`
+- `list-saved-fiat-cards` — saved cards → `saved_fiat_card_id`
+- `search_help_articles` **(g)** → `get_help_article` **(g)** — help center. `list_help_articles` **(g)** returns no articles: browse a topic by searching with `category`
 
 Auth: OAuth (interactive) or API key from <https://www.bitrefill.com/account/developers>.
 
@@ -47,7 +50,7 @@ Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safegua
 **bitrefill** plugin from this repo auto-registers eCommerce MCP via `.mcp.json`. Manual setup if plugin not installed:
 
 ```bash
-claude mcp add bitrefill --url https://api.bitrefill.com/mcp
+claude mcp add --transport http bitrefill https://api.bitrefill.com/mcp
 ```
 
 Or edit `~/.claude.json`. Output cap: `MAX_MCP_OUTPUT_TOKENS` (default 25000).
@@ -124,10 +127,10 @@ openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_K
 search-products  →  get-product-details  →  buy-products  →  get-invoice-by-id
 ```
 
-1. **Search** — `search-products(...)`. *(say: "Searching for [product]…" — tool title: "Search gift cards")*
+1. **Search** — `search-products(..., intent=<user's goal>)`. *(say: "Searching for [product]…" — tool title: "Search gift cards")*
 2. **Get price** — `get-product-details(..., currency="USDC")`. *(silent)*
 3. **Prepare order** — `buy-products(...)`. Max 15 items. Confirm with user first. *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
-4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` + `auto_pay` → Base MCP pay → `send`. *(say: "Approve the payment in your Base Account")*
+4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` (debits at once) → Base MCP pay → `send`. *(say: "Approve the payment in your Base Account")*
 5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
 
 Logging per [../safeguards.md](../safeguards.md).
@@ -137,7 +140,7 @@ Logging per [../safeguards.md](../safeguards.md).
 - **ChatGPT** custom MCP needs Plus+; write tools need Developer Mode (admin on workspaces).
 - **Cursor** 40-tool cap.
 - **Claude.ai** consumer needs Pro+ for custom URLs.
-- **Claude Chat network:** sandbox egress varies by plan; **MCP connectors work regardless**. Legacy Analysis tool (browser JS) has no net. Route Bitrefill via MCP — not sandbox curl. → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §3.
+- **Claude Chat network:** sandbox egress varies by plan; **MCP connectors work regardless**. Legacy Analysis tool (browser JS) has no net. Route Bitrefill via MCP — not sandbox curl. → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4.
 
 ## Source of truth
 

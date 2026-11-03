@@ -138,7 +138,7 @@ Probe at session start — especially egress.
 
 | Rank | Touchpoint | Wallet | Residual HITL |
 | --- | --- | --- | --- |
-| 1 | Bitrefill MCP | `balance` + `auto_pay: true` | Confirm purchase only |
+| 1 | Bitrefill MCP | `balance` | Confirm purchase only |
 | 2 | Bitrefill MCP | Base MCP x402 on `x402_payment_url` | OAuth + 1 Base approval/pay |
 | 3 | Guest checkout (wallet sign-in) | Base MCP sign + pay | 1 wallet sign-in + 1 pay |
 | 4 | Bitrefill MCP | Base MCP `send` | OAuth + 1 send/pay |
@@ -150,12 +150,12 @@ Probe at session start — especially egress.
 
 ## 7. Primary workflow — Bitrefill MCP + Base MCP
 
-1. **Search** — `search-products(query, country=<Alpha-2>, product_type=...)`.
-2. **Detail** — `get-product-details(product_id, currency="USDC")` → exact `package_value` / `package_id`.
+1. **Search** — `search-products(query, country=<Alpha-2>, product_type=..., intent=<user's broad goal>)`; `intent` is required and non-empty, context only (results unchanged).
+2. **Detail** — `get-product-details(product_id, currency="USDC")` → exact `package_value` (string, e.g. `"5"`).
 3. **Confirm** — product, denomination, exact price with user before buy.
-4. **Buy** — `buy-products(cart_items=[...], payment_method="usdc_base", return_payment_link=true)` (or `"balance"` + `auto_pay: true` when pre-funded).
+4. **Buy** — `buy-products(cart_items=[...], payment_method="usdc_base", return_payment_link=true)` (or `"balance"` when pre-funded).
 5. **Pay** ([../wallets/payment.md](../wallets/payment.md)):
-   - **Best:** `payment_method: "balance"` + `auto_pay: true`.
+   - **Best:** `payment_method: "balance"`.
    - **Default USDC:** Base MCP `initiate_x402_request(url=x402_payment_url, method, maxPayment)` → user approves Base Account → `complete_x402_request(requestId)`. `maxPayment` slightly above `price_usd`.
    - **Fallback:** Base MCP `send` to `payment_info.address` / `payment_info.altcoinPrice`.
 6. **Poll** — `get-invoice-by-id(invoice_id)` until `invoice_status: complete` / `orders_delivery_status: all_delivered`.

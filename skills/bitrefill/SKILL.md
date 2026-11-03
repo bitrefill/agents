@@ -64,7 +64,7 @@ Probe payment capabilities available **in this session** (independent of catalog
 
 | Signal | Wallet doc |
 | --- | --- |
-| Signed-in Bitrefill + pre-funded balance | [payment.md](references/wallets/payment.md) — `balance` + `auto_pay` |
+| Signed-in Bitrefill + pre-funded balance | [payment.md](references/wallets/payment.md) — `balance` (debits at once) |
 | Base MCP (`get_wallets`, `sign`, x402, `send`) | [base-mcp.md](references/wallets/base-mcp.md); guest sign-in → [siwx.md](references/wallets/siwx.md) |
 | AgentCash / CDP awal | [agentcash.md](references/wallets/agentcash.md), [cdp-awal.md](references/wallets/cdp-awal.md) |
 | Phantom / MetaMask (sign-only) | [phantom.md](references/wallets/phantom.md), [metamask.md](references/wallets/metamask.md) |
@@ -91,7 +91,7 @@ Cross **harness limits**, **wallet availability**, and **intent** (browse vs buy
 
 | Touchpoint | Prefer wallet |
 | --- | --- |
-| Bitrefill MCP | `balance` + `auto_pay` → Base MCP pay → payment link |
+| Bitrefill MCP | `balance` → Base MCP pay → payment link |
 | Guest checkout (x402 REST) | AgentCash / awal → Base MCP sign-in + pay → never pay-per-call browse when sign-in works |
 | CLI | Same wallet rank as above at `buy-products` time |
 

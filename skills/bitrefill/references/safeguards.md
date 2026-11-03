@@ -103,7 +103,7 @@ Developer Mode for write tools. Keep **off** unless actively purchasing. Confirm
 - x402 (AgentCash, awal, Base MCP) — bound wallet balance + caps.
 - `lightning` / payment links — higher human involvement.
 
-Default: pre-fund `balance` on dedicated account → `payment_method: "balance"` + `auto_pay: true`.
+Default: pre-fund `balance` on dedicated account → `payment_method: "balance"` (debits at once).
 
 ## NEVER
 

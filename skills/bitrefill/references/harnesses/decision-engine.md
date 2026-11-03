@@ -73,7 +73,7 @@ bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 
 Global autonomy rank ([../wallets/matrix.md](../wallets/matrix.md)):
 
-1. **`bitrefill_balance`** → `balance` + `auto_pay: true`
+1. **`bitrefill_balance`** → `payment_method: "balance"`
 2. **`wallet_agentcash` or `wallet_cdp`** → x402 on `x402_payment_url` or x402 REST `invoice/pay`
 3. **`wallet_base_mcp`** → `initiate_x402_request` / `complete_x402_request`; else `send` to `payment_info`
 4. **x402 REST Path 1** → SIWX via [../wallets/siwx.md](../wallets/siwx.md) + [../wallets/base-mcp.md](../wallets/base-mcp.md) or AgentCash
@@ -95,7 +95,7 @@ Details → [../wallets/payment.md](../wallets/payment.md).
 
 | Rank | Touchpoint | Wallet | Residual HITL |
 |------|------------|--------|---------------|
-| 1 | Bitrefill MCP | `balance` + `auto_pay` | Purchase confirm only |
+| 1 | Bitrefill MCP | `balance` | Purchase confirm only |
 | 2 | x402 REST Path 1 | AgentCash `fetch` | Fund once + confirm |
 | 3 | x402 REST Path 1 | CDP awal (caps set) | Auth + caps once |
 | 4 | Bitrefill MCP | Base MCP x402 | OAuth + 1 Base approval/pay |

@@ -10,7 +10,7 @@ Docs: [docs.cdp.coinbase.com/agentic-wallet](https://docs.cdp.coinbase.com/agent
 
 | Surface | Use |
 | --- | --- |
-| `npx awal x402 pay <url>` | CLI x402 buyer from shell |
+| `npx awal@2.12 x402 pay <url>` | CLI x402 buyer from shell |
 | `@coinbase/payments-mcp` | MCP `make-x402-request` |
 | AgentKit `@x402/fetch` | In-agent code with supplied signer |
 
@@ -47,7 +47,7 @@ Codex CLI, OpenClaw (`exec`), Hermes (`terminal`), any shell host.
 ## Example
 
 ```bash
-npx awal x402 pay "https://api.bitrefill.com/x402/gift-cards/search?q=amazon&country=US"
+npx awal@2.12 x402 pay "https://api.bitrefill.com/x402/gift-cards/search?q=amazon&country=US"
 ```
 
 Invoice pay: URL/method/body from 402 envelope or `x402_payment_url`.
