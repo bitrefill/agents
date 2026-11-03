@@ -5,13 +5,13 @@
     "email": "support@bitrefill.com"
   },
   "metadata": {
-    "description": "Agent skills and bundled eCommerce MCP connector for buying digital goods on Bitrefill with crypto",
+    "description": "Agent skills and bundled eCommerce MCP connector for buying digital goods on Bitrefill with card, Apple Pay, Google Pay, crypto or balance",
     "version": "3.3.0"
   },
   "plugins": [
     {
       "name": "bitrefill",
-      "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, crypto/x402/balance payments (bundled MCP connector)",
+      "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, card, Apple Pay, Google Pay, crypto or balance payments (bundled MCP connector)",
       "source": "./",
       "homepage": "https://www.bitrefill.com",
       "repository": "https://github.com/bitrefill/agents",
