@@ -18,7 +18,7 @@ This repository is a monorepo of agent skills for Bitrefill, packaged as a **Cla
 /reload-plugins
 ```
 
-Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `/plugin marketplace add bitrefill/agents#v3.1.0`.
+Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `/plugin marketplace add bitrefill/agents#v3.3.1`.
 
 ### Claude Cowork
 
