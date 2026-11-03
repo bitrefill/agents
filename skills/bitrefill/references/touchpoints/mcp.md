@@ -43,7 +43,7 @@ URL: `https://docs.bitrefill.com/mcp`. Docs index for code-help. **Not purchases
 }
 ```
 
-Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safeguards.md) § Cursor / Grok Bot. 40-tool cap across all servers.
+Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safeguards.md) § Cursor / Grok Bot.
 
 ### Claude Code
 
@@ -138,7 +138,6 @@ Logging per [../safeguards.md](../safeguards.md).
 ## Caveats
 
 - **ChatGPT** custom MCP needs Plus+; write tools need Developer Mode (admin on workspaces).
-- **Cursor** 40-tool cap.
 - **Claude.ai** consumer needs Pro+ for custom URLs.
 - **Claude Chat network:** sandbox egress varies by plan; **MCP connectors work regardless**. Legacy Analysis tool (browser JS) has no net. Route Bitrefill via MCP — not sandbox curl. → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4.
 

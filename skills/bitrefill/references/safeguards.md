@@ -37,7 +37,27 @@ Full → [harnesses/openclaw.md](harnesses/openclaw.md) §8.
 
 ### Cursor / Grok Bot
 
-**Never** add `buy-products` to Cursor's MCP allowlist (`mcpAllowlist` in `.cursor/permissions.json`; CLI: `permissions.allow` in `.cursor/cli.json`) or buy in **Run Everything** mode (CLI: `--force`). In **Auto-review** (default), add a `buy-products` rule to `autoRun.block_instructions` in `.cursor/permissions.json`. Grok Bot: never **Always allow** `buy-products`; add an Auto-review **Ask first** rule for it.
+Auto-run read-only tools; **never** allowlist `buy-products`. Purchase sessions: **Allowlist** mode (anything unlisted asks) or **Auto-review** with the rule below; never **Run Everything** (CLI: `--force` / `--yolo`). Cursor cloud agents never ask — confirm in chat before every `buy-products`.
+
+```jsonc
+// .cursor/permissions.json or ~/.cursor/permissions.json (Cursor app) — replaces the in-app MCP allowlist; keep your other auto-run MCP tools here
+{
+  "mcpAllowlist": [
+    "*bitrefill*:search-products", "*bitrefill*:get-product-details",
+    "*bitrefill*:get-invoice-by-id", "*bitrefill*:list-invoices",
+    "*bitrefill*:get-balances", "*bitrefill*:list_help_articles", "*bitrefill*:search_help_articles", "*bitrefill*:get_help_article"
+  ],
+  // Auto-review only: steers the classifier that reviews calls outside the allowlist; not a hard block
+  "autoRun": {
+    "block_instructions": ["Never auto-approve a Bitrefill buy-products call; always ask me first."]
+  }
+}
+
+// .cursor/cli.json (Cursor CLI; plain JSON, no comments in the file)
+{ "permissions": { "allow": ["Mcp(*:search-products)", "Mcp(*:get-product-details)", "Mcp(*:get-invoice-by-id)", "Mcp(*:list-invoices)", "Mcp(*:get-balances)", "Mcp(*:list_help_articles)", "Mcp(*:search_help_articles)", "Mcp(*:get_help_article)"] } }
+```
+
+Grok Bot: keep Auto-review on; Settings → General → Auto-review → Custom Rules → **Ask first** "before any Bitrefill buy-products call"; never **Always allow** a `buy-products` approval; codes in 1:1 chat only → [harnesses/grok-bot.md](harnesses/grok-bot.md).
 
 ### Codex CLI
 
@@ -83,9 +103,9 @@ Developer Mode for write tools. Keep **off** unless actively purchasing. Confirm
 
 ```jsonc
 {
-  "agents": {
+  "agent": {
     "bitrefill": {
-      "permissions": {
+      "permission": {
         "edit": "ask",
         "bash": { "*": "ask", "bitrefill list-*": "allow", "bitrefill get-*": "allow" },
         "webfetch": "ask"
@@ -94,6 +114,8 @@ Developer Mode for write tools. Keep **off** unless actively purchasing. Confirm
   }
 }
 ```
+
+OpenCode runs MCP tools without asking: confirm in chat before every `buy-products`.
 
 ## Payment method risk
 

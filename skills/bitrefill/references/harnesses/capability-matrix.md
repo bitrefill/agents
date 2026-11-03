@@ -47,7 +47,7 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 
 | Host | Exec | Egress | MCP | Browser | Ranked stack |
 |------|------|--------|-----|---------|--------------|
-| Cursor | Terminal | Direct + MCP | Yes (40-tool cap) | Built-in | MCP + balance → Base x402; not signed in → guest CLI ([grok-bot.md](grok-bot.md)) |
+| Cursor | Terminal | Direct + MCP | Yes | Built-in | MCP + balance → Base x402; not signed in → guest CLI ([grok-bot.md](grok-bot.md)) |
 | **Grok Bot** | Cloud computer | Direct + MCP | Yes (plugin connector) | — | Connected account: MCP + balance; else guest CLI → link ([grok-bot.md](grok-bot.md)) |
 | OpenCode | Full shell | Direct + MCP | Yes | MCP | MCP + balance → CLI |
 | **OpenClaw / Pi** | `exec` | Host IP | Yes | Host IP | **Guest CLI exec** → balance → MCP → x402 |

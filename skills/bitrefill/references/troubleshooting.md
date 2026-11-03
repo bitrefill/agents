@@ -18,7 +18,7 @@ Geolock at IP. URL country filters inventory; checkout enforces IP. User needs t
 
 ### Tool not visible
 
-- Cursor: 40-tool cap exceeded. Disable unused MCP server.
+- Cursor: Bitrefill server toggled off or not signed in (Customize). Grok Bot: plugin not added, **Needs auth** / **Disconnected** (→ Authenticate), or **Disabled by team admin** (Connect apps).
 - ChatGPT: Developer Mode off → write tools hidden. Toggle Settings.
 - Claude.ai Free: can't add custom MCP URLs. Upgrade Pro+.
 - OpenClaw: `tools.deny: ["bundle-mcp"]` hiding server, or per-agent `tools.allow` too narrow.
@@ -169,7 +169,7 @@ Unpaid invoices expire (`expiration_minutes` on the invoice) and can't be re-pai
 
 ### Cron purchase failed silently
 
-`exec-approvals.json` `ask: on-miss` but no operator for `/approve`. Pre-approve `bitrefill buy-products` for trusted SKU/amount, or schedule when operator available.
+Nobody answered the approval prompt, so `askFallback: deny` refused the buy. Schedule it when the user can approve; never allowlist `buy-products`.
 
 ### Pi can't see Bitrefill MCP
 

@@ -133,7 +133,7 @@ Source: <https://docs.openclaw.ai/channels/telegram>.
 
 ### Auto-renew mobile top-up monthly
 
-`cron` + `exec: bitrefill buy-products ...` for fixed SKU. Guest: crypto + poll. Signed-in: `--payment_method balance` for instant pay.
+`cron` prepares the fixed-SKU order and asks in the channel; `exec: bitrefill buy-products ...` runs once the user approves (§8). Guest: crypto + poll. Signed-in: `--payment_method balance` with the `--balance_currency` that covers it.
 
 ### Multi-channel handoff
 
@@ -152,7 +152,7 @@ Default 30-min heartbeat or custom `cron` runs `exec: bitrefill get-invoice-by-i
 Defaults permissive: sandboxing off, `security: full`, `ask: off`. **Tighten before agent buys.**
 
 - **Restrict triggers:** `channels.<ch>.allowFrom: ["<your_id>"]` + `dmPolicy: "pairing"`. All channels.
-- **Approval for buys:** `~/.openclaw/exec-approvals.json` — `security: allowlist` + `ask: on-miss`. Allowlist read CLI (`search-products`, `get-product-details`, `get-invoice-by-id`); force `/approve` for `buy-products` + MCP `buy-products`.
+- **Approval for buys:** exec approvals with `security: allowlist`, `ask: on-miss`, `askFallback: deny` (`openclaw approvals get --gateway --json | jq .file > approvals.json`, edit, `openclaw approvals set --gateway --file approvals.json`). Allowlist `bitrefill` only with an `argPattern` for read commands, e.g. `^(--json )?(whoami|search-products|get-product-details|get-invoice-by-id|list-invoices|get-balances|list-saved-fiat-cards|search_help_articles|get_help_article)( |$)`: a path-only entry also allows `buy-products`. Never **Always allow** `buy-products`, CLI or MCP.
 - **Isolate Bitrefill agent:** `agents.list[]` persona with `tools.deny: ["gateway"]` — can't rewrite Gateway config. Source: <https://docs.openclaw.ai/tools/exec-approvals.md>.
 - **Guest first, balance when ready:** guest CLI + payment link = lowest friction; `login`/`verify` when human pre-funds for capped `balance`. **Never** give agent crypto seeds. Skill not a wallet.
 - **No voice readback:** disable `audio_as_voice` / TTS for Bitrefill agent.
