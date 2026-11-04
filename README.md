@@ -7,7 +7,7 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 | Item | Status |
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
-| Skill | `bitrefill` v3.4.1 — capability-aware shopping and payment routing |
+| Skill | `bitrefill` v3.4.2 — capability-aware shopping and payment routing |
 | Plugin | Portable [plugin.json](plugin.json) + [mcp.json](mcp.json); compatibility manifests for Codex, Claude and Cursor; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
@@ -27,7 +27,7 @@ OpenAI public-directory review is separate. Bitrefill supports digital-goods pur
 /reload-plugins
 ```
 
-Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.4.1`.
+Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.4.2`.
 
 Update:
 
@@ -73,8 +73,10 @@ openclaw gateway restart
 Then wire the eCommerce MCP for typed purchase tools:
 
 ```bash
-openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_KEY"
+openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp"
 ```
+
+Connect with OAuth or configure `Authorization: Bearer $BITREFILL_API_KEY` using the host's supported secret/header settings. Keep credentials out of URLs.
 
 Full setup, channel-aware scenarios, and hardening: [skills/bitrefill/references/harnesses/openclaw.md](skills/bitrefill/references/harnesses/openclaw.md).
 
@@ -130,8 +132,8 @@ Build and validate with Python 3.13 or newer:
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
-python scripts/package_plugin.py --tag v3.4.1
-python scripts/package_plugin.py --validate dist/bitrefill.zip --tag v3.4.1
+python scripts/package_plugin.py --tag v3.4.2
+python scripts/package_plugin.py --validate dist/bitrefill.zip --tag v3.4.2
 ```
 
 The release workflow validates tagged versions, packages the complete plugin as `bitrefill.zip`, and publishes it with `SHA256SUMS`. It excludes marketplace catalogs, development files and credentials. Keep versions synchronized across the portable, Codex, Claude and Cursor manifests, marketplace metadata and skill metadata.

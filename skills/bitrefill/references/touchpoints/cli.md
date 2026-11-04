@@ -100,7 +100,7 @@ bitrefill verify --code "$CODE" --otp "$(op item get Bitrefill --otp)"
 
 Server may return `browser_url` for passkey/WebAuthn — open in browser, retry.
 
-**Developer API keys** (Personal REST / key-in-path MCP) separate from CLI auth. → [mcp.md](mcp.md), [api.md](api.md).
+**Developer API keys** (Personal REST / bearer-header MCP) separate from CLI auth. → [mcp.md](mcp.md), [api.md](api.md).
 
 ## Global flags
 

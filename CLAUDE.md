@@ -18,7 +18,7 @@ This repository contains Bitrefill agent skills packaged as a portable **Agent P
 /reload-plugins
 ```
 
-Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `bitrefill/agents@v3.4.1`.
+Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `bitrefill/agents@v3.4.2`.
 
 ### Claude Cowork
 

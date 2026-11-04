@@ -8,9 +8,9 @@
 
 ### eCommerce MCP — purchases
 
-URL: `https://api.bitrefill.com/mcp` (OAuth) **or** `https://api.bitrefill.com/mcp/YOUR_API_KEY` (key-in-path).
+URL: `https://api.bitrefill.com/mcp`. Authenticate with OAuth or send an API key in the `Authorization: Bearer <api key>` header. Keep the key in the host's secret store or an environment variable, never in the URL. The key-in-path route returns 410 Gone.
 
-7 tools:
+12 tools:
 
 - `search-products` — keyword + country + category
 - `get-product-details` — packages (denominations) + pricing
@@ -19,6 +19,9 @@ URL: `https://api.bitrefill.com/mcp` (OAuth) **or** `https://api.bitrefill.com/m
 - `get-invoice-by-id` — poll status + redemption info
 - `list-invoices` — history
 - `update-order` — track balance / archive orders
+- `get-balances` — current account balances
+- `list-saved-fiat-cards` — saved card references; no card numbers or security codes
+- `search_help_articles`, `list_help_articles`, `get_help_article` — help-center content
 
 Auth: OAuth (interactive) or API key from <https://www.bitrefill.com/account/developers>.
 
@@ -115,8 +118,10 @@ OAuth: `gemini mcp auth bitrefill`.
 ### OpenClaw → [../harnesses/openclaw.md](../harnesses/openclaw.md)
 
 ```bash
-openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_KEY"
+openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp"
 ```
+
+Configure OAuth through the host, or supply `Authorization: Bearer $BITREFILL_API_KEY` through its supported secret/header configuration. Never append credentials to the server URL.
 
 ## Workflow
 
