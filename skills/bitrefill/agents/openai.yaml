@@ -1,0 +1,7 @@
+interface:
+  display_name: "Bitrefill"
+  short_description: "Browse gift cards, mobile top-ups and eSIMs"
+  default_prompt: "Help me find a product on Bitrefill."
+
+policy:
+  allow_implicit_invocation: true

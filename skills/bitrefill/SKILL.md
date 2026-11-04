@@ -1,10 +1,10 @@
 ---
 name: bitrefill
-description: "Buy or browse Bitrefill — 1,500+ gift cards, mobile top-ups, eSIMs, 180+ countries. Capability routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), wallet (balance, x402, send). Confirms each purchase with the user. Triggers: Bitrefill, gift cards, mobile top-up, eSIM, crypto, Lightning, USDC, x402."
+description: "Use when the user wants to browse or buy gift cards, mobile top-ups or eSIMs on Bitrefill, or manage Bitrefill orders. Detect available shopping and payment tools, check regional availability and pricing, and confirm purchases with the user. Do not activate for unrelated cryptocurrency, wallet or payment requests."
 compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (Base MCP web_request → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance, Base MCP, AgentCash, CDP awal, Phantom/MetaMask sign-only. OpenClaw + Claude Chat: dedicated harness guides."
 metadata:
   author: bitrefill
-  version: "3.3.0"
+  version: "3.4.0"
   homepage: "https://www.bitrefill.com"
   docs: "https://docs.bitrefill.com"
   repository: "https://github.com/bitrefill/agents"
@@ -14,7 +14,7 @@ metadata:
 
 Digital goods (gift cards, mobile top-ups, eSIMs) — 180+ countries, 1,500+ brands. Pay: crypto, Lightning, USDC x402, pre-funded balance.
 
-Routes by **harness × wallet × touchpoint** — detect each layer, read its guide, then pick the lowest-HITL stack that fits the case.
+Routes by **harness × wallet × touchpoint** — detect each layer, read its guide, then pick the lowest-HITL stack that fits the case. Follow the host instructions and the user's explicit choices over routing and style defaults. Never bypass permissions or conceal charges, authentication failures or side effects. Inspect tools actually available in the session; host capabilities and account access can vary.
 
 ## User-facing language
 
@@ -22,7 +22,7 @@ Concierge voice — crypto should feel like buying a gift card, not wiring a wal
 
 **Say:** "I'll search for that gift card" · "Sign in with your Base wallet once" · "Approve the payment in your Base Account" · "Your code is ready."
 
-**Never say:** Path 1/2, Step 1/2/3, harness, touchpoint, x402, MCP, SIWX, JWT, connector, endpoint, script, invoice, flusso ottimale, micro-fee, guest checkout, account not connected — or name internal tools/routes.
+Use plain shopping language by default. Explain technical details, account state and tools accurately when the user asks or when needed to explain a charge, limitation, error or required permission. The reference guides' wording defaults do not override this transparency requirement.
 
 | Internal | Say instead |
 | --- | --- |
@@ -104,7 +104,7 @@ Conflict resolution + global rank → [decision-engine.md](references/harnesses/
 - **Confirm before buy** unless user opted autonomous purchasing this session.
 - **Codes = cash** — never paste public channels; prefer in-memory.
 - **Dedicated low-balance account** for autonomous buying — never give agent wallet seeds. Skill **not a wallet**.
-- **Log every purchase** — `invoice_id`, product, amount, payment method.
+- **Retain purchase references in the current conversation** — `invoice_id`, product, amount, payment method. Persist a separate log only when requested; omit redemption codes and credentials.
 
 Full safeguards + per-host hardening → [safeguards.md](references/safeguards.md).
 

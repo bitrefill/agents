@@ -10,8 +10,16 @@
   "repository": "https://github.com/bitrefill/agents",
   "license": "MIT",
   "logo": "assets/logo.png",
-  "keywords": ["bitrefill", "gift-cards", "esim", "mobile-topup", "shopping", "payments"],
+  "keywords": [
+    "bitrefill",
+    "gift-cards",
+    "esim",
+    "mobile-topup",
+    "shopping",
+    "payments"
+  ],
   "category": "integrations",
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json"
+  "mcpServers": "./.mcp.json",
+  "version": "3.4.0"
 }

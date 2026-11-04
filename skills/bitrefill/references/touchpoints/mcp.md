@@ -70,9 +70,9 @@ Settings → Connectors → Add → `https://api.bitrefill.com/mcp`. Free can't 
 
 Harness (MCP-first + `show_widget`) → [../harnesses/claude-chat.md](../harnesses/claude-chat.md).
 
-### ChatGPT (Plus / Pro / Business / Enterprise / Edu)
+### ChatGPT / Codex plugins
 
-Settings → Apps & Connectors → Add → `https://api.bitrefill.com/mcp`. **Developer Mode** for `buy-products` (write tool). Free blocked.
+Install the Bitrefill plugin from your available plugin source and connect your Bitrefill account when prompted. The portable package uses root `plugin.json` and `mcp.json`; older Codex clients can use `.codex-plugin/plugin.json` and `.mcp.json`. Access depends on the host and workspace policy. For a custom development connection, use `https://api.bitrefill.com/mcp` with the host's current MCP connection flow. Never ask users to paste account credentials into chat.
 
 ### Codex CLI — `~/.codex/config.toml`
 
@@ -134,7 +134,7 @@ Logging per [../safeguards.md](../safeguards.md).
 
 ## Caveats
 
-- **ChatGPT** custom MCP needs Plus+; write tools need Developer Mode (admin on workspaces).
+- **ChatGPT / Codex** plugin and custom-MCP access depends on the current surface, account and workspace policy. Inspect actual tool access rather than assuming availability from a plan name.
 - **Cursor** 40-tool cap.
 - **Claude.ai** consumer needs Pro+ for custom URLs.
 - **Claude Chat network:** sandbox egress varies by plan; **MCP connectors work regardless**. Legacy Analysis tool (browser JS) has no net. Route Bitrefill via MCP — not sandbox curl. → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §3.

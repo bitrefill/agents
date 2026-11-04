@@ -7,11 +7,17 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 | Item | Status |
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
-| Skill | `bitrefill` v3.1 — harness × touchpoint × wallet routing |
-| Plugin | `.claude-plugin/marketplace.json` + manifest; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) via root [`.mcp.json`](.mcp.json) (Claude Code / Cowork) |
+| Skill | `bitrefill` v3.4.0 — capability-aware shopping and payment routing |
+| Plugin | Portable [plugin.json](plugin.json) + [mcp.json](mcp.json); compatibility manifests for Codex, Claude and Cursor; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
 ## Installation
+
+### ChatGPT / Codex (plugin: skill + MCP)
+
+Download `bitrefill.zip` from the [latest GitHub release](https://github.com/bitrefill/agents/releases/latest). It contains root Agent Plugins 1.0 manifests, OpenAI listing metadata, a Codex compatibility manifest, the skill and its resources, and the logo. Connect your Bitrefill account through the host's OAuth flow; no credentials are bundled. Install from an available local or development plugin source using your host's supported flow. A GitHub release does not install the plugin into OpenAI's public directory.
+
+OpenAI public-directory review is separate. Bitrefill supports digital-goods purchases, which require resolution with OpenAI under the current commerce guidelines. See [OpenAI review preparation](https://github.com/bitrefill/agents/blob/main/docs/openai-review.md) for verified checks, review cases, and remaining materials. This package is not an approved directory listing.
 
 ### Claude Code / Cowork (plugin: skill + MCP)
 
@@ -21,7 +27,7 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 /reload-plugins
 ```
 
-Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.1.0`.
+Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.4.0`.
 
 Update:
 
@@ -81,7 +87,11 @@ Full setup, channel-aware scenarios, and hardening: [skills/bitrefill/references
 ### Structure
 
 ```
-.mcp.json
+plugin.json                  # Agent Plugins 1.0 identity and OpenAI metadata
+mcp.json                     # Portable Streamable HTTP MCP connection
+.codex-plugin/plugin.json    # Codex compatibility manifest
+assets/logo.png
+.mcp.json                    # Claude / Cursor / older Codex MCP configuration
 .claude-plugin/
 ├── plugin.json
 └── marketplace.json
@@ -114,6 +124,17 @@ skills/bitrefill/
 ```
 
 ## Contributing
+
+Build and validate with Python 3.13 or newer:
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
+python scripts/package_plugin.py --tag v3.4.0
+python scripts/package_plugin.py --validate dist/bitrefill.zip --tag v3.4.0
+```
+
+The release workflow validates tagged versions, packages the complete plugin as `bitrefill.zip`, and publishes it with `SHA256SUMS`. It excludes marketplace catalogs, development files and credentials. Keep versions synchronized across the portable, Codex, Claude and Cursor manifests, marketplace metadata and skill metadata.
 
 To add a new skill:
 
