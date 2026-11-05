@@ -123,8 +123,8 @@ OpenCode runs MCP tools without asking: confirm in chat before every `buy-produc
 → [wallets/payment.md](wallets/payment.md), [wallets/matrix.md](wallets/matrix.md).
 
 - `balance` — instant, capped by pre-fund. **Lowest blast radius.**
-- x402 (AgentCash, awal, Base MCP) — bound wallet balance + caps.
-- `lightning` / payment links — higher human involvement.
+- Agent wallets — bounded by their funds and caps.
+- `payment_link` — higher human involvement.
 
 Default: pre-fund `balance` on dedicated account → `payment_method: "balance"` (debits at once).
 

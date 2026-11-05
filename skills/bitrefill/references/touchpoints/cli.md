@@ -140,7 +140,7 @@ search-products  →  get-product-details  →  buy-products  →  get-invoice-b
 1. **Search** — `search-products`. *(say: "Searching for [product]…")*
 2. **Get price** — `get-product-details`. *(silent)*
 3. **Prepare order** — `buy-products`. Confirm with user first. *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
-4. **Pay** → [../wallets/payment.md](../wallets/payment.md). *(say: "Approve the payment in your Base Account")*
+4. **Pay** → [../wallets/payment.md](../wallets/payment.md). *(say: "Approve the payment in your wallet")*
 5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
 
 Help-center questions: `search_help_articles --query "…" [--category <slug>]`, then `get_help_article --id <id>`. `list_help_articles` returns no articles; browse a topic by searching within a category (valid slugs in `availableCategories` of every help reply).
