@@ -75,6 +75,8 @@ openclaw mcp set bitrefill '{"url":"https://api.bitrefill.com/mcp","transport":"
 openclaw mcp login bitrefill
 ```
 
+Connect with OAuth or configure `Authorization: Bearer $BITREFILL_API_KEY` using the host's supported secret/header settings. Keep credentials out of URLs.
+
 Full setup, channel-aware scenarios, and hardening: [skills/bitrefill/references/harnesses/openclaw.md](skills/bitrefill/references/harnesses/openclaw.md).
 
 ## What the plugin uses
@@ -154,8 +156,8 @@ Build and validate with Python 3.13 or newer:
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
-python scripts/package_plugin.py --tag v3.4.1
-python scripts/package_plugin.py --validate dist/bitrefill.zip --tag v3.4.1
+python scripts/package_plugin.py --tag v3.4.2
+python scripts/package_plugin.py --validate dist/bitrefill.zip --tag v3.4.2
 ```
 
 The release workflow validates tagged versions, packages the complete plugin as `bitrefill.zip`, and publishes it with `SHA256SUMS`. It excludes marketplace catalogs, development files and credentials. Keep versions synchronized across the portable, Codex, Claude and Cursor manifests, marketplace metadata and skill metadata.
