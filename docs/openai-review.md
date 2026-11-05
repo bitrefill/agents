@@ -1,6 +1,6 @@
 # OpenAI review preparation
 
-Spec checked: **2026-11-04**. Package: **Bitrefill v3.4.2**.
+Spec checked: **2026-11-04**. Package: **Bitrefill v4.0.0**.
 Intended publisher: **Bitrefill**, matching the repository's existing identity.
 Directory identity verification has not been checked.
 

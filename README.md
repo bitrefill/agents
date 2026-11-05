@@ -7,7 +7,7 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 | Item | Status |
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
-| Skill | `bitrefill` v3.4.1 — capability-aware shopping and payment routing |
+| Skill | `bitrefill` v4.0.0 — capability-aware shopping and payment routing |
 | Plugin | Portable [plugin.json](plugin.json) + [mcp.json](mcp.json); compatibility manifests for Codex, Claude Code / Cowork (`.claude-plugin/`) and Cursor / Grok Bot (`.cursor-plugin/`); all bundle the [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
@@ -27,7 +27,7 @@ OpenAI public-directory review is separate. Bitrefill supports digital-goods pur
 /reload-plugins
 ```
 
-Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `/plugin marketplace add bitrefill/agents#v3.4.1`.
+Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `/plugin marketplace add bitrefill/agents#v4.0.0`.
 
 Update from your shell, or in a session with `/plugin` → **Installed** → **bitrefill** → **Update now**, then `/reload-plugins`:
 
@@ -156,8 +156,8 @@ Build and validate with Python 3.13 or newer:
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
-python scripts/package_plugin.py --tag v3.4.2
-python scripts/package_plugin.py --validate dist/bitrefill.zip --tag v3.4.2
+python scripts/package_plugin.py --tag v4.0.0
+python scripts/package_plugin.py --validate dist/bitrefill.zip --tag v4.0.0
 ```
 
 The release workflow validates tagged versions, packages the complete plugin as `bitrefill.zip`, and publishes it with `SHA256SUMS`. It excludes marketplace catalogs, development files and credentials. Keep versions synchronized across the portable, Codex, Claude and Cursor manifests, marketplace metadata and skill metadata.

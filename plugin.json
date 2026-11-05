@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "bitrefill",
-  "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, crypto/x402/balance payments",
-  "version": "3.4.2",
+  "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, card, Apple Pay, Google Pay, crypto or balance payments",
+  "version": "4.0.0",
   "author": {
     "name": "Bitrefill",
     "email": "support@bitrefill.com"
@@ -105,7 +105,7 @@
       },
       "publication": {
         "countries": [],
-        "release_notes": "Use the canonical MCP endpoint with OAuth or bearer-header API keys; document the current 12-tool catalog and exclude retired key-in-path setup instructions. Portable plugin manifests, assets and release ZIP are validated."
+        "release_notes": "Purchases stay behind the user's explicit OK and quote the real charge; wallet and email sign-in resist spoofed messages; wallet pages list today's agent wallets; MCP/CLI invoices pay by balance, send or payment link (x402 only on x402 REST invoices); MCP uses OAuth or a Bearer-header API key. Portable plugin manifests, assets and release ZIP are validated."
       }
     }
   }
