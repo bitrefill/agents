@@ -21,7 +21,7 @@ URL: `https://api.bitrefill.com/mcp`, authenticated by OAuth **or** an API key i
 - `update-order` — track balance / archive orders
 - `get-balances` — store credit per sub-account (USD / EUR / BTC) + cashback; check it before paying by `balance`
 - `list-saved-fiat-cards` — saved cards → `saved_fiat_card_id`
-- `search_help_articles` **(g)** → `get_help_article` **(g)** — help center. `list_help_articles` **(g)** returns no articles: browse a topic by searching with `category`
+- `search_help_articles` **(g)** → `get_help_article` **(g)** — help center; `list_help_articles` **(g)** lists titles, optionally by `category`
 
 Auth: OAuth (interactive) or API key from <https://www.bitrefill.com/account/developers> sent as the Bearer header.
 
