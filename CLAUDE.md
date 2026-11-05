@@ -6,7 +6,7 @@ Instructions:
 - Try abstracting instructions that can be applied to multiple cases
 - Avoid creating new sections as much as possible. Try updating exisiting knowledge instead.
 
-This repository is a monorepo of agent skills for Bitrefill, packaged as a **Claude Code / Cowork plugin marketplace**. Skills live in the `skills/` directory and are distributed through the plugin system shared by Claude Code and Claude Cowork.
+This repository contains Bitrefill agent skills packaged as a portable **Agent Plugins 1.0 plugin**, with Codex, Claude and Cursor compatibility manifests. Skills live in the `skills/` directory and are distributed through the plugin system shared by Claude Code and Claude Cowork.
 
 ## Installing the Plugin
 
@@ -18,7 +18,7 @@ This repository is a monorepo of agent skills for Bitrefill, packaged as a **Cla
 /reload-plugins
 ```
 
-Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `bitrefill/agents@v3.1.0`.
+Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `bitrefill/agents@v3.4.1`.
 
 ### Claude Cowork
 
@@ -39,6 +39,10 @@ claude --plugin-dir ./
 ## Repository Structure
 
 ```
+plugin.json            # Portable identity and OpenAI metadata
+mcp.json               # Portable MCP configuration
+.codex-plugin/
+  plugin.json          # Codex compatibility fallback
 .claude-plugin/
   plugin.json          # Plugin manifest (name, version, author)
   marketplace.json     # Marketplace catalog listing the plugin
@@ -66,7 +70,7 @@ The marketplace (`marketplace.json`) lists plugins available for installation. T
    ```
 3. Write agent instructions in the Markdown body (step-by-step, under 500 lines)
 4. Optionally add `references/` with detailed documentation
-5. Bump the `version` in both `plugin.json` and `marketplace.json`
+5. Synchronize all release versions as described under Publishing Updates
 
 ## Naming Conventions
 
@@ -76,7 +80,7 @@ The marketplace (`marketplace.json`) lists plugins available for installation. T
 
 ## Publishing Updates
 
-After modifying skills, bump `version` in `.claude-plugin/plugin.json` (and optionally `marketplace.json`). Users run:
+Keep the release version synchronized in root `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `.claude-plugin/marketplace.json` and skill metadata. Run `python -m unittest discover -s tests -v` and `python scripts/package_plugin.py --tag vX.Y.Z` before pushing the matching tag. The release ZIP excludes the marketplace catalog. OpenAI directory review requirements are tracked in `docs/openai-review.md`. Users run:
 
 ```shell
 /plugin marketplace update bitrefill-skills
