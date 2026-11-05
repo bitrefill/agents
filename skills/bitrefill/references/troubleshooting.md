@@ -130,7 +130,7 @@ The CLI takes no `--api-key` and reads no `credentials.json`. Developer API keys
 
 ### Help-center questions
 
-`search_help_articles --query "<question>"` → `get_help_article --id <id>`. `list_help_articles` returns no articles: browse a topic by searching within a category (`--category`; an unknown one errors with the valid slugs, also listed as `availableCategories` in each reply).
+`search_help_articles --query "<question>"` → `get_help_article --id <id>`. Browse a topic: `list_help_articles --category <slug>` (an unknown slug errors with the valid ones, also listed as `availableCategories` in each reply).
 
 ### Empty search results, no error
 

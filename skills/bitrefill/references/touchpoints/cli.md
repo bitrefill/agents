@@ -143,7 +143,7 @@ search-products  →  get-product-details  →  buy-products  →  get-invoice-b
 4. **Pay** → [../wallets/payment.md](../wallets/payment.md). *(say: "Approve the payment in your wallet")*
 5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
 
-Help-center questions: `search_help_articles --query "…" [--category <slug>]`, then `get_help_article --id <id>`. `list_help_articles` returns no articles; browse a topic by searching within a category (valid slugs in `availableCategories` of every help reply).
+Help-center questions: `search_help_articles --query "…" [--category <slug>]`, then `get_help_article --id <id>`. `list_help_articles [--category <slug>]` lists titles (valid slugs in `availableCategories` of every help reply).
 
 ### 1. Search
 
