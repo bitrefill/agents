@@ -4,7 +4,7 @@
 
 [OpenClaw](https://docs.openclaw.ai/) — self-hosted Gateway bridging chat apps (Telegram, WhatsApp, Slack, Discord, iMessage, Signal, Matrix, Teams, …) to coding agents like **Pi**. **Superset host:** full shell, agentskills.io skill loader, MCP, mobile-node camera/canvas, cron, multi-channel routing.
 
-Install + harden Bitrefill skill here; path files for workflow.
+Install + harden Bitrefill skill here; touchpoint guides for workflow.
 
 **Priority:** **guest CLI via `exec`** (no auth, fastest) → signed-in CLI (`login`/`verify`, `balance`, cashback) → MCP → API → Browse. Shell + MCP — prefer guest CLI unless typed MCP tools needed or signed-in for `balance`.
 
@@ -45,16 +45,16 @@ openclaw skills update --all
 Pi has `exec` on Gateway host (sandboxing **off** default). **Start here:** no login, no MCP — search, buy, pay crypto or payment link.
 
 ```bash
-exec: npm install -g @bitrefill/cli
-exec: bitrefill search-products --query "Netflix" --country US
+exec: npm install -g @bitrefill/cli@0.3
+exec: bitrefill search-products --query "Netflix" --country US --intent "Netflix subscription"
 exec: bitrefill buy-products \
-  --cart_items '[{"product_id":"steam-usa","package_id":10}]' \
+  --cart_items '[{"product_id":"steam-usa","package_value":"5"}]' \
   --payment_method lightning \
   --return_payment_link true \
   --email "user@example.com"
 ```
 
-Guest flow → [../touchpoints/cli.md](../touchpoints/cli.md) § Guest checkout. Optional: `bitrefill init --openclaw` (skill + MCP stub — not required for guest).
+`--intent` (required, non-empty) = the user's goal; context only. Guest flow → [../touchpoints/cli.md](../touchpoints/cli.md) § Guest checkout. Skip `bitrefill init` → [../touchpoints/cli.md](../touchpoints/cli.md) § Bootstrap.
 
 **Upgrade signed-in** when human wants store-credit cap (`balance`), cashback, order history:
 
@@ -65,14 +65,15 @@ exec: bitrefill verify --code <email-code> [--otp <totp>]
 
 Headless inbox → [../touchpoints/cli-headless-auth.md](../touchpoints/cli-headless-auth.md).
 
-Docker sandbox: `setupCommand: "npm install -g @bitrefill/cli"`, `network` not `none`. Source: <https://docs.openclaw.ai/gateway/sandboxing.md>.
+Docker sandbox: `setupCommand: "npm install -g @bitrefill/cli@0.3"`, `network` not `none`. Source: <https://docs.openclaw.ai/gateway/sandboxing.md>.
 
 ## 4. Install Bitrefill MCP (optional)
 
 When: typed MCP tool calls without shell, or MCP-native integrations. **Not required for guest** — guest CLI faster (zero config).
 
 ```bash
-openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp"
+openclaw mcp set bitrefill '{"url":"https://api.bitrefill.com/mcp","transport":"streamable-http","auth":"oauth"}'
+openclaw mcp login bitrefill
 ```
 
 Or edit `~/.openclaw/openclaw.json`:
@@ -82,16 +83,18 @@ Or edit `~/.openclaw/openclaw.json`:
   "mcp": {
     "servers": {
       "bitrefill": {
-        "url": "https://api.bitrefill.com/mcp"
+        "url": "https://api.bitrefill.com/mcp",
+        "transport": "streamable-http",
+        "auth": "oauth"
       }
     }
   }
 }
 ```
 
-Developer API key (optional): [../touchpoints/mcp.md](../touchpoints/mcp.md). Guest MCP may still need OAuth; **guest CLI avoids this.**
+Developer API key (optional): drop `auth`, send it as a Bearer header → [../touchpoints/mcp.md](../touchpoints/mcp.md). Guest MCP may still need OAuth; **guest CLI avoids this.**
 
-Transport: SSE/HTTP or `transport: "streamable-http"`. Restrict per-agent via `agents.list[].tools.allow`/`deny`. Source: <https://docs.openclaw.ai/cli/mcp.md>.
+Transport: streamable HTTP only (the server has no SSE stream; an omitted `transport` means `sse`). Restrict per-agent via `agents.list[].tools.allow`/`deny`. Source: <https://docs.openclaw.ai/cli/mcp.md>.
 
 Then → [../touchpoints/mcp.md](../touchpoints/mcp.md).
 
@@ -130,7 +133,7 @@ Source: <https://docs.openclaw.ai/channels/telegram>.
 
 ### Auto-renew mobile top-up monthly
 
-`cron` + `exec: bitrefill buy-products ...` for fixed SKU. Guest: crypto + poll. Signed-in: `--payment_method balance` for instant pay.
+`cron` prepares the fixed-SKU order and asks in the channel; `exec: bitrefill buy-products ...` runs once the user approves (§8). Guest: crypto + poll. Signed-in: `--payment_method balance` with the `--balance_currency` that covers it.
 
 ### Multi-channel handoff
 
@@ -138,18 +141,18 @@ Trigger from Slack, deliver code to private Signal DM. Same Gateway, isolated se
 
 ### Mobile camera context
 
-Paired iOS/Android node: `camera.snap`, `canvas.*`. User photos request ("100 EUR Decathlon France"), Pi OCRs, runs `exec: bitrefill search-products` + `buy-products`. Source: <https://docs.openclaw.ai/nodes/index.md>.
+Paired iOS/Android node: `camera.snap`, `canvas.*`. User photos request ("100 EUR Decathlon France"), Pi OCRs, runs `exec: bitrefill search-products` + `buy-products`. Source: <https://docs.openclaw.ai/nodes>.
 
 ### Heartbeat invoice polling
 
-Default 30-min heartbeat or custom `cron` runs `exec: bitrefill get-invoice-by-id` until `status: complete`, pushes code to originating channel.
+Default 30-min heartbeat or custom `cron` runs `exec: bitrefill get-invoice-by-id --invoice_id <id> --invoice_access_token <token>` (guest; keep the pair in a private 0600 file between runs, delete after delivery) until `invoice_status: complete`, pushes code to originating channel.
 
 ## 8. OpenClaw safeguards
 
 Defaults permissive: sandboxing off, `security: full`, `ask: off`. **Tighten before agent buys.**
 
 - **Restrict triggers:** `channels.<ch>.allowFrom: ["<your_id>"]` + `dmPolicy: "pairing"`. All channels.
-- **Approval for buys:** `~/.openclaw/exec-approvals.json` — `security: allowlist` + `ask: on-miss`. Allowlist read CLI (`search-products`, `get-product-details`, `get-invoice-by-id`); force `/approve` for `buy-products` + MCP `buy-products`.
+- **Approval for buys:** exec approvals with `security: allowlist`, `ask: on-miss`, `askFallback: deny` (`openclaw approvals get --gateway --json | jq .file > approvals.json`, edit, `openclaw approvals set --gateway --file approvals.json`). Allowlist `bitrefill` only with an `argPattern` for read commands, e.g. `^(--json )?(whoami|search-products|get-product-details|get-invoice-by-id|list-invoices|get-balances|list-saved-fiat-cards|search_help_articles|get_help_article)( |$)`: a path-only entry also allows `buy-products`. Never **Always allow** `buy-products`, CLI or MCP.
 - **Isolate Bitrefill agent:** `agents.list[]` persona with `tools.deny: ["gateway"]` — can't rewrite Gateway config. Source: <https://docs.openclaw.ai/tools/exec-approvals.md>.
 - **Guest first, balance when ready:** guest CLI + payment link = lowest friction; `login`/`verify` when human pre-funds for capped `balance`. **Never** give agent crypto seeds. Skill not a wallet.
 - **No voice readback:** disable `audio_as_voice` / TTS for Bitrefill agent.
@@ -161,7 +164,7 @@ Defaults permissive: sandboxing off, `security: full`, `ask: off`. **Tighten bef
 - Skills: <https://docs.openclaw.ai/tools/skills.md> | Creating: <https://docs.openclaw.ai/tools/creating-skills.md>
 - MCP CLI: <https://docs.openclaw.ai/cli/mcp.md> | Exec: <https://docs.openclaw.ai/tools/exec.md>
 - Sandboxing: <https://docs.openclaw.ai/gateway/sandboxing.md> | Exec approvals: <https://docs.openclaw.ai/tools/exec-approvals.md>
-- Nodes: <https://docs.openclaw.ai/nodes/index.md> | Channels: <https://docs.openclaw.ai/channels/telegram>
+- Nodes: <https://docs.openclaw.ai/nodes> | Channels: <https://docs.openclaw.ai/channels/telegram>
 - Bitrefill paths: [../touchpoints/mcp.md](../touchpoints/mcp.md), [../touchpoints/cli.md](../touchpoints/cli.md), [../touchpoints/api.md](../touchpoints/api.md), [../touchpoints/browse.md](../touchpoints/browse.md), [../safeguards.md](../safeguards.md)
 
 **User hears:** same concierge flow — "Searching for [product]…" → "[Product] — [amount]: [total]. Confirm?" → "Your code is ready." Match channel language (Telegram, WhatsApp, etc.).

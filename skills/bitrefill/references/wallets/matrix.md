@@ -2,41 +2,28 @@
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 
-Wallet × capability × Bitrefill touchpoint. Ordered by **autonomous purchase feasibility** (lowest HITL first).
+Agent wallets that can pay Bitrefill. The user picks the wallet; its own docs and tools cover setup and use.
 
-## Ranking
-
-| Rank | Wallet | HTTP proxy | x402 | SIWX | Autonomous | Best touchpoint |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | **Bitrefill balance** | via MCP/CLI | N/A | N/A | **High** (pre-fund) | Bitrefill MCP / signed-in CLI |
-| 2 | **AgentCash** | `fetch` (local) | **Auto** | **Auto** | **Highest** | x402 REST |
-| 3 | **CDP awal** | via x402 pay | **Auto under caps** | Manual | **High** | x402 REST |
-| 4 | **Base MCP** | `web_request` | Approve each | `sign` approve each | Partial | x402 Path 1, MCP invoice |
-| 5 | **MetaMask mm CLI** | None | Skill + confirm | Manual | Low | MCP/CLI + manual loop |
-| 6 | **Community MetaMask MCP** | None | Manual | Manual | Low | Not recommended |
-| 7 | **Phantom MCP** | None | Manual loop | `evm_sign` | Low | Sign-only; pair with Base/Bitrefill MCP |
+| Wallet | x402 REST | MCP / CLI invoice | Approval |
+| --- | --- | --- | --- |
+| **Bitrefill balance** | — | `balance` | Purchase confirm only |
+| [AgentCash](agentcash.md) | Yes | — | None per payment |
+| [Coinbase Agentic Wallet](cdp-awal.md) | Yes | Sends USDC, ETH, SOL (awal CLI) | None per payment, within caps |
+| [Coinbase Wallet MCP](base-mcp.md) | Yes | Sends EVM tokens | Each payment |
+| [MetaMask](metamask.md) | Yes | Sends EVM tokens | Each payment |
+| [Kite Passport](kite-passport.md) | Yes | Sends USDC | Passkey |
+| [Bankr](bankr.md) | Yes | Sends EVM and Solana tokens | None per payment, within limits |
+| [Alby](alby.md) | Yes (Lightning) | Pays Lightning invoices | None per payment, within budget |
+| [Tether WDK](tether-wdk.md) | — | Sends USDT, bitcoin, Lightning | None while unlocked |
+| [Pay](pay.md) | Yes | Sends Solana USDC, USDT | Each payment |
 
 ## Pairing rules
 
-- **Bitrefill MCP OAuth'd** → catalog/checkout on MCP; pay balance first, then Base MCP `send` to `payment_info`.
-- **Base MCP only** → x402 REST Path 1 ([../touchpoints/x402.md](../touchpoints/x402.md)).
-- **Phantom + Base MCP** → Base MCP HTTP; Phantom SIWX if Phantom is payer ([phantom.md](phantom.md)).
-- **No wallet** → payment_link / human only.
-
-## Base USDC constants
-
-| Field | Value |
-| --- | --- |
-| Network | `eip155:8453` |
-| USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
-| payTo | `0x480CD46E6faDe651a0437DeaddA53D5c8e7D846A` |
-
-## Avoid autonomous agents
-
-- x402 REST **Path 2** (approval per $0.001–0.002 call)
-- MetaMask / Phantom for x402-heavy flows
-- Payment links without wallet automation
+- **x402 REST** ([../touchpoints/x402.md](../touchpoints/x402.md)) — no Bitrefill account; the wallet signs in once and pays the invoice.
+- **Bitrefill MCP / CLI** — `balance`, or `buy-products` with a `payment_method` the wallet holds, then the wallet pays `payment_info` ([payment.md](payment.md)).
+- **Any other wallet** that can send the invoice's coin pays the same way.
+- **No wallet** → `payment_link`, the human pays.
 
 Pay-time tree → [payment.md](payment.md). Harness routing → [../harnesses/decision-engine.md](../harnesses/decision-engine.md).
 
-**User hears:** never wallet ranks or HITL scores — only "Sign in with your wallet once" and "Approve the payment."
+**User hears:** never wallet comparisons or tool names — only "Sign in with your wallet once" and "Approve the payment."

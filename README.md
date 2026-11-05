@@ -7,11 +7,17 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 | Item | Status |
 |------|--------|
 | Repo | `bitrefill/agents` on GitHub |
-| Skill | `bitrefill` v3.1 — harness × touchpoint × wallet routing |
-| Plugin | `.claude-plugin/marketplace.json` + manifest; includes [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) via root [`.mcp.json`](.mcp.json) (Claude Code / Cowork) |
+| Skill | `bitrefill` v3.4.1 — capability-aware shopping and payment routing |
+| Plugin | Portable [plugin.json](plugin.json) + [mcp.json](mcp.json); compatibility manifests for Codex, Claude Code / Cowork (`.claude-plugin/`) and Cursor / Grok Bot (`.cursor-plugin/`); all bundle the [eCommerce MCP](https://docs.bitrefill.com/docs/ecommerce-mcp) |
 | Spec | [Agent Skills](https://agentskills.io/specification) compliant |
 
 ## Installation
+
+### ChatGPT / Codex (plugin: skill + MCP)
+
+Download `bitrefill.zip` from the [latest GitHub release](https://github.com/bitrefill/agents/releases/latest). It contains root Agent Plugins 1.0 manifests, OpenAI listing metadata, a Codex compatibility manifest, the skill and its resources, and the logo. Connect your Bitrefill account through the host's OAuth flow; no credentials are bundled. Install from an available local or development plugin source using your host's supported flow. A GitHub release does not install the plugin into OpenAI's public directory.
+
+OpenAI public-directory review is separate. Bitrefill supports digital-goods purchases, which require resolution with OpenAI under the current commerce guidelines. See [OpenAI review preparation](https://github.com/bitrefill/agents/blob/main/docs/openai-review.md) for verified checks, review cases, and remaining materials. This package is not an approved directory listing.
 
 ### Claude Code / Cowork (plugin: skill + MCP)
 
@@ -21,21 +27,19 @@ A unified, capability-aware agent skill for [Bitrefill](https://www.bitrefill.co
 /reload-plugins
 ```
 
-Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `bitrefill/agents@v3.1.0`.
+Registers the **bitrefill** skill and eCommerce MCP ([`.mcp.json`](.mcp.json)); OAuth on first MCP call. Pin: `/plugin marketplace add bitrefill/agents#v3.4.1`.
 
-Update:
+Update from your shell, or in a session with `/plugin` → **Installed** → **bitrefill** → **Update now**, then `/reload-plugins`:
 
 ```bash
-/plugin marketplace update bitrefill-skills
-/plugin update bitrefill@bitrefill-skills
-/reload-plugins
+claude plugin update bitrefill@bitrefill-skills
 ```
 
 **Cowork:** Customize → Plugins → add `bitrefill/agents` → install **bitrefill**. **claude.ai:** Connectors only → [claude-chat.md](skills/bitrefill/references/harnesses/claude-chat.md). Other hosts → [mcp.md](skills/bitrefill/references/touchpoints/mcp.md).
 
 ### Cursor / Grok Bot (plugin: skill + MCP)
 
-Cursor: **Customize** → search **Bitrefill** → **Install**. Grok Bot: **Connect apps** → **Bitrefill** → **Add**. Both get the skill and the connector in [`.mcp.json`](.mcp.json) (OAuth with your Bitrefill account). Each purchase is confirmed with you unless you opt into autonomous buying; without a connected account the skill checks out as a guest through npm `@bitrefill/cli`. Host guide → [grok-bot.md](skills/bitrefill/references/harnesses/grok-bot.md). Bitrefill [Terms](https://www.bitrefill.com/terms/) and [Privacy Policy](https://www.bitrefill.com/privacy/) apply.
+Cursor: copy this repo to `~/.cursor/plugins/local/bitrefill` and run **Developer: Reload Window**; once Bitrefill is listed on Cursor Marketplace, **Customize** → **Bitrefill** → **Install**. Grok Bot installs it from that listing. Both get the skill and the connector in [`.mcp.json`](.mcp.json) (OAuth with your Bitrefill account). Host guide → [grok-bot.md](skills/bitrefill/references/harnesses/grok-bot.md).
 
 ### skills CLI
 
@@ -67,32 +71,58 @@ openclaw gateway restart
 Then wire the eCommerce MCP for typed purchase tools:
 
 ```bash
-openclaw mcp set bitrefill --url "https://api.bitrefill.com/mcp/$BITREFILL_API_KEY"
+openclaw mcp set bitrefill '{"url":"https://api.bitrefill.com/mcp","transport":"streamable-http","auth":"oauth"}'
+openclaw mcp login bitrefill
 ```
 
 Full setup, channel-aware scenarios, and hardening: [skills/bitrefill/references/harnesses/openclaw.md](skills/bitrefill/references/harnesses/openclaw.md).
+
+## What the plugin uses
+
+- **Connector:** `https://api.bitrefill.com/mcp` (HTTP, OAuth with your Bitrefill account, no API key): search, product details, buy, order updates, invoices, balances, saved cards, help articles.
+- **Guest checkout** (no account): npm `@bitrefill/cli` from `registry.npmjs.org` and an email; else a `www.bitrefill.com` link.
+- **Optional APIs:** `api.bitrefill.com/v2` (`BITREFILL_API_KEY`); `api.bitrefill.com/x402` through a wallet tool you already installed (e.g. Coinbase Wallet MCP, AgentCash), which pays any pay-per-call lookups, or direct HTTP. The skill never asks for private keys or seed phrases.
+- **Bundled scripts:** `scripts/siwx_*.js` use Node built-ins only, accept sign-in challenges only from `https://api.bitrefill.com`, write an unsigned sign-in draft to `/tmp/siwx_payload.json` and send the signed one back to `api.bitrefill.com`.
+- **Headless sign-in (optional):** an agent inbox such as AgentMail (`agentmail-cli` / `agentmail-mcp` from `registry.npmjs.org`, `AGENTMAIL_API_KEY`, `api.agentmail.to`); TOTP from the 1Password CLI (`op`, your own vault).
+
+Each purchase is confirmed with you unless you opt into autonomous buying. Bitrefill [Terms](https://www.bitrefill.com/terms/) and [Privacy Policy](https://www.bitrefill.com/privacy/) apply.
 
 ## Skill
 
 | Skill | Description |
 |-------|-------------|
-| `bitrefill` | Capability-driven routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), then wallet (balance, x402, send). Includes OpenClaw, Hermes, ChatGPT+Base MCP, and wallet matrix (Base MCP, AgentCash, CDP awal, Phantom, MetaMask). |
+| `bitrefill` | Capability-driven routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST, CLI, API, browse), then wallet (balance, x402, send). Includes OpenClaw, Claude Chat, Grok Bot / Cursor, Hermes, ChatGPT + Coinbase Wallet MCP, and a matrix of agent wallets that can pay. |
 
 ### Structure
 
 ```
-.mcp.json
+plugin.json                  # Agent Plugins 1.0 identity and OpenAI metadata
+mcp.json                     # Portable Streamable HTTP MCP connection
+.codex-plugin/plugin.json    # Codex compatibility manifest
+assets/logo.png
+.mcp.json                    # Claude / Cursor / older Codex MCP configuration
 .claude-plugin/
 ├── plugin.json
 └── marketplace.json
+.cursor-plugin/
+└── plugin.json
+.github/workflows/
+├── release.yml
+└── check.yml
+assets/
+LICENSE
 skills/bitrefill/
 ├── SKILL.md
+├── scripts/
+│   ├── siwx_build_message.js
+│   └── siwx_send.js
 └── references/
     ├── harnesses/
     │   ├── decision-engine.md
     │   ├── capability-matrix.md
     │   ├── openclaw.md
-    │   └── claude-chat.md
+    │   ├── claude-chat.md
+    │   └── grok-bot.md
     ├── touchpoints/
     │   ├── mcp.md
     │   ├── x402.md
@@ -108,19 +138,34 @@ skills/bitrefill/
     │   ├── agentcash.md
     │   ├── cdp-awal.md
     │   ├── metamask.md
-    │   └── phantom.md
+    │   ├── kite-passport.md
+    │   ├── bankr.md
+    │   ├── alby.md
+    │   ├── tether-wdk.md
+    │   └── pay.md
     ├── safeguards.md
     └── troubleshooting.md
 ```
 
 ## Contributing
 
+Build and validate with Python 3.13 or newer:
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
+python scripts/package_plugin.py --tag v3.4.1
+python scripts/package_plugin.py --validate dist/bitrefill.zip --tag v3.4.1
+```
+
+The release workflow validates tagged versions, packages the complete plugin as `bitrefill.zip`, and publishes it with `SHA256SUMS`. It excludes marketplace catalogs, development files and credentials. Keep versions synchronized across the portable, Codex, Claude and Cursor manifests, marketplace metadata and skill metadata.
+
 To add a new skill:
 
 1. Create a new directory under `skills/` (e.g., `skills/my-skill/`)
 2. Add a `SKILL.md` file with valid YAML frontmatter (`name`, `description`) and agent instructions
 3. Optionally add a `references/` subdirectory with supporting documentation
-4. Update `.claude-plugin/marketplace.json` to register the skill
+4. Bump the version fields → [CLAUDE.md § Releasing Updates](CLAUDE.md#releasing-updates) (skills are auto-discovered)
 
 Skill names must be lowercase with hyphens and match the directory name exactly.
 
