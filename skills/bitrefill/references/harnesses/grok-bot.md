@@ -20,6 +20,7 @@ The Bitrefill plugin's connector signs in with the user's own Bitrefill account.
 - Crypto: call `buy-products` with `return_payment_link: false` (CLI: `--return_payment_link false`), then post the exact amount, network and address (or Lightning invoice) in the chat. No address came back → buy again without it and send `payment_link`.
 - Card, Apple Pay, Google Pay, local methods: send `payment_link` (Bitrefill checkout). Never ask for or type card numbers.
 - Balance: `payment_method: "balance"` (`balance_currency`: the sub-account that covers it); debited at once.
+- Then check `get-invoice-by-id` silently until delivered; stop at expiry only while the invoice is unpaid.
 
 ## Grok Bot
 

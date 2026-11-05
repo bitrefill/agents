@@ -11,7 +11,6 @@
 | **MetaMask Agent Wallet (official)** | [docs.metamask.io/agent-wallet](https://docs.metamask.io/agent-wallet/) | `mm` CLI + agent skills |
 | Product / Early Access | [metamask.io/agent-wallet](https://metamask.io/agent-wallet) | Guard/Beast modes, spending limits |
 | Architecture | [docs.metamask.io/agent-wallet/reference/architecture](https://docs.metamask.io/agent-wallet/reference/architecture/) | Server-wallet TEE; `pollingId` + MFA |
-| **Community MetaMask MCP** | [github.com/Xiawpohr/metamask-mcp](https://github.com/Xiawpohr/metamask-mcp) | Browser extension via QR — not autonomous |
 | Embedded Wallets MCP | [docs.metamask.io/embedded-wallets/build-with-ai](https://docs.metamask.io/embedded-wallets/build-with-ai/) | **Exclude** from wallet matrix |
 
 ## Capabilities (mm CLI)
@@ -19,24 +18,23 @@
 | Capability | MetaMask mm |
 | --- | --- |
 | HTTP proxy | **None** — agent orchestrates HTTP |
-| x402 | Skill-guided EIP-3009 via `mm wallet sign-typed-data` |
+| x402 | Skill's bundled x402 pay script |
+| Send | EVM tokens — `mm transfer` |
 | SIWX | `mm wallet sign-message` |
 | HITL | **Confirm every payment**; 2FA on policy violations |
 | Base USDC | Yes (multi-EVM) |
 
 ## Bitrefill pairing
 
-1. Agent creates invoice via Bitrefill MCP / CLI / x402 REST (HTTP from harness).
-2. Pay: parse x402 402 → build EIP-3009 typed data → `mm wallet sign-typed-data` → user confirms → agent retries HTTP.
-
-Rank **#5–6** in [matrix.md](matrix.md) — not recommended for autonomous checkout.
+1. **x402 REST** — the skill's x402 pay script pays `invoice/pay` after the user confirms; sign-in via `mm wallet sign-message`.
+2. **Bitrefill MCP / CLI** — `buy-products` with an EVM method → `mm transfer` to `payment_info.address` → user confirms.
 
 ## Hosts
 
 Codex, Claude Code, OpenClaw, Hermes, Cursor (shell + mm installed).
 
-## vs Base MCP / AgentCash
+## vs Coinbase Wallet MCP / AgentCash
 
-MetaMask = manual payment confirm per x402. Prefer Base MCP x402 or AgentCash for agent-commerce.
+MetaMask = user confirms each payment, like Coinbase Wallet MCP. AgentCash pays without per-payment approval.
 
 **User hears:** "Approve the payment in your wallet" — never "mm CLI" or tool names

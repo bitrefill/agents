@@ -18,7 +18,7 @@ Geolock at IP. URL country filters inventory; checkout enforces IP. User needs t
 
 ### Tool not visible
 
-- Cursor: 40-tool cap exceeded. Disable unused MCP server.
+- Cursor: Bitrefill server toggled off or not signed in (Customize). Grok Bot: plugin not added, **Needs auth** / **Disconnected** (→ Authenticate), or **Disabled by team admin** (Connect apps).
 - ChatGPT: Developer Mode off → write tools hidden. Toggle Settings.
 - Claude.ai Free: can't add custom MCP URLs. Upgrade Pro+.
 - OpenClaw: `tools.deny: ["bundle-mcp"]` hiding server, or per-agent `tools.allow` too narrow.
@@ -103,12 +103,12 @@ Exact, case-sensitive. WRONG `"1GB"`, `"300 nc"`. RIGHT `"1GB, 7 Days"`, `"PUBG 
 
 ### CLI auth failure (≥ 0.3.0)
 
-OAuth client_credentials + email magic link — not API keys, not browser OAuth.
+OAuth client_credentials + a sign-in code sent by email — not API keys, not browser OAuth.
 
 ```bash
 bitrefill reset
 bitrefill login --email you@example.com
-bitrefill verify --code 123456                     # add --otp for TOTP
+bitrefill verify --code GGWK87DR                   # add --otp for TOTP
 bitrefill whoami --json
 ```
 
@@ -122,7 +122,7 @@ bitrefill whoami --json
 | `unknown command 'login'` | Already signed in — `logout` first |
 | `Failed to establish a session` | `reset`, retry |
 | Invalid / expired code | Re-run `login --email`; headless → poll agent inbox ([touchpoints/cli-headless-auth.md](touchpoints/cli-headless-auth.md)) |
-| Missing TOTP | `verify --code … --otp "$(op read 'op://Vault/Item/one-time password?attribute=otp')"` |
+| Missing TOTP | `verify --code … --otp <totp>`; 1Password → [touchpoints/cli-headless-auth.md](touchpoints/cli-headless-auth.md#totp-via-1password) |
 
 State: `~/.config/bitrefill-cli/<host>.v1.json`. `logout` revokes session; `reset` clears all.
 
@@ -169,7 +169,7 @@ Unpaid invoices expire (`expiration_minutes` on the invoice) and can't be re-pai
 
 ### Cron purchase failed silently
 
-`exec-approvals.json` `ask: on-miss` but no operator for `/approve`. Pre-approve `bitrefill buy-products` for trusted SKU/amount, or schedule when operator available.
+Nobody answered the approval prompt, so `askFallback: deny` refused the buy. Schedule it when the user can approve; never allowlist `buy-products`.
 
 ### Pi can't see Bitrefill MCP
 
@@ -201,13 +201,9 @@ Wrong `package_value` — exact string from product detail. Confirm no onchain c
 
 Already settled — poll `invoice/status` or `get-invoice-by-id`.
 
-### Base MCP `web_request` rejected
+### Coinbase Wallet MCP `web_request` rejected
 
 Hostname not allowlisted — only `api.bitrefill.com` (not `docs.bitrefill.com`). → [wallets/base-mcp.md](wallets/base-mcp.md).
-
-### Phantom `wallet_balances` schema error
-
-Known Phantom MCP issue — use `wallet_addresses` + external balance, or Base MCP `get_portfolio`.
 
 ## Source of truth
 

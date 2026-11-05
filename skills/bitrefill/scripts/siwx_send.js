@@ -19,8 +19,10 @@
  *
  *   signature     0x-prefixed signature from the wallet (personal_sign)
  *   skeletonPath  path written by siwx_build_message.js (default /tmp/siwx_payload.json)
- *   method        HTTP method for the route (default GET)
+ *   method        HTTP method for the route (default POST for /x402/connect, else GET)
  *   --no-send     only print the base64 header; do not call the route
+ *
+ * Safety: refuses a skeleton whose resource URL is not on https://api.bitrefill.com.
  */
 'use strict';
 const fs = require('fs');
@@ -31,13 +33,15 @@ async function main(){
   const positional = args.filter((a) => a !== '--no-send');
   const signature = positional[0];
   const skeletonPath = positional[1] || '/tmp/siwx_payload.json';
-  const method = (positional[2] || 'GET').toUpperCase();
   if (!signature) {
     console.error('Usage: node siwx_send.js <signature> [skeletonPath] [method] [--no-send]');
     process.exit(1);
   }
 
   const saved = JSON.parse(fs.readFileSync(skeletonPath, 'utf8'));
+  const target = new URL(saved.resourceUrl);
+  if (target.origin !== 'https://api.bitrefill.com' || target.username || target.password) throw new Error('resource URL not allowed: ' + saved.resourceUrl);
+  const method = (positional[2] || (/^\/x402\/connect\/?$/.test(target.pathname) ? 'POST' : 'GET')).toUpperCase();
   const payload = { ...saved.skeleton, signature };
   const header = Buffer.from(JSON.stringify(payload)).toString('base64');
 
@@ -48,6 +52,7 @@ async function main(){
   console.log('NOW:::' + new Date().toISOString());
   const res = await fetch(saved.resourceUrl, { method, headers: { 'SIGN-IN-WITH-X': header } });
   console.log('STATUS:::' + res.status);
+  // BODY may contain a session token or redemption codes: keep it out of logs / files
   console.log('BODY:::' + (await res.text()));
 }
 main().catch((e) => { console.error('send failed:', e && e.message ? e.message : String(e)); process.exit(1); });

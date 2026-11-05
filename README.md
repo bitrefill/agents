@@ -83,7 +83,7 @@ Full setup, channel-aware scenarios, and hardening: [skills/bitrefill/references
 
 | Skill | Description |
 |-------|-------------|
-| `bitrefill` | Capability-driven routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST via Base MCP, CLI, API, browse), then wallet (balance, x402, send). Includes OpenClaw, Hermes, ChatGPT+Base MCP, and wallet matrix (Base MCP, AgentCash, CDP awal, Phantom, MetaMask). |
+| `bitrefill` | Capability-driven routing: probe harness (exec, egress, MCP), pick touchpoint (Bitrefill MCP, x402 REST, CLI, API, browse), then wallet (balance, x402, send). Includes OpenClaw, Hermes, ChatGPT + Coinbase Wallet MCP, and a matrix of agent wallets that can pay. |
 
 ### Structure
 
@@ -119,7 +119,11 @@ skills/bitrefill/
     │   ├── agentcash.md
     │   ├── cdp-awal.md
     │   ├── metamask.md
-    │   └── phantom.md
+    │   ├── kite-passport.md
+    │   ├── bankr.md
+    │   ├── alby.md
+    │   ├── tether-wdk.md
+    │   └── pay.md
     ├── safeguards.md
     └── troubleshooting.md
 ```

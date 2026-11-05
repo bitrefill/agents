@@ -1,4 +1,4 @@
-# Path: MCP
+# Touchpoint: MCP
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 
@@ -27,7 +27,7 @@ Auth: OAuth (interactive) or API key from <https://www.bitrefill.com/account/dev
 
 ### Development MCP — docs only
 
-URL: `https://docs.bitrefill.com/mcp`. Docs index for code-help. **Not purchases.** Integration authoring only.
+URL: `https://docs.bitrefill.com/mcp`. Docs index for code-help. It can also send API requests: never give it an API key or use it for orders or invoices.
 
 ## Per-client setup
 
@@ -43,7 +43,7 @@ URL: `https://docs.bitrefill.com/mcp`. Docs index for code-help. **Not purchases
 }
 ```
 
-Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safeguards.md) § Cursor / Grok Bot. 40-tool cap across all servers.
+Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safeguards.md) § Cursor / Grok Bot.
 
 ### Claude Code
 
@@ -128,9 +128,9 @@ search-products  →  get-product-details  →  buy-products  →  get-invoice-b
 ```
 
 1. **Search** — `search-products(..., intent=<user's goal>)`. *(say: "Searching for [product]…" — tool title: "Search gift cards")*
-2. **Get price** — `get-product-details(..., currency="USDC")`. *(silent)*
-3. **Prepare order** — `buy-products(...)`. Max 15 items. Confirm with user first. *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
-4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` (debits at once) → Base MCP pay → `send`. *(say: "Approve the payment in your Base Account")*
+2. **Get price** — `get-product-details(..., currency="USDC")` (card / Apple Pay / Google Pay: `USD`; iDEAL / EPS / P24 / Bancontact: `EUR`) → total = `packages[].payment_price` summed per cart line, never the face value. *(silent)*
+3. **Prepare order** — `buy-products(...)`. Max 15 items. Confirm with user first (top-ups: with the recipient number). *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
+4. **Pay** → [../wallets/payment.md](../wallets/payment.md): `balance` (debits at once) → wallet send → payment link. *(say: "Approve the payment in your wallet")*
 5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
 
 Logging per [../safeguards.md](../safeguards.md).
@@ -138,13 +138,12 @@ Logging per [../safeguards.md](../safeguards.md).
 ## Caveats
 
 - **ChatGPT / Codex** plugin and custom-MCP access depends on the current surface, account and workspace policy. Inspect actual tool access rather than assuming availability from a plan name.
-- **Cursor** 40-tool cap.
 - **Claude.ai** consumer needs Pro+ for custom URLs.
-- **Claude Chat network:** sandbox egress varies by plan; **MCP connectors work regardless**. Legacy Analysis tool (browser JS) has no net. Route Bitrefill via MCP — not sandbox curl. → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4.
+- **Claude Chat network:** route Bitrefill via MCP, not sandbox curl → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4.
 
 ## Source of truth
 
 - <https://docs.bitrefill.com/docs/ecommerce-mcp> | <https://docs.bitrefill.com/docs/development-mcp> | <https://docs.bitrefill.com/docs/setup-guides>
 - Per-client: <https://docs.bitrefill.com/docs/use-with-cursor>, `/use-with-claude-chat`, `/use-with-claude-code`, `/use-with-chatgpt`
 
-**User hears:** "Searching for [product]…" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your Base Account" → "Your code is ready."
+**User hears:** "Searching for [product]…" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your wallet" → "Your code is ready."

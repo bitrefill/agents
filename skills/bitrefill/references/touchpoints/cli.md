@@ -1,4 +1,4 @@
-# Path: CLI
+# Touchpoint: CLI
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 
@@ -50,7 +50,7 @@ Same `login` for new + existing. Headless inbox → [cli-headless-auth.md](cli-h
 
 ```bash
 bitrefill login --email you@example.com
-bitrefill verify --code GGWK87DR              # email magic-link code
+bitrefill verify --code GGWK87DR              # code from the sign-in email
 bitrefill verify --code GGWK87DR --otp 122407   # + TOTP when 2FA
 bitrefill whoami --json
 
@@ -79,7 +79,7 @@ bitrefill init --openclaw         # avoid
 
 ## Auth
 
-**Guest checkout needs no sign-in.** Account auth = OAuth client_credentials (auto on first MCP connect) + email magic-link. No `--api-key`, no `credentials.json`.
+**Guest checkout needs no sign-in.** Account auth = OAuth client_credentials (auto on first MCP connect) + a sign-in code sent by email. No `--api-key`, no `credentials.json`.
 
 | Step | Command | Notes |
 |------|---------|-------|
@@ -90,17 +90,7 @@ bitrefill init --openclaw         # avoid
 | Sign out | `logout` | revokes session; keeps `client_id` |
 | Full reset | `reset` | clears all local state + revokes session |
 
-**TOTP via 1Password** ([`op read`](https://www.1password.dev/cli/reference/commands/read)):
-
-```bash
-bitrefill verify --code "$CODE" --otp "$(op read 'op://Vault/Bitrefill/one-time password?attribute=otp')"
-```
-
-Shorthand ([`op item get --otp`](https://www.1password.dev/cli/reference/management-commands/item#item-get)):
-
-```bash
-bitrefill verify --code "$CODE" --otp "$(op item get Bitrefill --otp)"
-```
+**TOTP via 1Password** → [cli-headless-auth.md](cli-headless-auth.md#totp-via-1password).
 
 Server may return `browser_url` for passkey/WebAuthn — open in browser, retry.
 
@@ -150,7 +140,7 @@ search-products  →  get-product-details  →  buy-products  →  get-invoice-b
 1. **Search** — `search-products`. *(say: "Searching for [product]…")*
 2. **Get price** — `get-product-details`. *(silent)*
 3. **Prepare order** — `buy-products`. Confirm with user first. *(say: "[Product] — [amount]: [total] USDC. Confirm?")*
-4. **Pay** → [../wallets/payment.md](../wallets/payment.md). *(say: "Approve the payment in your Base Account")*
+4. **Pay** → [../wallets/payment.md](../wallets/payment.md). *(say: "Approve the payment in your wallet")*
 5. **Deliver** — `get-invoice-by-id` until complete. *(say: "Your code is ready.")*
 
 Help-center questions: `search_help_articles --query "…" [--category <slug>]`, then `get_help_article --id <id>`. `list_help_articles` returns no articles; browse a topic by searching within a category (valid slugs in `availableCategories` of every help reply).
@@ -242,7 +232,7 @@ bitrefill list-invoices --cursor "<next.cursor>" --limit <next.limit> --product 
 
 Poll every 10–30 s until `invoice_status: complete`. Codes are in `orders[].redemption_info`; eSIMs in `orders[].esim_install_link`. `list-invoices` returns no codes and never lists unpaid or guest invoices, so use `get-invoice-by-id` for those. Don't combine `--cursor` with `--after`/`--before`.
 
-`invoice_id` + `invoice_access_token` give read access to the codes. Never log them or the `payment_link`, and don't write them to shared dirs (`/tmp`, `/workspace`). For polling across turns (cron or heartbeat), use a private file (`chmod 600`) and delete it after delivery.
+`invoice_id` + `invoice_access_token` give read access to the codes; handle them per [../safeguards.md](../safeguards.md) § Universal rules.
 
 Invoices expire per `expiration_minutes`. Expired = create new.
 

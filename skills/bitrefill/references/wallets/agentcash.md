@@ -2,7 +2,7 @@
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 
-Local MCP wallet — **`fetch`** tool: payment-aware HTTP, handles SIWX + x402 automatically. **Highest autonomous x402** for headless agents when pre-funded.
+Local MCP wallet — **`fetch`** tool: payment-aware HTTP, handles SIWX + x402 automatically. **Autonomous x402** for headless agents when pre-funded.
 
 Docs: [agentcash.dev](https://agentcash.dev/docs/mcp-mode)
 
@@ -22,9 +22,7 @@ Docs: [agentcash.dev](https://agentcash.dev/docs/mcp-mode)
 | Touchpoint | Flow |
 | --- | --- |
 | x402 REST Path 1 | `fetch` handles connect SIWX, JWT, micro-fees, `invoice/pay` |
-| Bitrefill MCP / CLI | `fetch` or `awal x402 pay` on `x402_payment_url` from invoice |
-
-Rank **#2** in [matrix.md](matrix.md) — after Bitrefill `balance`.
+| Bitrefill MCP / CLI | Not supported — no send; use x402 REST |
 
 ## Setup
 
@@ -42,8 +40,8 @@ OpenClaw, Hermes, Codex CLI, Cursor (local MCP), cron/automation.
 - Pre-fund only session spend cap.
 - Still confirm purchases per [../safeguards.md](../safeguards.md) unless user opts autonomous session.
 
-## vs Base MCP
+## vs Coinbase Wallet MCP
 
-AgentCash: autonomous x402, no per-tx Base Account click. Base MCP: user approves each payment — better when user wants per-pay review.
+AgentCash: autonomous x402, no per-payment approval. Coinbase Wallet MCP: user approves each payment — better when user wants per-pay review.
 
 **User hears:** same as any purchase — "[Product] — [amount]: [total] USDC. Confirm?" → "Your code is ready." (no wallet jargon even when autonomous)
