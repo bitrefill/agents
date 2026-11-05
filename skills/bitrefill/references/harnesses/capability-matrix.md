@@ -26,13 +26,10 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 
 | Host | Exec | Egress | MCP | Browser | Ranked stack |
 |------|------|--------|-----|---------|--------------|
-| ChatGPT Free | No | None | No | Datacenter | Link only |
-| ChatGPT Plus+ / Desktop | Sandbox **no net** | **MCP host yes** | Yes | Datacenter | MCP + balance → **x402 REST via Coinbase Wallet MCP** (no Bitrefill account) |
-| ChatGPT Atlas | Limited | MCP + residential | Yes | **Residential** | MCP buy; Browse explore-only |
-| ChatGPT Agent | Sandbox shell | MCP + curl | Yes | Datacenter | MCP → CLI → x402 REST |
-| Codex CLI | Full shell | Allowlistable | Yes | MCP only | MCP + balance → CLI → AgentCash/awal |
+| ChatGPT Chat / Work (web, desktop, mobile) | Inspect session tools | Inspect session tools; sandbox egress varies | Installed plugins and workspace policy determine access | Inspect session tools | Bitrefill MCP + balance → available authorized payment tools → Bitrefill checkout link |
+| Codex desktop / CLI | Inspect shell availability and permissions | Inspect network policy | Installed plugin or configured MCP | Inspect session tools | Bitrefill MCP + balance → CLI when available → authorized wallet |
 
-**ChatGPT:** Code Interpreter can't curl; Coinbase Wallet MCP `web_request` proxies `api.bitrefill.com` — full x402 shop without Bitrefill MCP when dual-connector configured.
+**OpenAI:** ChatGPT and Codex share a plugin directory. Desktop-only capabilities and workspace restrictions can differ. Do not infer plugin, network or wallet availability from the plan name. Use the tools exposed in the current session; a sandbox and a remote MCP connection can have different network access. If direct HTTP is unavailable, use Bitrefill MCP; use a wallet proxy only when already connected and explicitly authorized. The bundled Bitrefill MCP does not require another wallet plugin for catalog, account balance checkout or order history.
 
 ## Google
 

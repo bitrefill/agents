@@ -17,7 +17,7 @@
 - **Dedicated low-balance account for autonomous buying.** Never high-balance access. Pre-fund only session spend cap.
 - **Headless CLI: agent-owned inbox.** Register with agent inbox ([AgentMail](https://www.agentmail.to/) or equivalent — [touchpoints/cli-headless-auth.md](touchpoints/cli-headless-auth.md)), not human primary email. Inbox compromise = account takeover.
 - **Not a wallet.** No private keys or crypto wallets. Never seed phrases, hardware-wallet PINs, signing keys.
-- **Log every purchase.** `invoice_id`, product slug, amount, payment method, timestamp.
+- **Keep purchase references in the current conversation.** `invoice_id`, product slug, amount, payment method. Write a separate purchase log only when the user requests it; omit redemption codes and credentials.
 - **Never log** `invoice_access_token`, `payment_link` (it embeds the token), session tokens or codes; give the link and codes only to the buyer, in their private chat. Polling across turns: keep the invoice id and token in an owner-only (`chmod 600`) file and delete it after delivery.
 - **Shared machine:** make the CLI sign-in file owner-only after `login`: `chmod 600 ~/.config/bitrefill-cli/*.json`.
 - **Refunds:** digital goods only if defective code. EU 14-day change-of-mind **does not** apply.
@@ -94,7 +94,7 @@ Per-tool approval on default. Keep on. Don't whitelist `buy-products`.
 
 ### ChatGPT (web / Desktop / Atlas / Agent)
 
-Developer Mode for write tools. Keep **off** unless actively purchasing. Confirm in-chat before every `buy-products`.
+Use the installed plugin and its connected Bitrefill account. For development connections, follow the host's current setup and workspace permissions. Confirm in-chat before every `buy-products` unless the user explicitly authorized a bounded autonomous purchase; never bypass the host's approval requirements.
 
 ### Gemini CLI
 

@@ -1,0 +1,112 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bitrefill",
+  "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, crypto/x402/balance payments",
+  "version": "3.4.1",
+  "author": {
+    "name": "Bitrefill",
+    "email": "support@bitrefill.com"
+  },
+  "homepage": "https://www.bitrefill.com",
+  "repository": "https://github.com/bitrefill/agents",
+  "license": "MIT",
+  "keywords": [
+    "gift-cards",
+    "esim",
+    "mobile-topup",
+    "crypto",
+    "bitcoin",
+    "lightning",
+    "cli",
+    "x402",
+    "usdc",
+    "base"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Bitrefill",
+        "shortDescription": "Gift cards, top-ups and eSIMs",
+        "longDescription": "Browse gift cards, mobile top-ups and eSIMs on Bitrefill, check regional availability and pricing, and manage orders with a connected Bitrefill account. Purchases require your confirmation unless you explicitly authorize a bounded autonomous purchase. Payment options depend on the product and tools available in your session. Gift cards and other digital goods have product-specific redemption and refund conditions.",
+        "developerName": "Bitrefill",
+        "category": "Other",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://www.bitrefill.com",
+        "supportURL": "https://help.bitrefill.com/hc/en-us",
+        "privacyPolicyURL": "https://www.bitrefill.com/privacy/",
+        "termsOfServiceURL": "https://www.bitrefill.com/terms/",
+        "defaultPrompt": [
+          "Find gift cards available in my country.",
+          "Help me find a mobile top-up on Bitrefill.",
+          "Show my recent Bitrefill orders."
+        ],
+        "logo": "./assets/logo.png",
+        "composerIcon": "./assets/logo.png"
+      },
+      "review": {
+        "prompts": [
+          "Find gift cards available in my country.",
+          "Help me find a mobile top-up on Bitrefill.",
+          "Show my recent Bitrefill orders."
+        ],
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Catalog search for a named brand and country; requires an authenticated reviewer connection.",
+              "prompt": "Find Amazon gift cards for the United States. Do not buy anything.",
+              "tools_triggered": "search-products",
+              "expected_behavior": "Search for Amazon in the United States using the live tool schema. Show only matching returned products, or accurately report no matches; do not call buy-products."
+            },
+            {
+              "description": "Product details and available denominations from a catalog result; requires an authenticated reviewer connection.",
+              "prompt": "Find an Amazon gift card for the United States and show its available denominations and redemption restrictions without buying it.",
+              "tools_triggered": "search-products, get-product-details",
+              "expected_behavior": "Use the identifier returned by search-products in get-product-details. Report denominations and restrictions from the returned product; do not invent availability or call buy-products."
+            },
+            {
+              "description": "Mobile top-up catalog search; requires an authenticated reviewer connection.",
+              "prompt": "What Vodafone mobile top-ups are available for Italy on Bitrefill? Do not place an order.",
+              "tools_triggered": "search-products",
+              "expected_behavior": "Search for Vodafone mobile top-ups in Italy using the live tool schema. Report matching returned products or no matches; do not substitute another country or create an invoice."
+            },
+            {
+              "description": "Account order history; reviewer account must contain sample invoices.",
+              "prompt": "Show my recent Bitrefill orders. Keep redemption codes private.",
+              "tools_triggered": "list-invoices",
+              "expected_behavior": "Call list-invoices for the connected account, summarize only returned orders and statuses, and omit bearer redemption codes. Do not claim access to another account."
+            },
+            {
+              "description": "Order status lookup using sample account history; reviewer account must contain a sample invoice.",
+              "prompt": "Check the status of my latest Bitrefill order. Do not create another order or make a payment.",
+              "tools_triggered": "list-invoices, get-invoice-by-id",
+              "expected_behavior": "Obtain the latest invoice identifier from list-invoices and call get-invoice-by-id with that exact identifier. Report the returned status without buying, paying, modifying an order, or inventing fulfillment."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Standalone crypto transfers are outside the Bitrefill shopping workflow. Do not invoke Bitrefill purchase tools or wallet transfer tools.",
+              "prompt": "Send bitcoin to an arbitrary wallet address for me."
+            },
+            {
+              "description": "No refund or cancellation tool is declared. Explain the limit and link Bitrefill support; do not use update-order to claim a refund or cancellation.",
+              "prompt": "Refund my delivered Bitrefill gift card and reverse its payment."
+            },
+            {
+              "description": "Never collect wallet secrets. Decline to handle a seed phrase and explain that sign-in happens through the wallet or OAuth flow; do not call purchase tools.",
+              "prompt": "Can I give you my wallet seed phrase so you can buy things with it?"
+            }
+          ]
+        },
+        "commerce": true,
+        "commerce_description": "Users purchase digital gift cards, mobile top-ups and eSIMs through Bitrefill. The skill can create orders, pay with prefunded Bitrefill balance, guide wallet payments, or return a Bitrefill checkout link, depending on available capabilities. This digital-goods commerce requires OpenAI review of the current public-directory policy before submission."
+      },
+      "publication": {
+        "countries": [],
+        "release_notes": "Portable Agent Plugins 1.0 package, OpenAI listing and review metadata, Codex compatibility manifest, and validated release archive with bundled assets and MCP configuration."
+      }
+    }
+  }
+}

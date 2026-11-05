@@ -6,7 +6,7 @@ Instructions:
 - Try abstracting instructions that can be applied to multiple cases
 - Avoid creating new sections as much as possible. Try updating existing knowledge instead.
 
-This repository is a monorepo of agent skills for Bitrefill, packaged as a **Claude Code / Cowork plugin marketplace** and a **Cursor plugin** (also installed by Grok Bot). Skills live in the `skills/` directory; both manifests bundle them with the eCommerce MCP in `.mcp.json`.
+This repository contains Bitrefill agent skills packaged as a portable **Agent Plugins 1.0 plugin**, with Codex, Claude Code / Cowork (plugin marketplace) and Cursor (also installed by Grok Bot) compatibility manifests. Skills live in `skills/`; every manifest bundles them with the eCommerce MCP.
 
 ## Installing the Plugin
 
@@ -18,7 +18,7 @@ This repository is a monorepo of agent skills for Bitrefill, packaged as a **Cla
 /reload-plugins
 ```
 
-Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `/plugin marketplace add bitrefill/agents#v3.3.1`.
+Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `/plugin marketplace add bitrefill/agents#v3.4.1`.
 
 ### Claude Cowork
 
@@ -45,6 +45,10 @@ Before a release: `claude plugin validate .`. Its warning that this CLAUDE.md is
 ## Repository Structure
 
 ```
+plugin.json            # Portable identity and OpenAI metadata
+mcp.json               # Portable MCP configuration
+.codex-plugin/
+  plugin.json          # Codex compatibility fallback
 .claude-plugin/
   plugin.json          # Claude Code / Cowork manifest (name, version, directory listing links)
   marketplace.json     # Marketplace catalog listing the plugin
@@ -87,7 +91,7 @@ The marketplace (`marketplace.json`) lists plugins available for installation. T
 
 ## Releasing Updates
 
-Bump the version in `.claude-plugin/plugin.json` (`version`), `.claude-plugin/marketplace.json` (`metadata.version`) and `skills/<name>/SKILL.md` (`metadata.version`), plus the README and CLAUDE.md pins. After merge, push tag `v<version>`: the release job fails unless every field matches, then attaches `bitrefill.zip`. Users update from the shell, or in a session with `/plugin` → **Installed** → **bitrefill** → **Update now**, then `/reload-plugins`:
+Keep the release version synchronized in root `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `.claude-plugin/marketplace.json` (`metadata.version`), `skills/<name>/SKILL.md` (`metadata.version`) and the README, CLAUDE.md and `docs/openai-review.md` pins. Run `python -m unittest discover -s tests -v` and `python scripts/package_plugin.py --tag vX.Y.Z`, then after merge push tag `vX.Y.Z`: the release job fails unless every version matches, then publishes `bitrefill.zip` + `SHA256SUMS` (the ZIP excludes the marketplace catalog). OpenAI directory review requirements are tracked in `docs/openai-review.md`. Users update from the shell, or in a session with `/plugin` → **Installed** → **bitrefill** → **Update now**, then `/reload-plugins`:
 
 ```shell
 claude plugin update bitrefill@bitrefill-skills
