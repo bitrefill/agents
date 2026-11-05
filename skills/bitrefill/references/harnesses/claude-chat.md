@@ -78,10 +78,12 @@ Three separate paths. Don't conflate **sandbox code execution** with **sandbox e
 Egress is plan/org-dependent — **probe, don't assume**. One lightweight sandbox call:
 
 ```python
-import urllib.request
+import urllib.request, urllib.error
 try:
     urllib.request.urlopen("https://api.bitrefill.com/x402/checkout/info", timeout=8)
     print("egress_direct: true")
+except urllib.error.HTTPError as e:
+    print("egress_direct: true", e.code)   # any HTTP reply, even 4xx/5xx, proves a connection
 except Exception as e:
     print("egress_direct: false", e)
 ```
@@ -90,8 +92,8 @@ Or Node/`curl` equivalent in sandbox. Result:
 
 | Outcome | Meaning |
 | --- | --- |
-| Success (any HTTP response) | `egress_direct: true` — sandbox can reach Bitrefill; still **prefer MCP** for shopping |
-| Timeout / connection refused / allowlist error | `egress_direct: false` — use MCP or Base MCP `web_request` only |
+| Any HTTP response, including 4xx/5xx | `egress_direct: true` — sandbox can reach Bitrefill; still **prefer MCP** for shopping |
+| Timeout / connection refused / DNS failure | `egress_direct: false` — use MCP or Base MCP `web_request` only |
 
 No `@bitrefill/cli` in sandbox — that's agent-shell tooling ([../touchpoints/cli.md](../touchpoints/cli.md)), not host sandbox.
 
@@ -101,7 +103,7 @@ Source: Anthropic Help Center (Apr 2026). Org: **Organization settings → Capab
 
 | Plan | Code execution default | Sandbox egress default |
 | --- | --- | --- |
-| **Free / Pro / Max** | Off until user enables **Settings → Capabilities** | When on: **Allow network egress ON** — package managers only |
+| **Free / Pro / Max** | **On** by default (**Settings → Capabilities**) | **Allow network egress ON** — package managers only |
 | **Team** | **On** at org level | **On** — package managers only; owner can disable |
 | **Enterprise** | **On** for new orgs | **Off** — owner enables + domain whitelist |
 
@@ -138,7 +140,7 @@ Probe at session start — especially egress.
 
 | Rank | Touchpoint | Wallet | Residual HITL |
 | --- | --- | --- | --- |
-| 1 | Bitrefill MCP | `balance` + `auto_pay: true` | Confirm purchase only |
+| 1 | Bitrefill MCP | `balance` | Confirm purchase only |
 | 2 | Bitrefill MCP | Base MCP x402 on `x402_payment_url` | OAuth + 1 Base approval/pay |
 | 3 | Guest checkout (wallet sign-in) | Base MCP sign + pay | 1 wallet sign-in + 1 pay |
 | 4 | Bitrefill MCP | Base MCP `send` | OAuth + 1 send/pay |
@@ -150,12 +152,12 @@ Probe at session start — especially egress.
 
 ## 7. Primary workflow — Bitrefill MCP + Base MCP
 
-1. **Search** — `search-products(query, country=<Alpha-2>, product_type=...)`.
-2. **Detail** — `get-product-details(product_id, currency="USDC")` → exact `package_value` / `package_id`.
+1. **Search** — `search-products(query, country=<Alpha-2>, product_type=..., intent=<user's broad goal>)`; `intent` is required and non-empty, context only (results unchanged).
+2. **Detail** — `get-product-details(product_id, currency="USDC")` → exact `package_value` (string, e.g. `"5"`).
 3. **Confirm** — product, denomination, exact price with user before buy.
-4. **Buy** — `buy-products(cart_items=[...], payment_method="usdc_base", return_payment_link=true)` (or `"balance"` + `auto_pay: true` when pre-funded).
+4. **Buy** — `buy-products(cart_items=[...], payment_method="usdc_base", return_payment_link=true)` (or `"balance"` when pre-funded).
 5. **Pay** ([../wallets/payment.md](../wallets/payment.md)):
-   - **Best:** `payment_method: "balance"` + `auto_pay: true`.
+   - **Best:** `payment_method: "balance"`.
    - **Default USDC:** Base MCP `initiate_x402_request(url=x402_payment_url, method, maxPayment)` → user approves Base Account → `complete_x402_request(requestId)`. `maxPayment` slightly above `price_usd`.
    - **Fallback:** Base MCP `send` to `payment_info.address` / `payment_info.altcoinPrice`.
 6. **Poll** — `get-invoice-by-id(invoice_id)` until `invoice_status: complete` / `orders_delivery_status: all_delivered`.

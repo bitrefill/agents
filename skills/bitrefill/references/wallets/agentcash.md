@@ -24,7 +24,7 @@ Docs: [agentcash.dev](https://agentcash.dev/docs/mcp-mode)
 | x402 REST Path 1 | `fetch` handles connect SIWX, JWT, micro-fees, `invoice/pay` |
 | Bitrefill MCP / CLI | `fetch` or `awal x402 pay` on `x402_payment_url` from invoice |
 
-Rank **#2** in [matrix.md](matrix.md) — after Bitrefill `balance` + `auto_pay`.
+Rank **#2** in [matrix.md](matrix.md) — after Bitrefill `balance`.
 
 ## Setup
 

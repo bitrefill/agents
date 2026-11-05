@@ -19,7 +19,7 @@ Bitrefill `login` sends magic-link code to email. Agent needs inbox API/MCP to p
 Human verifies provider once. Agent handles Bitrefill after.
 
 ```bash
-npm install -g agentmail-cli
+npm install -g agentmail-cli@1.9
 
 agentmail agent sign-up \
   --human-email you@example.com \
@@ -33,16 +33,14 @@ agentmail agent verify --otp-code 123456   # human reads OTP from you@example.co
 
 Refs: [quickstart](https://docs.agentmail.to/quickstart.md), [agent onboarding](https://docs.agentmail.to/agent-onboarding.md).
 
-Optional (AgentMail): [AgentMail MCP](https://docs.agentmail.to/agent-onboarding.md) (`npx -y agentmail-mcp`) with `AGENTMAIL_API_KEY` — `list_threads`, `get_thread`, `get_message`. Equivalent providers: their MCP/API.
+Optional (AgentMail): [AgentMail MCP](https://docs.agentmail.to/agent-onboarding.md) (`npx -y agentmail-mcp@1.1`) with `AGENTMAIL_API_KEY` — `list_threads`, `get_thread`, `get_message`. Equivalent providers: their MCP/API.
 
 ## Bitrefill auth flow
 
 Agent inbox address = Bitrefill email. Signup = login (same command).
 
 ```bash
-npm install -g @bitrefill/cli
-
-bitrefill init --openclaw    # optional
+npm install -g @bitrefill/cli@0.3
 
 bitrefill login --email bitrefill-agent@agentmail.to
 ```
@@ -99,7 +97,7 @@ bitrefill verify --code "$CODE" \
   --otp "$(op read 'op://Vault/Bitrefill/one-time password?attribute=otp')"
 ```
 
-Item flag ([`op item get --otp`](https://developer.1password.com/llms-cli.txt)):
+Item flag ([`op item get --otp`](https://www.1password.dev/cli/reference/management-commands/item#item-get)):
 
 ```bash
 bitrefill verify --code "$CODE" --otp "$(op item get Bitrefill --otp)"
@@ -112,7 +110,7 @@ Needs 1Password desktop integration or service account. → [Get started with 1P
 - Dedicated low-balance Bitrefill account on agent inbox — not human primary email.
 - Agent inbox = auth surface; restrict readers.
 - `bitrefill reset` + re-login after compromise.
-- Never log magic-link codes or redemption codes to shared transcripts.
+- Never log magic-link codes, redemption codes, invoice access tokens or payment links to shared transcripts, and keep them out of `/tmp`. Polling across turns reads them from an owner-only file (`chmod 600`), deleted after delivery.
 
 Spending policy → [../safeguards.md](../safeguards.md).
 

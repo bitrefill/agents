@@ -65,6 +65,8 @@ bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 
 **OpenClaw override:** detect first → [openclaw.md](openclaw.md). Guest CLI via `exec` before MCP when no OAuth.
 
+**Grok Bot / Cursor override:** detect → [grok-bot.md](grok-bot.md). Connector signed in (`get-balances` visible) → MCP + `balance`; else guest CLI; no shell → `bitrefill.com` link.
+
 **Claude Chat override:** detect in Phase 1 → [claude-chat.md](claude-chat.md) §1. Signals: `show_widget` **or** `read_me`; MCP connector tools on claude.ai. **`sandbox_exec` true, `exec_available` false** — has code sandbox, not agent shell. Probe **`egress_direct`**. MCP-first for shopping; no pay-per-call browse when Base `sign` works; `show_widget` when available.
 
 **Triple-MCP (Bitrefill + Base + Phantom):** Bitrefill MCP catalog/checkout when OAuth'd → Base MCP x402 pay → Phantom sign-only if Phantom is payer (HTTP via Base MCP or Bitrefill MCP).
@@ -73,7 +75,7 @@ bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 
 Global autonomy rank ([../wallets/matrix.md](../wallets/matrix.md)):
 
-1. **`bitrefill_balance`** → `balance` + `auto_pay: true`
+1. **`bitrefill_balance`** → `payment_method: "balance"`
 2. **`wallet_agentcash` or `wallet_cdp`** → x402 on `x402_payment_url` or x402 REST `invoice/pay`
 3. **`wallet_base_mcp`** → `initiate_x402_request` / `complete_x402_request`; else `send` to `payment_info`
 4. **x402 REST Path 1** → SIWX via [../wallets/siwx.md](../wallets/siwx.md) + [../wallets/base-mcp.md](../wallets/base-mcp.md) or AgentCash
@@ -95,7 +97,7 @@ Details → [../wallets/payment.md](../wallets/payment.md).
 
 | Rank | Touchpoint | Wallet | Residual HITL |
 |------|------------|--------|---------------|
-| 1 | Bitrefill MCP | `balance` + `auto_pay` | Purchase confirm only |
+| 1 | Bitrefill MCP | `balance` | Purchase confirm only |
 | 2 | x402 REST Path 1 | AgentCash `fetch` | Fund once + confirm |
 | 3 | x402 REST Path 1 | CDP awal (caps set) | Auth + caps once |
 | 4 | Bitrefill MCP | Base MCP x402 | OAuth + 1 Base approval/pay |

@@ -10,7 +10,9 @@ Pay-time routing after touchpoint creates invoice. **Lowest HITL first** — [ma
 
 ```
 1. bitrefill_balance available?
-   → payment_method: "balance" + auto_pay: true (MCP/CLI)
+   → get-balances covers the total? payment_method: "balance" (debits at once)
+   → short: offer a Bitrefill Gift Card top-up (bitrefill-giftcard-usd / -eur) or go to 2
+   → no balance_currency = primary sub-account (can be BTC): name it in the confirm
 
 2. wallet_agentcash or wallet_cdp?
    → x402 on x402_payment_url or x402 REST invoice/pay
@@ -39,7 +41,7 @@ After `buy-products`:
 | `x402_payment_url` | Base MCP x402, AgentCash, awal |
 | `payment_info.address` + `payment_info.altcoinPrice` | Base MCP `send` (direct USDC) |
 | `payment_link` | Human browser checkout |
-| `balance` + `auto_pay` | Skip wallet — instant from pre-funded account |
+| `balance` | Skip wallet — debits the pre-funded account at once |
 
 MCP: `payment_method: "usdc_base"`, `return_payment_link: true` → pay `x402_payment_url`.
 
@@ -55,7 +57,7 @@ CLI: `--payment_method usdc_base` → same fields in JSON.
 
 | Method | HITL | Notes |
 | --- | --- | --- |
-| `balance` + `auto_pay` | Lowest | Pre-fund cap on dedicated account |
+| `balance` | Lowest | Pre-fund cap on dedicated account |
 | AgentCash / awal x402 | Low (after setup) | Autonomous under caps |
 | Base MCP x402 | Medium | 1 Base Account approval per pay |
 | Base MCP `send` | Medium | 1 approval per send |
