@@ -6,17 +6,17 @@ Sign-In With X (SIWX) for Bitrefill x402 REST. **Path 1 connect → JWT** + **re
 
 **Thinking:** one short line in the user's language — never deliberate paths, fees, or ranks.
 
-**Claude Chat:** prefer Base MCP `web_request` + `sign` (no egress needed). Fallback: sandbox exec + inline helpers when `egress_direct` probe succeeds → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4–5.
+**Claude Chat:** prefer Coinbase Wallet MCP `web_request` + `sign` (no egress needed). Fallback: sandbox exec + inline helpers when `egress_direct` probe succeeds → [../harnesses/claude-chat.md](../harnesses/claude-chat.md) §4–5.
 
-Signer: Base MCP `sign`, AgentCash `fetch` (auto), Phantom `evm_sign`, or shell + Node helpers below.
+Signer: any wallet that signs messages (e.g. Coinbase Wallet MCP `sign`; AgentCash `fetch` signs in automatically), or shell + Node helpers below.
 
 ## Connect → JWT (Path 1)
 
-1. **Sign in — fetch challenge** (internally: `web_request` `POST …/x402/connect`) → **402** with challenge. *(say: "Sign in with your Base wallet once")*
+1. **Sign in — fetch challenge** (internally: `web_request` `POST …/x402/connect`) → **402** with challenge. *(say: "Sign in with your wallet once")*
 2. **Get wallet address** — `get_wallets`. *(silent — no user message)*
 3. Pick Base chain from `supportedChains`.
 4. Build EIP-4361 message with helpers below.
-5. **Wallet approval** — `sign` (`personal_sign`). *(say: "Approve the sign-in in your Base Account" — free, just to browse)*
+5. **Wallet approval** — `sign` (`personal_sign`). *(say: "Approve the sign-in in your wallet" — free, just to browse)*
 6. Build decomposed payload → `sign-in-with-x` header.
 7. **Complete sign-in** — `web_request` `POST /x402/connect` with header → **200** token (~7200 s). *(silent)*
 8. Attach `X-Access-Token` on subsequent gated calls. Re-connect when expired.
@@ -27,7 +27,7 @@ When delivery complete but no `redemption_info`:
 
 1. **Fetch code challenge** — `GET /x402/invoice/status?invoice_id=<uuid>` → **402**. *(silent)*
 2. Build message — **`uri` must match challenged route**.
-3. **Wallet approval** — sign within **5 minutes**. *(say: "Approve in your Base Account to reveal your code")*
+3. **Wallet approval** — sign within **5 minutes**. *(say: "Approve in your wallet to reveal your code")*
 4. Same URL with `sign-in-with-x` header → **200** with `redemption_info`. *(say: "Your code is ready.")*
 5. **403** → signing wallet ≠ invoice payer.
 
@@ -61,13 +61,13 @@ Bundled helpers instead of hand-rolling checksum/message/payload:
 | Script | Usage |
 | --- | --- |
 | [`../../scripts/siwx_build_message.js`](../../scripts/siwx_build_message.js) | `node siwx_build_message.js <wallet> <challengeUrlOrFile> [skeletonOut] [chainId]` — prints `MESSAGE_START`…`MESSAGE_END` |
-| [`../../scripts/siwx_send.js`](../../scripts/siwx_send.js) | `node siwx_send.js <signature> [skeletonPath] [method] [--no-send]` — prints `SIGN_IN_WITH_X_HEADER:::`; omit `--no-send` for direct POST/GET, or with Base MCP `web_request` |
+| [`../../scripts/siwx_send.js`](../../scripts/siwx_send.js) | `node siwx_send.js <signature> [skeletonPath] [method] [--no-send]` — prints `SIGN_IN_WITH_X_HEADER:::`; method defaults to POST for `/x402/connect`, else GET; omit `--no-send` for direct POST/GET, or with Coinbase Wallet MCP `web_request` |
 
-**Base MCP transport:** save 402 JSON from `web_request` → build script → `sign` → `siwx_send.js … --no-send` → retry route via `web_request` with header `sign-in-with-x`.
+**Coinbase Wallet MCP transport:** save 402 JSON from `web_request` → build script → `sign` → `siwx_send.js … --no-send` → retry route via `web_request` with header `sign-in-with-x`.
 
-**Direct egress:** challenge URL to build script; send script completes route without Base MCP.
+**Direct egress:** challenge URL to build script; send script completes route without a wallet HTTP tool.
 
-Path 1 context → [../touchpoints/x402.md](../touchpoints/x402.md#siwx-scripts-path-1-connect-redemption-codes).
+Path 1 context → [../touchpoints/x402.md](../touchpoints/x402.md#siwx-scripts-path-1-connect--redemption-codes).
 
 ## EIP-55 checksum (required)
 
@@ -125,9 +125,10 @@ function toChecksumAddress(addr){
   return out;
 }
 function buildSiweMessage(info, address, chainIdCaip2){
+  if (info.domain !== 'api.bitrefill.com' || new URL(info.uri).origin !== 'https://api.bitrefill.com') throw new Error('challenge not from api.bitrefill.com');
   const chainNum = parseInt(/^eip155:(\d+)$/.exec(chainIdCaip2)[1], 10);
   let prefix = `${info.domain} wants you to sign in with your Ethereum account:\n${address}`;
-  if (info.statement) prefix += '\n\n' + info.statement;
+  prefix += info.statement ? '\n\n' + info.statement : '\n';
   const suffix = [
     `URI: ${info.uri}`, `Version: ${info.version}`, `Chain ID: ${chainNum}`,
     `Nonce: ${info.nonce}`, `Issued At: ${info.issuedAt}`,
@@ -138,7 +139,7 @@ function buildSiweMessage(info, address, chainIdCaip2){
 }
 ```
 
-No JavaScript runtime **and** no Base MCP `sign`: Path 2 (no connect) or AgentCash `fetch` (handles SIWX internally). **Claude Chat:** Base MCP `sign` first; else sandbox Node when `egress_direct` probe succeeds — not Path 2. Prefer bundled scripts when agent shell (`exec`) or sandbox Node + egress available.
+No JavaScript runtime **and** no wallet `sign`: Path 2 (no connect; a status call paid from the payer wallet returns the codes) or AgentCash `fetch` (handles SIWX internally). **Claude Chat:** Coinbase Wallet MCP `sign` first; else sandbox Node when `egress_direct` probe succeeds — not Path 2. Prefer bundled scripts when agent shell (`exec`) or sandbox Node + egress available.
 
 ## Security
 
@@ -150,8 +151,8 @@ No JavaScript runtime **and** no Base MCP `sign`: Path 2 (no connect) or AgentCa
 - **402 after SIWX** — stale nonce, wrong checksum, malformed payload; re-fetch + re-sign within 5 min.
 - **403 on SIWX route** — wrong wallet; sign with invoice payer.
 
-**User hears:** "Sign in with your Base wallet once" → *(silent browse)* → "Approve the payment in your Base Account" → "Your code is ready."
+**User hears:** "Sign in with your wallet once" → *(silent browse)* → "Approve the payment in your wallet" → "Your code is ready."
 
 **Bad:** "Orchestrated cryptographic signing workflow… fetching 402 challenge from /x402/connect… building sign-in-with-x header."
 
-**Good:** "Per pagare in USDC, collega il wallet Base una volta — la firma non costa nulla."
+**Good:** "Per pagare in USDC, collega il tuo wallet una volta — la firma non costa nulla."

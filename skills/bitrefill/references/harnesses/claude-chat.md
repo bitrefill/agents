@@ -6,7 +6,7 @@
 
 Covers **claude.ai** + custom MCP (Pro+ for connector URLs; Free has code execution, not custom MCP). Claude Code / Desktop / Cowork → [capability-matrix.md](capability-matrix.md) + [../touchpoints/mcp.md](../touchpoints/mcp.md). Only **claude.ai** has **`show_widget`** generative UI.
 
-**Priority:** Bitrefill MCP → Base MCP pay → guest checkout via Base wallet sign-in → payment link. Route Bitrefill API via **MCP** first; sandbox HTTP only when MCP missing **and** egress probe succeeds.
+**Priority:** Bitrefill MCP → Coinbase Wallet MCP `send` → guest checkout via Base wallet sign-in → payment link. Route Bitrefill API via **MCP** first; sandbox HTTP only when MCP missing **and** egress probe succeeds.
 
 ## 1. Detect Claude Chat
 
@@ -40,7 +40,7 @@ Plain shopping language. Match the user's language when they write in Italian, e
 
 **Tool-call titles** — shopping verbs, not endpoints: "Search gift cards", "Get product price", "Sign in with Base wallet", "Approve USDC payment", "Check delivery" — never `web_request`, `/x402/connect`, `Orchestrated API strategy`, etc.
 
-**Message budget:** ≤4 user-visible assistant messages per purchase — (1) goal + first approval if needed, (2) price receipt + confirm, (3) payment approval, (4) delivery. Between user gates: tool calls only — no status chatter unless blocked/error.
+**Message budget:** ≤4 user-visible messages per purchase → [../../SKILL.md](../../SKILL.md) § User-facing language.
 
 **Bad:** "Procedo con il flusso ottimale… Step 1: cerco Amazon Italy su Bitrefill MCP… Il Path 1 richiede script Node… Devo usare Path 2 (pay-per-call)."
 
@@ -55,7 +55,7 @@ Settings → Connectors → Add custom connector:
 | Connector | URL | Role |
 | --- | --- | --- |
 | Bitrefill eCommerce MCP | `https://api.bitrefill.com/mcp` | OAuth; `search-products`, `buy-products`, poll |
-| Base MCP | `https://mcp.base.org` | `web_request`, `sign`, x402 pay, optional `send` |
+| Coinbase Wallet MCP | `https://wallet-mcp.coinbase.com` | `web_request`, `sign`, x402 pay, `send` |
 
 First Bitrefill call → OAuth (allow pop-ups / third-party cookies if loop — [../troubleshooting.md](../troubleshooting.md)). Keep **per-tool approval on**; never auto-approve `buy-products` ([../safeguards.md](../safeguards.md)).
 
@@ -78,10 +78,12 @@ Three separate paths. Don't conflate **sandbox code execution** with **sandbox e
 Egress is plan/org-dependent — **probe, don't assume**. One lightweight sandbox call:
 
 ```python
-import urllib.request
+import urllib.request, urllib.error
 try:
     urllib.request.urlopen("https://api.bitrefill.com/x402/checkout/info", timeout=8)
     print("egress_direct: true")
+except urllib.error.HTTPError as e:
+    print("egress_direct: true", e.code)   # any HTTP reply, even 4xx/5xx, proves a connection
 except Exception as e:
     print("egress_direct: false", e)
 ```
@@ -90,8 +92,8 @@ Or Node/`curl` equivalent in sandbox. Result:
 
 | Outcome | Meaning |
 | --- | --- |
-| Success (any HTTP response) | `egress_direct: true` — sandbox can reach Bitrefill; still **prefer MCP** for shopping |
-| Timeout / connection refused / allowlist error | `egress_direct: false` — use MCP or Base MCP `web_request` only |
+| Any HTTP response, including 4xx/5xx | `egress_direct: true` — sandbox can reach Bitrefill; still **prefer MCP** for shopping |
+| Timeout / connection refused / DNS failure | `egress_direct: false` — use MCP or Coinbase Wallet MCP `web_request` only |
 
 No `@bitrefill/cli` in sandbox — that's agent-shell tooling ([../touchpoints/cli.md](../touchpoints/cli.md)), not host sandbox.
 
@@ -101,7 +103,7 @@ Source: Anthropic Help Center (Apr 2026). Org: **Organization settings → Capab
 
 | Plan | Code execution default | Sandbox egress default |
 | --- | --- | --- |
-| **Free / Pro / Max** | Off until user enables **Settings → Capabilities** | When on: **Allow network egress ON** — package managers only |
+| **Free / Pro / Max** | **On** by default (**Settings → Capabilities**) | **Allow network egress ON** — package managers only |
 | **Team** | **On** at org level | **On** — package managers only; owner can disable |
 | **Enterprise** | **On** for new orgs | **Off** — owner enables + domain whitelist |
 
@@ -116,7 +118,7 @@ Source: Anthropic Help Center (Apr 2026). Org: **Organization settings → Capab
 | Package managers **+ custom domains** | Above + owner-whitelisted hosts | Only if `api.bitrefill.com` whitelisted |
 | **All domains** | Internet except Anthropic blocklist | Yes — still **prefer MCP** for shopping |
 
-Sandbox can run Node/Python (including SIWX helper logic) **when egress allows** — but guest checkout should still use Base MCP `web_request` + `sign` when Base MCP is connected (no egress dependency).
+Sandbox can run Node/Python (including SIWX helper logic) **when egress allows** — but guest checkout should still use Coinbase Wallet MCP `web_request` + `sign` when it is connected (no egress dependency).
 
 ## 5. Fixed capability profile
 
@@ -127,47 +129,46 @@ Probe at session start — especially egress.
 | `sandbox_exec` | **true** — host code sandbox always available |
 | `exec_available` | **false** — no agent shell / `@bitrefill/cli` ([../touchpoints/cli.md](../touchpoints/cli.md)) |
 | `egress_direct` | **probe** — see §4; default assume false until probe succeeds |
-| `egress_mcp_proxy` | **true** when Base MCP connected |
+| `egress_mcp_proxy` | **true** when Coinbase Wallet MCP connected |
 | `browser_residential` | Chrome extension only (explore — [../touchpoints/browse.md](../touchpoints/browse.md)) |
 | `bitrefill_mcp_live` | `search-products` visible after OAuth (Pro+) |
 | `base_mcp_live` | `get_wallets` / `web_request` / `initiate_x402_request` visible |
 
-**Rule:** probe **`bitrefill_mcp_live`** + **`base_mcp_live`** + **`egress_direct`** (quick sandbox test). Touchpoint choice ignores sandbox when MCP live. Guest checkout sign-in → Base MCP `web_request` + `sign` when Base MCP connected; else sandbox + egress + [../wallets/siwx.md](../wallets/siwx.md) inline helpers.
+**Rule:** probe **`bitrefill_mcp_live`** + **`base_mcp_live`** + **`egress_direct`** (quick sandbox test). Touchpoint choice ignores sandbox when MCP live. Guest checkout sign-in → Coinbase Wallet MCP `web_request` + `sign` when connected; else sandbox + egress + [../wallets/siwx.md](../wallets/siwx.md) inline helpers.
 
 ## 6. Ranked stack (autonomy-first)
 
 | Rank | Touchpoint | Wallet | Residual HITL |
 | --- | --- | --- | --- |
-| 1 | Bitrefill MCP | `balance` + `auto_pay: true` | Confirm purchase only |
-| 2 | Bitrefill MCP | Base MCP x402 on `x402_payment_url` | OAuth + 1 Base approval/pay |
-| 3 | Guest checkout (wallet sign-in) | Base MCP sign + pay | 1 wallet sign-in + 1 pay |
-| 4 | Bitrefill MCP | Base MCP `send` | OAuth + 1 send/pay |
-| 5 | Bitrefill MCP | `payment_link` / Lightning | Human completes pay |
+| 1 | Bitrefill MCP | `balance` | Confirm purchase only |
+| 2 | Bitrefill MCP | Coinbase Wallet MCP `send` | OAuth + 1 send/pay |
+| 3 | Guest checkout (wallet sign-in) | Coinbase Wallet MCP sign + pay | 1 wallet sign-in + 1 pay |
+| 4 | Bitrefill MCP | `payment_link` / Lightning | Human completes pay |
 
 **Avoid:** `@bitrefill/cli`, **pay-per-call browse** when Base wallet sign-in works, routing shopping via sandbox when MCP is live, datacenter browse checkout.
 
-**Dual-MCP:** both live → **Bitrefill MCP owns catalog/checkout**; **Base MCP owns pay** — don't duplicate browse via Base `web_request` or sandbox curl when Bitrefill MCP OAuth'd.
+**Dual-MCP:** both live → **Bitrefill MCP owns catalog/checkout**; **Coinbase Wallet MCP owns pay** — don't duplicate browse via its `web_request` or sandbox curl when Bitrefill MCP OAuth'd.
 
-## 7. Primary workflow — Bitrefill MCP + Base MCP
+## 7. Primary workflow — Bitrefill MCP + Coinbase Wallet MCP
 
-1. **Search** — `search-products(query, country=<Alpha-2>, product_type=...)`.
-2. **Detail** — `get-product-details(product_id, currency="USDC")` → exact `package_value` / `package_id`.
+1. **Search** — `search-products(query, country=<Alpha-2>, product_type=..., intent=<user's broad goal>)`; `intent` is required and non-empty, context only (results unchanged).
+2. **Detail** — `get-product-details(product_id, currency="USDC")` → exact `package_value` (string, e.g. `"5"`).
 3. **Confirm** — product, denomination, exact price with user before buy.
-4. **Buy** — `buy-products(cart_items=[...], payment_method="usdc_base", return_payment_link=true)` (or `"balance"` + `auto_pay: true` when pre-funded).
+4. **Buy** — `buy-products(cart_items=[...], payment_method="usdc_base", return_payment_link=false)` (or `"balance"` when pre-funded).
 5. **Pay** ([../wallets/payment.md](../wallets/payment.md)):
-   - **Best:** `payment_method: "balance"` + `auto_pay: true`.
-   - **Default USDC:** Base MCP `initiate_x402_request(url=x402_payment_url, method, maxPayment)` → user approves Base Account → `complete_x402_request(requestId)`. `maxPayment` slightly above `price_usd`.
-   - **Fallback:** Base MCP `send` to `payment_info.address` / `payment_info.altcoinPrice`.
+   - **Best:** `payment_method: "balance"`.
+   - **Default USDC:** Coinbase Wallet MCP `send(recipient=payment_info.address, amount=payment_info.altcoinPrice, asset="USDC", chain="base")` → user approves in Base Account → `get_request_status`.
+   - **Fallback:** `payment_link` (buy again with `return_payment_link=true`).
 6. **Poll** — `get-invoice-by-id(invoice_id)` until `invoice_status: complete` / `orders_delivery_status: all_delivered`.
 7. **Deliver** — `orders[].redemption_info`; log per safeguards; never paste codes in shared channels.
 
-MCP tools → [../touchpoints/mcp.md](../touchpoints/mcp.md). Base MCP pay → [../wallets/base-mcp.md](../wallets/base-mcp.md).
+MCP tools → [../touchpoints/mcp.md](../touchpoints/mcp.md). Coinbase Wallet MCP → [../wallets/base-mcp.md](../wallets/base-mcp.md).
 
 ## 8. Fallback — guest checkout via Base wallet
 
 When Bitrefill MCP unavailable (no OAuth, connector error, guest commerce):
 
-**Do not** fall back to pay-per-call browse (Path 2). **Do not** claim code execution is unavailable — use Base MCP `web_request` + `sign` when connected; sandbox + egress only when Base MCP missing.
+**Do not** fall back to pay-per-call browse (Path 2). **Do not** claim code execution is unavailable — use Coinbase Wallet MCP `web_request` + `sign` when connected; sandbox + egress only when it is missing.
 
 1. **Wallet sign-in once** — user approves Base sign message; session lasts ~2 h (agent holds token in memory only).
 2. Search → detail → create order (no per-search payment while signed in).
@@ -230,7 +231,7 @@ Primary button → host **`sendPrompt(text)`**. Prompt must carry context for ne
 | --- | --- | --- |
 | Search results | "See details for [product name]" | `get-product-details` or x402 detail |
 | Product detail | "Buy [amount] on [product name]" | `buy-products` or x402 create |
-| Invoice created | "Confirm and pay [amount] USDC" | Base MCP x402 pay |
+| Invoice created | "Confirm and pay [amount] USDC" | Coinbase Wallet MCP `send` (guest checkout: x402 pay) |
 | Payment confirmed | "Check delivery status" | `get-invoice-by-id` or x402 status poll |
 
 **Secondary CTA** = lateral escape only (new search, help, different product). Never forward in funnel.
@@ -276,8 +277,8 @@ Full policy → [../safeguards.md](../safeguards.md).
 
 - Route Bitrefill shopping via **sandbox HTTP** when MCP connectors are live — egress probe may pass, still use MCP.
 - Assume sandbox egress without probing — run §4 probe once per session when MCP absent.
-- Use **`Authorization`** on Base MCP (stripped) — use `X-Access-Token` + `sign-in-with-x`.
-- Base MCP `web_request` to `docs.bitrefill.com` (not allowlisted).
+- Use **`Authorization`** on Coinbase Wallet MCP (rejected) — use `X-Access-Token` + `sign-in-with-x`.
+- Coinbase Wallet MCP `web_request` to `docs.bitrefill.com` (not allowlisted).
 - Datacenter browse checkout (Cloudflare) — MCP/x402 only.
 - Shopping UI in **Artifacts** or raw HTML when `show_widget` available.
 - **Pay-per-call browse** when Base wallet sign-in works (the common Claude Chat mistake).
@@ -302,7 +303,7 @@ Full policy → [../safeguards.md](../safeguards.md).
 
 - Bitrefill Claude Chat: <https://docs.bitrefill.com/docs/use-with-claude-chat>
 - Anthropic code execution + network: <https://support.anthropic.com/en/articles/12111783-create-and-edit-files-with-claude>
-- MCP: [../touchpoints/mcp.md](../touchpoints/mcp.md) | x402: [../touchpoints/x402.md](../touchpoints/x402.md) | Base MCP: [../wallets/base-mcp.md](../wallets/base-mcp.md)
+- MCP: [../touchpoints/mcp.md](../touchpoints/mcp.md) | x402: [../touchpoints/x402.md](../touchpoints/x402.md) | Coinbase Wallet MCP: [../wallets/base-mcp.md](../wallets/base-mcp.md)
 - Routing: [decision-engine.md](decision-engine.md), [capability-matrix.md](capability-matrix.md)
 
 **User hears:** "Cerco la carta regalo…" → "Sign in with your Base wallet once" → "[Product] — [amount]: [total] USDC. Confirm?" → "Approve the payment in your Base Account" → "Your code is ready."

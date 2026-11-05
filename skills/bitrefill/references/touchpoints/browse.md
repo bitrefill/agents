@@ -1,4 +1,4 @@
-# Path: Browse the Website
+# Touchpoint: Browse the Website
 
 > Internal mechanics — never voiced. Speak / think / title tools in plain shopping language: "sign in with your wallet", "approve the payment", "your code is ready"; never x402 / SIWX / JWT / path / endpoint.
 

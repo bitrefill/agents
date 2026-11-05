@@ -1,7 +1,7 @@
 {
   "name": "bitrefill",
-  "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, crypto/x402/balance payments",
-  "version": "3.4.2",
+  "description": "Browse and buy gift cards, mobile top-ups, and eSIMs on Bitrefill — 1,500+ brands, 180+ countries, card, Apple Pay, Google Pay, crypto or balance payments",
+  "version": "3.4.1",
   "author": {
     "name": "Bitrefill",
     "email": "support@bitrefill.com"
@@ -20,5 +20,10 @@
     "x402",
     "usdc",
     "base"
-  ]
+  ],
+  "icon": "./assets/logo.png",
+  "documentationUrl": "https://github.com/bitrefill/agents#readme",
+  "supportUrl": "https://help.bitrefill.com",
+  "privacyPolicyUrl": "https://www.bitrefill.com/privacy/",
+  "termsOfServiceUrl": "https://www.bitrefill.com/terms/"
 }

@@ -2,11 +2,11 @@
 
 Instructions:
 - Be semantically dense and token efficient. Prefer concise, information-rich responses; avoid filler, repetition, and unnecessary elaboration.
-- Whene editing, never mention the previous version or the changes you made. All the contents must be authoritative and up to date.
+- When editing, never mention the previous version or the changes you made. All the contents must be authoritative and up to date.
 - Try abstracting instructions that can be applied to multiple cases
-- Avoid creating new sections as much as possible. Try updating exisiting knowledge instead.
+- Avoid creating new sections as much as possible. Try updating existing knowledge instead.
 
-This repository contains Bitrefill agent skills packaged as a portable **Agent Plugins 1.0 plugin**, with Codex, Claude and Cursor compatibility manifests. Skills live in the `skills/` directory and are distributed through the plugin system shared by Claude Code and Claude Cowork.
+This repository contains Bitrefill agent skills packaged as a portable **Agent Plugins 1.0 plugin**, with Codex, Claude Code / Cowork (plugin marketplace) and Cursor (also installed by Grok Bot) compatibility manifests. Skills live in `skills/`; every manifest bundles them with the eCommerce MCP.
 
 ## Installing the Plugin
 
@@ -18,11 +18,15 @@ This repository contains Bitrefill agent skills packaged as a portable **Agent P
 /reload-plugins
 ```
 
-Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `bitrefill/agents@v3.4.2`.
+Bundled **eCommerce MCP** ([`.mcp.json`](.mcp.json), OAuth on first call). Pin: `/plugin marketplace add bitrefill/agents#v3.4.1`.
 
 ### Claude Cowork
 
 Customize → Plugins → add `bitrefill/agents` → install **bitrefill**.
+
+### Cursor / Grok Bot
+
+Manifest [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json). Cursor: **Customize** → **Bitrefill** → **Install** when listed on Cursor Marketplace, else a local copy (§ Local Testing). Grok Bot installs it from that listing. Host guide → [grok-bot.md](skills/bitrefill/references/harnesses/grok-bot.md).
 
 ### claude.ai (Chat)
 
@@ -34,7 +38,9 @@ Connectors only → [skills/bitrefill/references/harnesses/claude-chat.md](skill
 claude --plugin-dir ./
 ```
 
-`/reload-plugins` after edits. `claude plugin validate .` before publish.
+`/reload-plugins` after edits. Cursor: copy (not symlink) the repo to `~/.cursor/plugins/local/bitrefill`, run **Developer: Reload Window**, check **Customize** lists the skill and the `bitrefill` connector.
+
+Before a release: `claude plugin validate .`. Its warning that this CLAUDE.md is not loaded as plugin context is expected, so CI runs it without `--strict`.
 
 ## Repository Structure
 
@@ -44,16 +50,21 @@ mcp.json               # Portable MCP configuration
 .codex-plugin/
   plugin.json          # Codex compatibility fallback
 .claude-plugin/
-  plugin.json          # Plugin manifest (name, version, author)
+  plugin.json          # Claude Code / Cowork manifest (name, version, directory listing links)
   marketplace.json     # Marketplace catalog listing the plugin
-.mcp.json              # Optional — MCP server definitions (eCommerce HTTP MCP for this repo)
 .cursor-plugin/
-  plugin.json          # Cursor / Grok Bot manifest (skills + .mcp.json)
-assets/logo.png        # Plugin logo
+  plugin.json          # Cursor / Grok Bot manifest (skills + .mcp.json, logo)
+.mcp.json              # eCommerce HTTP MCP, bundled by both manifests
+.github/workflows/
+  release.yml          # v*.*.* tag matching every version field → release with bitrefill.zip
+  check.yml            # Pull requests: JSON parse, plugin validate, link check
+assets/                # Plugin logo
+LICENSE                # MIT
 skills/
   <skill-name>/
     SKILL.md            # Required — frontmatter + agent instructions
     references/         # Optional — supporting docs, examples
+    scripts/            # Optional — helpers (bitrefill: wallet sign-in)
 ```
 
 The marketplace (`marketplace.json`) lists plugins available for installation. The plugin manifest (`plugin.json`) defines the plugin's identity. Skills inside `skills/` are auto-discovered when the plugin loads. MCP servers in `.mcp.json` start when the plugin is enabled.
@@ -70,32 +81,29 @@ The marketplace (`marketplace.json`) lists plugins available for installation. T
    ```
 3. Write agent instructions in the Markdown body (step-by-step, under 500 lines)
 4. Optionally add `references/` with detailed documentation
-5. Synchronize all release versions as described under Publishing Updates
+5. Bump versions → § Releasing Updates (skills are auto-discovered)
 
 ## Naming Conventions
 
 - Skill names: lowercase, hyphens only (e.g., `bitrefill`, `bitrefill-affiliate`)
 - Directory name **must match** the `name` field in SKILL.md frontmatter
-- Reserved words `anthropic` and `claude` cannot appear in skill names ([agentskills.io](https://agentskills.io/specification))
+- Reserved words `anthropic` and `claude` cannot appear in skill names ([Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#skill-structure))
 
-## Publishing Updates
+## Releasing Updates
 
-Keep the release version synchronized in root `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `.claude-plugin/marketplace.json` and skill metadata. Run `python -m unittest discover -s tests -v` and `python scripts/package_plugin.py --tag vX.Y.Z` before pushing the matching tag. The release ZIP excludes the marketplace catalog. OpenAI directory review requirements are tracked in `docs/openai-review.md`. Users run:
+Keep the release version synchronized in root `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `.claude-plugin/marketplace.json` (`metadata.version`), `skills/<name>/SKILL.md` (`metadata.version`) and the README, CLAUDE.md and `docs/openai-review.md` pins. Run `python -m unittest discover -s tests -v` and `python scripts/package_plugin.py --tag vX.Y.Z`, then after merge push tag `vX.Y.Z`: the release job fails unless every version matches, then publishes `bitrefill.zip` + `SHA256SUMS` (the ZIP excludes the marketplace catalog). OpenAI directory review requirements are tracked in `docs/openai-review.md`. Users update from the shell, or in a session with `/plugin` → **Installed** → **bitrefill** → **Update now**, then `/reload-plugins`:
 
 ```shell
-/plugin marketplace update bitrefill-skills
-/plugin update bitrefill@bitrefill-skills
-/reload-plugins
+claude plugin update bitrefill@bitrefill-skills
 ```
 
 ## Submitting to the Official Anthropic Directory
 
-To make the plugin available in the official Claude plugin directory (visible in both Claude Code and Cowork), submit via one of:
-- **Console**: [platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit)
-- **Claude.ai**: [claude.ai/settings/plugins/submit](https://claude.ai/settings/plugins/submit)
+Submit from [claude.ai/directory/manage](https://claude.ai/directory/manage) (paid claude.ai plan) after the [pre-submission checklist](https://claude.com/docs/plugins/pre-submission-checklist). The listing reads `icon`, `documentationUrl`, `supportUrl`, `privacyPolicyUrl` and `termsOfServiceUrl` from `.claude-plugin/plugin.json`.
 
 ## Specification
 
 - Plugin format: [Create plugins](https://code.claude.com/docs/en/plugins)
 - Marketplace format: [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
+- Cursor plugin format: [Building plugins](https://cursor.com/docs/plugins/building)
 - Skill format: [Agent Skills specification](https://agentskills.io/specification)
