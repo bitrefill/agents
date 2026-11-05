@@ -1,6 +1,7 @@
 ---
 name: bitrefill
 description: "Use when the user wants to browse or buy gift cards, mobile top-ups or eSIMs on Bitrefill, or manage Bitrefill orders. Detect available shopping and payment tools, check regional availability and pricing, and confirm purchases with the user. Do not activate for unrelated cryptocurrency, wallet or payment requests."
+license: MIT
 compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (wallet HTTP → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance + agent wallets (wallet matrix). OpenClaw + Claude Chat: dedicated harness guides."
 metadata:
   author: bitrefill
