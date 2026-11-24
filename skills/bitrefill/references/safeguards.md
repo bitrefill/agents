@@ -116,8 +116,6 @@ codex --sandbox workspace-write --ask-for-approval on-request
 }
 ```
 
-Also deny your SSH key directory in both lists.
-
 ### Claude Desktop / Claude.ai web
 
 Per-tool approval on default. Keep on. Don't whitelist `buy-products`.
