@@ -40,7 +40,7 @@ claude --plugin-dir ./
 
 `/reload-plugins` after edits. Cursor: copy (not symlink) the repo to `~/.cursor/plugins/local/bitrefill`, run **Developer: Reload Window**, check **Customize** lists the skill and the `bitrefill` connector.
 
-Before a release: `claude plugin validate .`. Its warning that this CLAUDE.md is not loaded as plugin context is expected, so CI runs it without `--strict`. Hermes: `hermes plugins validate . --install-deps` (Hermes ≥ 0.21.6); the `com.nousresearch.hermes` gate in `plugin.json` and the Desktop link in `touchpoints/mcp.md` § Hermes Agent carry the same values.
+Before a release: `claude plugin validate .`. Its warning that this CLAUDE.md is not loaded as plugin context is expected, so CI runs it without `--strict`. Hermes: `hermes plugins validate . --install-deps` (Hermes ≥ 0.22.3); the `com.nousresearch.hermes` gate in `plugin.json` and the Desktop link in `touchpoints/mcp.md` § Hermes Agent carry the same values.
 
 ## Repository Structure
 

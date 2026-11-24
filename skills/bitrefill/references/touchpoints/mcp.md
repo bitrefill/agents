@@ -47,7 +47,7 @@ Keep `buy-products` **out** of every allowlist → [../safeguards.md](../safegua
 
 ### Hermes Agent
 
-**Bitrefill** plugin (`hermes plugins install bitrefill/agents --enable`, Hermes ≥ 0.22.3) bundles eCommerce MCP via root `mcp.json` and has Hermes ask before every `buy-products`. Sign in once per profile, on the Hermes machine as the user that runs it (other profile: `hermes -p <profile> …`):
+**Bitrefill** plugin (`hermes plugins install bitrefill --enable`, Hermes ≥ 0.22.3) bundles eCommerce MCP via root `mcp.json` and has Hermes ask before every `buy-products`. Sign in once per profile, on the Hermes machine as the user that runs it (other profile: `hermes -p <profile> …`):
 
 ```shell
 hermes mcp add bitrefill --url https://api.bitrefill.com/mcp --auth oauth --connect-timeout 300

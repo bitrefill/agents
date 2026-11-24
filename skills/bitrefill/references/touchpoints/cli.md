@@ -12,6 +12,8 @@ Requires **`@bitrefill/cli` ≥ 0.3.0**. Sandboxed shells: allowlist `registry.n
 npm install -g @bitrefill/cli@0.3
 ```
 
+Hermes: no global install → [../harnesses/hermes.md](../harnesses/hermes.md).
+
 From source: `git clone https://github.com/bitrefill/cli.git && cd cli && pnpm install && pnpm build && npm link`.
 
 ## Guest checkout (fastest first try)
