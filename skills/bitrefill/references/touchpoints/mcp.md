@@ -60,6 +60,8 @@ Run the second line only after the first prints `Saved 'bitrefill'`; `hermes mcp
 hermes://mcp/install?name=bitrefill&config=eyJ1cmwiOiJodHRwczovL2FwaS5iaXRyZWZpbGwuY29tL21jcCIsImF1dGgiOiJvYXV0aCIsInRydXN0IjoidW50cnVzdGVkIiwidG9vbF9jb3N0cyI6eyJidXktcHJvZHVjdHMiOnsiY3JlZGl0cyI6MSwibm90ZSI6InJlYWwgbW9uZXk7IEhlcm1lcyBhc2tzIGJlZm9yZSBldmVyeSBvcmRlciJ9fSwic3BlbmRfbGltaXQiOjAuNSwiY29zdF91bml0Ijoib3JkZXJzIn0
 ```
 
+`config` is base64url of `{"url":"https://api.bitrefill.com/mcp","auth":"oauth","trust":"untrusted","tool_costs":{"buy-products":{"credits":1,"note":"real money; Hermes asks before every order"}},"spend_limit":0.5,"cost_unit":"orders"}`.
+
 ### Claude Code
 
 **bitrefill** plugin from this repo auto-registers eCommerce MCP via `.mcp.json`. Manual setup if plugin not installed:
