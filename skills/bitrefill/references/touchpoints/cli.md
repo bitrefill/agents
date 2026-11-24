@@ -27,7 +27,7 @@ bitrefill get-product-details --product_id "amazon_it-italy"
 bitrefill buy-products \
   --cart_items '[{"product_id":"amazon_it-italy","package_value":"10"}]' \
   --payment_method lightning \
-  --return_payment_link false \
+  --return_payment_link true \
   --email "agent@example.com"
 ```
 

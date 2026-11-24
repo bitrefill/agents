@@ -61,7 +61,7 @@ bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 | browse-only ∧ `browser_residential` | [../touchpoints/browse.md](../touchpoints/browse.md) |
 | else | send user `bitrefill.com` link |
 
-**Hermes override:** detect before OpenClaw (Hermes hosts keep `~/.openclaw/` after an import) → [hermes.md](hermes.md). Connector when `mcp__bitrefill__get_balances` exists, else guest CLI via `terminal`; Hermes asks before every connector order, never route around it; no self-settling payers.
+**Hermes override:** detect before OpenClaw (Hermes hosts keep `~/.openclaw/` after an import) → [hermes.md](hermes.md). Connector when an `mcp__bitrefill__*` tool or a deferred `bitrefill` server is listed, else guest CLI via `terminal`; Hermes asks before every connector order, never route around it; no self-settling payers.
 
 **OpenClaw override:** detect first → [openclaw.md](openclaw.md). Guest CLI via `exec` before MCP when no OAuth.
 
