@@ -59,7 +59,7 @@ Grok Bot: keep Auto-review on; Settings → General → Auto-review → Custom R
 
 The plugin marks `bitrefill` `trust: untrusted` and prices `buy-products` above the per-chat spend limit, so Hermes asks before every order, also under `/yolo` and `approvals.mode: off`; each answer covers only that order (0.22.3–0.22.5 also offer **Session** / **Always**, which still cover one). Hermes declines in cron, one-shot (`hermes -z`, `-Q`) and other unattended runs. `hermes mcp add bitrefill` keeps that limit while the plugin is enabled but resets trust: once it saves, run `hermes config set mcp_servers.bitrefill.trust untrusted`. Disabling or removing the plugin drops the limit: `hermes mcp remove bitrefill` first. **Never** answer **Always**, buy under `/yolo`, or set `spend_limit` to `0`. Autonomous buying = the user setting `trust: full` and `spend_limit` to the orders allowed per chat, from a dedicated low-balance account; the skill still buys only in a local session, never in cron or chat apps. Gateway: allow only yourself; every chat of the profile shares its sign-in, and its order prompt goes to whoever is in the chat, so the skill buys with the connector only in a local session.
 
-`terminal` and `execute_code` have no purchase prompt. Keep the Bitrefill CLI signed out on this machine (`whoami --json` → `"identity":"unregistered"`) and run `hermes tools disable code_execution` on the buying profile (gateway: add `--platform <platform>`); `execute_code` skips `approvals.deny`. Then block signed-in CLI buys, x402 payers and self-reconfiguration in `terminal` with `approvals.deny`, checked before `/yolo`, `approvals.mode: off` and cron — a backstop for plain commands, not obfuscated ones:
+`terminal` and `execute_code` have no purchase prompt. Keep the Bitrefill CLI signed out on this machine (`whoami --json` → `"identity":"unregistered"`) and run `hermes tools disable code_execution` on the buying profile (gateway: add `--platform <platform>`); `execute_code` skips `approvals.deny`. Then block signed-in Bitrefill CLI buys and self-reconfiguration in `terminal` with `approvals.deny`, checked before `/yolo`, `approvals.mode: off` and cron — a backstop for plain commands, not obfuscated ones:
 
 ```yaml
 approvals:
@@ -70,8 +70,6 @@ approvals:
     - "*bitrefill* login*--email*"
     - "*bitrefill* verify*--code*"
     - "*bitrefill-cli*"
-    - "*awal*x402*pay*"
-    - "*x402/invoice/pay*"
     - "*hermes*config*set*"
     - "*hermes*config.yaml*"
     - "*hermes*mcp*add*"
@@ -83,7 +81,7 @@ approvals:
     - "*mcp-tokens*"
 ```
 
-`approvals.deny` sees `terminal` only, not MCP tools: a wallet MCP that pays on its own (AgentCash `fetch` is marked read-only, so trust does not stop it) can settle a Bitrefill invoice unprompted. Price its paying tool above the limit (`mcp_servers.<wallet>.tool_costs: {<tool>: 1}`, `spend_limit: 0.5`) or keep it out of the shopping profile.
+Wallets keep their own approvals and caps: the skill pays an invoice from a wallet once, after the user's yes, and a wallet that pays without asking (AgentCash, `awal` within its caps) pays on that yes. In a chat app the yes comes from whoever is in the chat. For a Hermes prompt as well, price the wallet's paying tool above a limit (`mcp_servers.<wallet>.tool_costs: {<tool>: 1}`, `spend_limit: 0.5`; AgentCash `fetch` is marked read-only, so trust alone does not stop it).
 
 ### Codex CLI
 

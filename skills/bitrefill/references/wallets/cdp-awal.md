@@ -42,7 +42,7 @@ Docs: [docs.cdp.coinbase.com/agentic-wallet](https://docs.cdp.coinbase.com/agent
 
 ## Hosts
 
-Codex CLI, OpenClaw (`exec`), any shell host except Hermes → [../harnesses/hermes.md](../harnesses/hermes.md).
+Codex CLI, OpenClaw (`exec`), Hermes (`terminal`), any shell host.
 
 ## Example
 
