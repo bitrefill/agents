@@ -63,7 +63,7 @@ bitrefill_balance   = signed-in MCP/CLI with pre-funded balance
 
 **Hermes override:** detect before OpenClaw (Hermes hosts keep `~/.openclaw/` after an import) → [hermes.md](hermes.md). Connector when an `mcp__bitrefill__*` tool or a deferred `bitrefill` server is listed, else guest CLI via `terminal`; Hermes asks before every connector order, never route around it; a wallet the agent has pays the invoice after the confirm, under its own approvals and caps.
 
-**OpenClaw override:** detect first → [openclaw.md](openclaw.md). Guest CLI via `exec` before MCP when no OAuth.
+**OpenClaw override:** detect after Hermes → [openclaw.md](openclaw.md). Guest CLI via `exec` before MCP when no OAuth.
 
 **Grok Bot / Cursor override:** detect → [grok-bot.md](grok-bot.md). Connector signed in (`get-balances` visible) → MCP + `balance`; else guest CLI; no shell → `bitrefill.com` link.
 

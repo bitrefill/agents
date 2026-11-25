@@ -15,7 +15,7 @@ metadata:
 
 Digital goods (gift cards, mobile top-ups, eSIMs) — 180+ countries, 1,500+ brands. Pay: crypto, Lightning, USDC x402, pre-funded balance, card, Apple Pay, Google Pay.
 
-Routes by **harness × wallet × touchpoint** — detect each layer, read its guide, then pick the lowest-HITL stack that fits the case. Follow the host instructions and the user's explicit choices over routing and style defaults. Never bypass permissions or conceal charges, authentication failures or side effects. Inspect tools actually available in the session; host capabilities and account access can vary.
+Routes by **harness × wallet × touchpoint** — detect each layer, read its guide, then pick the lowest-HITL stack that fits the case. Hermes Agent: read [hermes.md](references/harnesses/hermes.md) before the first Bitrefill tool call. Follow the host instructions and the user's explicit choices over routing and style defaults. Never bypass permissions or conceal charges, authentication failures or side effects. Inspect tools actually available in the session; host capabilities and account access can vary.
 
 ## User-facing language
 

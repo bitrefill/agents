@@ -65,12 +65,13 @@ Full wallet matrix → [../wallets/matrix.md](../wallets/matrix.md).
 
 ## Quick decision
 
-1. OpenClaw? → [openclaw.md](openclaw.md) — guest CLI first.
-2. Claude Chat (claude.ai + `show_widget`)? → [claude-chat.md](claude-chat.md) — MCP-first + generative UI.
-3. Grok Bot or Cursor? → [grok-bot.md](grok-bot.md) — connected account via MCP, else guest CLI.
-4. `search-products` visible? → [../touchpoints/mcp.md](../touchpoints/mcp.md) + [../wallets/payment.md](../wallets/payment.md).
-5. x402 wallet, no Bitrefill account? → [../touchpoints/x402.md](../touchpoints/x402.md) Path 1.
-6. Shell, no MCP? → [../touchpoints/cli.md](../touchpoints/cli.md).
-7. Else → [decision-engine.md](decision-engine.md) full probe.
+1. Hermes? → [hermes.md](hermes.md) — plugin connector, else guest CLI via `npx`.
+2. OpenClaw? → [openclaw.md](openclaw.md) — guest CLI first.
+3. Claude Chat (claude.ai + `show_widget`)? → [claude-chat.md](claude-chat.md) — MCP-first + generative UI.
+4. Grok Bot or Cursor? → [grok-bot.md](grok-bot.md) — connected account via MCP, else guest CLI.
+5. `search-products` visible? → [../touchpoints/mcp.md](../touchpoints/mcp.md) + [../wallets/payment.md](../wallets/payment.md).
+6. x402 wallet, no Bitrefill account? → [../touchpoints/x402.md](../touchpoints/x402.md) Path 1.
+7. Shell, no MCP? → [../touchpoints/cli.md](../touchpoints/cli.md).
+8. Else → [decision-engine.md](decision-engine.md) full probe.
 
 **User hears:** never host names or ranked stacks — open with the product goal.
