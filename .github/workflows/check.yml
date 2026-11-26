@@ -54,3 +54,18 @@ jobs:
                       print(f'::error file={md}::broken link {link}')
                       bad = 1
           sys.exit(bad)
+
+  hermes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The same check the Hermes plugin catalog runs at admission. The action and the Hermes
+      # source are pinned to one release commit; bump both together.
+      - name: Validate the plugin with Hermes
+        uses: NousResearch/hermes-agent/.github/actions/plugin-validate@8fc0374447313e276f6b9a2764bfc750190c966a # v0.23.4
+        with:
+          path: ${{ github.workspace }}
+          hermes-ref: 8fc0374447313e276f6b9a2764bfc750190c966a

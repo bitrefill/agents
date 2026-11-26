@@ -66,6 +66,6 @@ jobs:
             Digital-goods commerce requires OpenAI policy review. Live MCP/OAuth
             tests, demo recording, reviewer access, scans and attestations must be
             completed before directory submission.
-            [OpenAI review preparation](https://github.com/bitrefill/agents/blob/${{ github.ref_name }}/docs/openai-review.md).
+            OpenAI review preparation: https://github.com/bitrefill/agents/blob/${{ github.ref_name }}/docs/openai-review.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

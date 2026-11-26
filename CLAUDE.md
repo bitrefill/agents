@@ -57,7 +57,7 @@ mcp.json               # Portable MCP configuration
 .mcp.json              # eCommerce HTTP MCP, bundled by both manifests
 .github/workflows/
   release.yml          # v*.*.* tag matching every version field → release with bitrefill.zip
-  check.yml            # Pull requests: JSON parse, plugin validate, link check
+  check.yml            # Pull requests: JSON parse, plugin validate (Claude, Hermes), link check
 assets/                # Plugin logo
 LICENSE                # MIT
 skills/
@@ -91,7 +91,7 @@ The marketplace (`marketplace.json`) lists plugins available for installation. T
 
 ## Releasing Updates
 
-Keep the release version synchronized in root `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `.claude-plugin/marketplace.json` (`metadata.version`), `skills/<name>/SKILL.md` (`metadata.version`) and the README, CLAUDE.md and `docs/openai-review.md` pins. Run `python -m unittest discover -s tests -v` and `python scripts/package_plugin.py --tag vX.Y.Z`, then after merge push tag `vX.Y.Z`: the release job fails unless every version matches, then publishes `bitrefill.zip` + `SHA256SUMS` (the ZIP excludes the marketplace catalog). OpenAI directory review requirements are tracked in `docs/openai-review.md`. Hermes installs a catalog pin: `plugin-catalog/bitrefill.yaml` in NousResearch/hermes-agent names the release's 40-hex `sha` and `version`, so every release needs a catalog PR bumping both; Hermes users then run `hermes plugins update bitrefill`. Claude Code users update from the shell, or in a session with `/plugin` → **Installed** → **bitrefill** → **Update now**, then `/reload-plugins`:
+Keep the release version synchronized in root `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `.claude-plugin/marketplace.json` (`metadata.version`), `skills/<name>/SKILL.md` (`metadata.version`) and the README, CLAUDE.md, `docs/openai-review.md` and `docs/hermes-catalog.md` pins. Run `python -m unittest discover -s tests -v` and `python scripts/package_plugin.py --tag vX.Y.Z`, then after merge push tag `vX.Y.Z`: the release job fails unless every version matches, then publishes `bitrefill.zip` + `SHA256SUMS` (the ZIP excludes the marketplace catalog). OpenAI directory review requirements are tracked in `docs/openai-review.md`. Hermes installs a catalog pin: `plugin-catalog/bitrefill.yaml` in NousResearch/hermes-agent names the release's 40-hex `sha` and `version`, so every release needs a catalog PR bumping both ([docs/hermes-catalog.md](docs/hermes-catalog.md) holds the entry and PR text); Hermes users then run `hermes plugins update bitrefill`. Claude Code users update from the shell, or in a session with `/plugin` → **Installed** → **bitrefill** → **Update now**, then `/reload-plugins`:
 
 ```shell
 claude plugin update bitrefill@bitrefill-skills
