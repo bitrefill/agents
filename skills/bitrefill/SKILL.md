@@ -5,7 +5,7 @@ license: MIT
 compatibility: "Routes by harness × touchpoint × wallet. Touchpoints: Bitrefill MCP (OAuth), x402 REST (wallet HTTP → api.bitrefill.com), CLI ≥0.3.0, v2 REST, residential browse. Wallets: Bitrefill balance + agent wallets (wallet matrix). Harness guides: OpenClaw, Claude Chat, Grok Bot/Cursor, Hermes."
 metadata:
   author: bitrefill
-  version: "4.0.0"
+  version: "4.1.0"
   homepage: "https://www.bitrefill.com"
   docs: "https://docs.bitrefill.com"
   repository: "https://github.com/bitrefill/agents"
