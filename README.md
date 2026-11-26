@@ -51,6 +51,26 @@ hermes mcp add bitrefill --url https://api.bitrefill.com/mcp --auth oauth --conn
 hermes config set mcp_servers.bitrefill.trust untrusted
 ```
 
+```mermaid
+flowchart TD
+  A["Install the plugin"] --> B["Ask Hermes to buy"]
+  B --> C{"Bitrefill account connected?"}
+  C -- yes --> M["Bitrefill connector:<br/>Hermes asks before each order"]
+  C -- no --> Q{"Connect your account<br/>or continue as guest?"}
+  Q -- "connect (sign in on the Hermes machine)" --> M
+  Q -- guest --> W{"Agent's wallet"}
+  W -- "none, or one that sends" --> G["Guest order:<br/>Bitrefill CLI via npx"]
+  W -- "pays only x402 (AgentCash)" --> X["x402 checkout,<br/>paid by that wallet"]
+  M --> P{"Who pays, after your yes"}
+  G --> P
+  P -- "your Bitrefill balance (connected account)" --> D["Code delivered in the chat"]
+  P -- "the agent's wallet sends the exact amount" --> D
+  P -- "you pay the link or address yourself" --> D
+  X --> D
+```
+
+Every route quotes the total first and waits for your yes. In chat apps (Telegram, Discord…) the agent doesn't ask to connect and orders go the guest way.
+
 `bitrefill` is the Hermes plugin catalog entry. The plugin marks the server untrusted so Hermes asks before every order; `mcp add` resets that, so run the last line only after it prints `Saved 'bitrefill'`. Root [`plugin.json`](plugin.json) + [`mcp.json`](mcp.json) give Hermes the skill and the connector; `mcp add` signs in with your Bitrefill account (OAuth; Hermes stores the tokens per profile). Sign in on the Hermes machine, not in chat; SSH and Hermes Desktop → [mcp.md](skills/bitrefill/references/touchpoints/mcp.md) § Hermes Agent. Connector purchases spend real money: Hermes asks before every order, also under `/yolo`, each answer covers only that order, and the connector never buys in cron or other unattended runs. That prompt comes from the plugin, so run `hermes mcp remove bitrefill` before you disable or remove it. Every chat of a signed-in profile (Telegram, Discord…) shares its Bitrefill account, so the skill buys with it only in a local session (CLI, TUI, Desktop); in a chat app it only searches and quotes from your account (never balances, orders or codes) and checks out as a guest. On the gateway, allow only yourself: Hermes's session search lets any allowed user read earlier sessions, codes included. Without sign-in the skill checks out as a guest by running `npx -y @bitrefill/cli@0.3.0` in the terminal (needs Node.js; downloads the CLI and its dependencies from npm into the npm cache; sends your email to api.bitrefill.com; keeps a guest token in `~/.config/bitrefill-cli/`; no Hermes prompt, since it only opens invoices you pay by link or crypto). Until you sign in, Hermes logs at startup that the `bitrefill` connector returned 401; that is expected. Hermes keeps tool results in its local session history, including a guest invoice's access token, which unlocks the code: treat that history as private. If the agent has a crypto wallet (a wallet MCP or CLI), the skill pays crypto invoices from it after your yes; a wallet that only pays x402 (AgentCash) runs the whole order on Bitrefill's x402 checkout instead, signed in with the wallet's address. That wallet's own approvals and caps decide whether it asks again, and in a chat app the yes comes from whoever is in the chat. Hardening for `terminal` and `execute_code` → [safeguards.md](skills/bitrefill/references/safeguards.md) § Hermes. Tools and their instructions come from Bitrefill's server at runtime, not from the installed commit; without the skill loaded, those instructions point the model at `https://www.bitrefill.com/agents/SKILL.md`. Tool results reach your model provider. Feedback sends Bitrefill the note with your account id, IP, user agent and country; the skill sends it only when you ask. The skill's wallet sign-in scripts are for other hosts. Host guide → [hermes.md](skills/bitrefill/references/harnesses/hermes.md). Bitrefill [Terms](https://www.bitrefill.com/terms/) and [Privacy Policy](https://www.bitrefill.com/privacy/) apply.
 
 ### skills CLI
