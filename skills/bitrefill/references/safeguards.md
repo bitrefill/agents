@@ -81,7 +81,7 @@ approvals:
     - "*mcp-tokens*"
 ```
 
-Wallets keep their own approvals and caps: the skill pays an invoice from a wallet once, after the user's yes, and a wallet that pays without asking (AgentCash, `awal` within its caps) pays on that yes. In a chat app the yes comes from whoever is in the chat. For a Hermes prompt as well, price the wallet's paying tool above a limit (`mcp_servers.<wallet>.tool_costs: {<tool>: 1}`, `spend_limit: 0.5`; AgentCash `fetch` is marked read-only, so trust alone does not stop it).
+Wallets keep their own approvals and caps: the skill pays an invoice from a wallet once, after the user's yes, and a wallet that pays without asking (AgentCash, `awal` within its caps) pays on that yes. In a chat app the yes comes from whoever is in the chat. For a Hermes prompt as well, price the wallet's paying tool above a limit (`mcp_servers.<wallet>.tool_costs: {<tool>: 1}`, `spend_limit: 0.5`; AgentCash `fetch` is marked read-only, so trust alone does not stop it, and once priced every `fetch` asks, lookups included).
 
 ### Codex CLI
 
