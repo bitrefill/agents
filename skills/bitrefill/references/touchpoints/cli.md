@@ -12,6 +12,8 @@ Requires **`@bitrefill/cli` ≥ 0.3.0**. Sandboxed shells: allowlist `registry.n
 npm install -g @bitrefill/cli@0.3
 ```
 
+Hermes: no global install → [../harnesses/hermes.md](../harnesses/hermes.md).
+
 From source: `git clone https://github.com/bitrefill/cli.git && cd cli && pnpm install && pnpm build && npm link`.
 
 ## Guest checkout (fastest first try)
@@ -34,6 +36,8 @@ Response: `invoice_id`, `invoice_access_token`, `payment_link`; `payment_info` (
 Guest payment: crypto from a wallet (`--return_payment_link false`) or `payment_link`; card / Apple Pay / Google Pay: `--payment_method fiat_card` (or `apple_pay` / `google_pay`) `--billing_address '{"country":"US","city":"…","postal_code":"…","address_line1":"…"}'` (Apple Pay / Google Pay: `country` only) → send `payment_link`. Pay → [../wallets/payment.md](../wallets/payment.md). **`balance` / `cashback` need signed-in account** (below).
 
 ## Sign up / sign in (balance, cashback, order history)
+
+Not on Hermes → [../harnesses/hermes.md](../harnesses/hermes.md).
 
 After guest try, sign in when human wants **managed agent spending** or **rewards**:
 

@@ -48,7 +48,7 @@ Claude Chat: `show_widget` **or** `read_me` **or** MCP connectors on claude.ai �
 | **Grok Bot** | Cloud computer | Direct + MCP | Yes (plugin connector) | — | Connected account: MCP + balance; else guest CLI → link ([grok-bot.md](grok-bot.md)) |
 | OpenCode | Full shell | Direct + MCP | Yes | MCP | MCP + balance → CLI |
 | **OpenClaw / Pi** | `exec` | Host IP | Yes | Host IP | **Guest CLI exec** → balance → MCP → x402 |
-| **Hermes** | `terminal` | Backend-dependent | Yes | Local/CDP | MCP (API key cron) → CLI → avoid cloud browse |
+| **Hermes** → [hermes.md](hermes.md) | `terminal` | Backend-dependent | Yes — plugin connector (OAuth) | Local/CDP | MCP (Hermes asks every order; never cron) → guest CLI (`npx`) → link; any wallet pays crypto invoices after the confirm; an x402-only wallet runs the whole order on x402 |
 
 ## Wallet availability by host
 
@@ -65,12 +65,13 @@ Full wallet matrix → [../wallets/matrix.md](../wallets/matrix.md).
 
 ## Quick decision
 
-1. OpenClaw? → [openclaw.md](openclaw.md) — guest CLI first.
-2. Claude Chat (claude.ai + `show_widget`)? → [claude-chat.md](claude-chat.md) — MCP-first + generative UI.
-3. Grok Bot or Cursor? → [grok-bot.md](grok-bot.md) — connected account via MCP, else guest CLI.
-4. `search-products` visible? → [../touchpoints/mcp.md](../touchpoints/mcp.md) + [../wallets/payment.md](../wallets/payment.md).
-5. x402 wallet, no Bitrefill account? → [../touchpoints/x402.md](../touchpoints/x402.md) Path 1.
-6. Shell, no MCP? → [../touchpoints/cli.md](../touchpoints/cli.md).
-7. Else → [decision-engine.md](decision-engine.md) full probe.
+1. Hermes? → [hermes.md](hermes.md) — plugin connector, else guest CLI via `npx`; an x402-only wallet → x402 checkout.
+2. OpenClaw? → [openclaw.md](openclaw.md) — guest CLI first.
+3. Claude Chat (claude.ai + `show_widget`)? → [claude-chat.md](claude-chat.md) — MCP-first + generative UI.
+4. Grok Bot or Cursor? → [grok-bot.md](grok-bot.md) — connected account via MCP, else guest CLI.
+5. `search-products` visible? → [../touchpoints/mcp.md](../touchpoints/mcp.md) + [../wallets/payment.md](../wallets/payment.md).
+6. x402 wallet, no Bitrefill account? → [../touchpoints/x402.md](../touchpoints/x402.md) Path 1.
+7. Shell, no MCP? → [../touchpoints/cli.md](../touchpoints/cli.md).
+8. Else → [decision-engine.md](decision-engine.md) full probe.
 
 **User hears:** never host names or ranked stacks — open with the product goal.

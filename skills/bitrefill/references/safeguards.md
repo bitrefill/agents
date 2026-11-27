@@ -55,6 +55,34 @@ Auto-run read-only tools; **never** allowlist `buy-products`. Purchase sessions:
 
 Grok Bot: keep Auto-review on; Settings → General → Auto-review → Custom Rules → **Ask first** "before any Bitrefill buy-products call"; never **Always allow** a `buy-products` approval; codes in 1:1 chat only → [harnesses/grok-bot.md](harnesses/grok-bot.md).
 
+### Hermes
+
+The plugin marks `bitrefill` `trust: untrusted` and prices `buy-products` above the per-chat spend limit, so Hermes asks before every order, also under `/yolo` and `approvals.mode: off`; each answer covers only that order (0.22.3–0.22.5 also offer **Session** / **Always**, which still cover one). Hermes declines in cron, one-shot (`hermes -z`, or `chat -q` with `-Q` or no terminal) and other unattended runs. `hermes mcp add bitrefill` keeps that limit while the plugin is enabled but resets trust: once it saves, run `hermes config set mcp_servers.bitrefill.trust untrusted`. Disabling or removing the plugin drops the limit: `hermes mcp remove bitrefill` first. **Never** answer **Always** or set `spend_limit` to `0`. Autonomous buying = the user setting `trust: full` and `spend_limit` to the orders allowed per chat, from a dedicated low-balance account, then opting in in chat with a cap; the skill still buys only in a local session, never in cron or chat apps. Gateway: allow only yourself; every chat of the profile shares its sign-in, its order prompt goes to whoever is in the chat, and `session_search` lets any allowed user read earlier sessions, codes included, so the skill buys with the connector only in a local session.
+
+`terminal` and `execute_code` have no purchase prompt. Keep the Bitrefill CLI signed out on this machine (`whoami --json` → `"identity":"unregistered"`) and run `hermes tools disable code_execution` on the buying profile (gateway: add `--platform <platform>`); `execute_code` skips `approvals.deny`. Then block signed-in Bitrefill CLI buys and self-reconfiguration in `terminal` with `approvals.deny`, checked before `/yolo`, `approvals.mode: off` and cron — a backstop for plain commands, not obfuscated ones:
+
+```yaml
+approvals:
+  deny:
+    - "*bitrefill*buy-products*--payment_method*balance*"
+    - "*bitrefill*buy-products*--payment_method*cashback*"
+    - "*bitrefill*buy-products*--saved_fiat_card_id*"
+    - "*bitrefill* login*--email*"
+    - "*bitrefill* verify*--code*"
+    - "*bitrefill-cli*"
+    - "*hermes*config*set*"
+    - "*hermes*config.yaml*"
+    - "*hermes*mcp*add*"
+    - "*hermes*plugins*disable*"
+    - "*hermes*plugins*remove*"
+    - "*hermes*plugins*uninstall*"
+    - "*hermes*plugins*rm *"
+    - "*hermes*tools*enable*"
+    - "*mcp-tokens*"
+```
+
+Wallets keep their own approvals and caps: the skill pays an invoice from a wallet once, after the user's yes, and a wallet that pays without asking (AgentCash, `awal` within its caps) pays on that yes. In a chat app the yes comes from whoever is in the chat. For a Hermes prompt as well, price the wallet's paying tool above a limit (`mcp_servers.<wallet>.tool_costs: {<tool>: 1}`, `spend_limit: 0.5`; AgentCash `fetch` is marked read-only, so trust alone does not stop it, and once priced every `fetch` asks, lookups included).
+
 ### Codex CLI
 
 ```bash
@@ -143,6 +171,6 @@ Default: pre-fund `balance` on dedicated account → `payment_method: "balance"`
 - ToS: <https://www.bitrefill.com/terms/> | Refunds: <https://docs.bitrefill.com/docs/refunds>
 - Routing: [harnesses/decision-engine.md](harnesses/decision-engine.md)
 - Touchpoints: [touchpoints/mcp.md](touchpoints/mcp.md), [touchpoints/cli.md](touchpoints/cli.md), [touchpoints/x402.md](touchpoints/x402.md)
-- OpenClaw: [harnesses/openclaw.md](harnesses/openclaw.md) | Claude Chat: [harnesses/claude-chat.md](harnesses/claude-chat.md)
+- OpenClaw: [harnesses/openclaw.md](harnesses/openclaw.md) | Claude Chat: [harnesses/claude-chat.md](harnesses/claude-chat.md) | Grok Bot / Cursor: [harnesses/grok-bot.md](harnesses/grok-bot.md) | Hermes: [harnesses/hermes.md](harnesses/hermes.md)
 
 **User hears:** confirm as a clean receipt — "[Product] — [amount]: [total] USDC. Confirm?" (card / Apple Pay / Google Pay: [total] USD; iDEAL / EPS / P24 / Bancontact: [total] EUR; balance: its sub-account). Non-refundable once, neutrally at delivery: "Your code is ready — keep it safe, not refundable once issued."
